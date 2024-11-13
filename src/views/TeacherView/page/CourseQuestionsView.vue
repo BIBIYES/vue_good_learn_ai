@@ -3,27 +3,35 @@
     <!-- 课程信息 -->
     <div class="course-info">
       <h2>
-        
+
         编辑课程题目
       </h2>
       <div class="course-details">
         <div class="detail-item">
-          <el-icon class="info-icon"><Memo /></el-icon>
+          <el-icon class="info-icon">
+            <Memo />
+          </el-icon>
           <strong>课程ID：</strong>
           <span>{{ courseId }}</span>
         </div>
         <div class="detail-item">
-          <el-icon class="info-icon"><Document /></el-icon>
+          <el-icon class="info-icon">
+            <Document />
+          </el-icon>
           <strong>课程名称：</strong>
           <span>{{ courseInfo.courseName }}</span>
         </div>
         <div class="detail-item">
-          <el-icon class="info-icon"><Calendar /></el-icon>
+          <el-icon class="info-icon">
+            <Calendar />
+          </el-icon>
           <strong>创建时间：</strong>
           <span>{{ courseInfo.courseCreatedDate }}</span>
         </div>
         <div class="detail-item">
-          <el-icon class="info-icon"><Refresh /></el-icon>
+          <el-icon class="info-icon">
+            <Refresh />
+          </el-icon>
           <strong>更新时间：</strong>
           <span>{{ courseInfo.courseUpdatedDate }}</span>
         </div>
@@ -32,6 +40,7 @@
 
     <!-- 表格头部，右上角放置添加按钮 -->
     <div class="table-header">
+
       <download-excel class="el-button" :data="questions.list" type="xlsx" name="filename.xlsx">
         <i class="el-icon">
           <img src="../../../assets/img/Excel.svg" style="height: 20px; margin-right: 10px;">
@@ -40,7 +49,9 @@
       </download-excel>
       <el-button type="primary" :icon="Plus" @click="showAddDialog">添加新题目</el-button>
     </div>
-
+    <el-drawer v-model="testQuestionView" title="测试该题目">
+      <TestQuestion ></TestQuestion>
+    </el-drawer>
     <!-- 表格显示题目列表 -->
     <el-table stripe :data="questions.list" style="width: 100%">
       <el-table-column prop="questionId" label="题目ID" width="120" />
@@ -48,8 +59,11 @@
       <el-table-column prop="questionContent" label="题目内容" />
       <el-table-column prop="answer" label="参考答案" />
       <el-table-column label="操作" width="250">
+
         <template #default="scope">
-          <el-button size="small" @click="editDialog(scope.row)">测试题目</el-button>
+          
+
+          <el-button size="small" @click="handelTestQuestions()">测该题目</el-button>
           <el-button size="small" @click="editDialog(scope.row)">编辑</el-button>
           <el-button size="small" type="danger" @click="confirmDelete(scope.row.questionId)">删除</el-button>
         </template>
@@ -57,14 +71,8 @@
     </el-table>
 
     <!-- 分页组件 -->
-    <el-pagination
-      background
-      layout="total, prev, pager, next, sizes"
-      :total="questions.total"
-      :page-size="pageSize"
-      :current-page="currentPage"
-      :page-sizes="[10, 20, 30, 50]"
-      @size-change="handleSizeChange"
+    <el-pagination background layout="total, prev, pager, next, sizes" :total="questions.total" :page-size="pageSize"
+      :current-page="currentPage" :page-sizes="[10, 20, 30, 50]" @size-change="handleSizeChange"
       @current-change="handlePageChange">
     </el-pagination>
 
@@ -75,7 +83,8 @@
           <el-input v-model="newQuestion.questionTitle" />
         </el-form-item>
         <el-form-item label="题目内容">
-          <VMarkdownEditor v-model="newQuestion.questionContent" locale="zh" content="在这里输入题干，可以选用markdown语法" mode="dark" style="min-height: 500px;" />
+          <VMarkdownEditor v-model="newQuestion.questionContent" locale="zh" content="在这里输入题干，可以选用markdown语法"
+            mode="dark" style="min-height: 500px;" />
         </el-form-item>
         <el-form-item label="参考答案">
           <el-input type="textarea" autosize placeholder="请输入内容" v-model="newQuestion.answer" />
@@ -86,7 +95,7 @@
         <el-button @click="addDialogVisible = false">取消</el-button>
         <el-button type="primary" @click="addQuestion">添加</el-button>
       </template>
-      <BatchUploadQuestions :courseId="courseId" :userId ="userStore.id"></BatchUploadQuestions>
+      <BatchUploadQuestions :courseId="courseId" :userId="userStore.id"></BatchUploadQuestions>
     </el-dialog>
 
     <!-- 编辑题目的弹窗 -->
@@ -96,7 +105,8 @@
           <el-input v-model="editingQuestion.questionTitle" />
         </el-form-item>
         <el-form-item label="题目内容">
-          <VMarkdownEditor v-model="editingQuestion.questionContent" locale="zh" content="在这里输入题干，可以选用markdown语法" mode="dark" style="min-height: 500px;" />
+          <VMarkdownEditor v-model="editingQuestion.questionContent" locale="zh" content="在这里输入题干，可以选用markdown语法"
+            mode="dark" style="min-height: 500px;" />
         </el-form-item>
         <el-form-item label="参考答案">
           <el-input type="textarea" autosize placeholder="请输入内容" v-model="editingQuestion.answer" />
@@ -113,7 +123,7 @@
 
 
 <script setup lang="ts">
-import { Plus,Memo,Document,Calendar,Refresh } from '@element-plus/icons-vue'
+import { Plus, Memo, Document, Calendar, Refresh } from '@element-plus/icons-vue'
 import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { ElMessageBox, ElMessage } from 'element-plus'
@@ -148,7 +158,7 @@ const HandelSelectQuestionsByCourseId = async () => {
       total: res.data.total || 0
     }
   } catch (error) {
-    console.error('获取题目列表失败:', error)
+    console.error('没有题目', error)
   }
 }
 
@@ -258,8 +268,14 @@ const confirmDelete = (questionId: number) => {
         ElMessage({ type: 'error', message: '题目删除失败' })
       }
     })
-    .catch(() => {})
+    .catch(() => { })
 }
+
+const testQuestionView = ref(false)
+const handelTestQuestions = ()=>{
+  testQuestionView.value = true
+}
+
 </script>
 
 <style scoped>
@@ -318,9 +334,11 @@ const confirmDelete = (questionId: number) => {
 .el-table td {
   text-align: center;
 }
-.el-table{
+
+.el-table {
   border-radius: 10px;
 }
+
 .el-button {
   margin: 5px 5px;
 }

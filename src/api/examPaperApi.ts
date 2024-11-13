@@ -33,3 +33,9 @@ export function updateExamPaperById(
 ) {
   return request.put(`/exam-papers/${examPaperId}`, data) // PUT 请求用于更新试卷
 }
+
+// 获取试卷中用户的状态
+export const getExamPaperUserStatus = (examPaperId:number)=>{
+  return request.get(`/studentExamPapers/${examPaperId}`)
+
+}

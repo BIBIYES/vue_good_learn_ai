@@ -1,5 +1,6 @@
 import axios from 'axios'
 import type { AxiosInstance } from 'axios'
+import { messageTools } from './messageTools'
 
 const request: AxiosInstance = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL,
@@ -24,6 +25,9 @@ request.interceptors.response.use(
     // 对响应数据做点什么
     const data = response.data
     // console.log(data)
+    if(data.code === 500){
+      messageTools.errorMessage(data.msg)
+    }
 
     return data
   },

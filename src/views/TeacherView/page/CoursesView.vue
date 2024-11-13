@@ -3,41 +3,40 @@
     <div class="header">
       <h2>我的课程</h2>
       <el-button type="primary" @click="showAddCourseDialog">
-        <el-icon><Plus /></el-icon> 添加课程
+        <el-icon>
+          <Plus />
+        </el-icon> 添加课程
       </el-button>
     </div>
 
     <el-row v-if="courses.length > 0" :gutter="20">
-      <el-col
-        :xs="24"
-        :sm="12"
-        :md="8"
-        :lg="6"
-        v-for="course in courses"
-        :key="course.courseId"
-      >
-        <el-card
-          class="course-card"
-          shadow="hover"
-          @click="goToCourseDetail(course.courseId)"
-        >
+      <el-col :xs="24" :sm="12" :md="8" :lg="6" v-for="course in courses" :key="course.courseId">
+        <el-card class="course-card" shadow="hover" @click="goToCourseDetail(course.courseId)">
           <div class="course-icon">
-            <el-icon :size="40" color="#409EFF"><Reading /></el-icon>
+            <el-icon :size="40" color="#409EFF">
+              <Reading />
+            </el-icon>
           </div>
           <div class="course-info">
             <h3 class="course-name">{{ course.courseName }}</h3>
             <p class="course-date">
-              <el-icon><Calendar /></el-icon>
+              <el-icon>
+                <Calendar />
+              </el-icon>
               更新时间: {{ formatDate(course.courseUpdatedDate) }}
             </p>
           </div>
           <div class="course-actions">
             <el-button link @click.stop="editCourse(course.courseId)">
-              <el-icon><Edit /></el-icon>
+              <el-icon>
+                <Edit />
+              </el-icon>
               编辑
             </el-button>
             <el-button link @click.stop="deleteCourse(course.courseId)">
-              <el-icon><Delete /></el-icon>
+              <el-icon>
+                <Delete />
+              </el-icon>
               删除
             </el-button>
           </div>
@@ -45,10 +44,7 @@
       </el-col>
     </el-row>
 
-    <!-- 如果没有课程，显示提示信息 -->
-    <div v-else class="no-courses">
-      <el-empty description="暂无课程" />
-    </div>
+
 
     <!-- 添加课程的弹窗 -->
     <el-dialog title="添加课程" v-model="isAddCourseDialogVisible">
@@ -76,7 +72,7 @@ import { useRouter } from 'vue-router'
 import { deleteCourseById, updateCourse } from '@/api/courseApi'
 import { selectCoursesByUserId, insertCourse } from '@/api/userApi'
 import { useUserStore } from '@/stores/userStore'
-import { ElLoading, ElMessageBox, ElMessage } from 'element-plus'
+import { ElMessageBox, ElMessage } from 'element-plus'
 import { Plus, Reading, Calendar, Edit, Delete } from '@element-plus/icons-vue'
 
 const courses = ref<any[]>([])
@@ -87,30 +83,24 @@ const editingCourseName = ref('')
 const editingCourseId = ref<number | null>(null)
 const router = useRouter()
 const userStore = useUserStore()
-let loadingInstance: any = null
+
 
 const fetchCourses = async () => {
   try {
-    loadingInstance = ElLoading.service({
-      text: '加载中...',
-      background: 'rgba(0, 0, 0, 0.7)'
-    })
+
     const res = await selectCoursesByUserId(userStore.id)
     courses.value = res.data || []
   } catch (error) {
     console.error('获取课程失败:', error)
   } finally {
-    if (loadingInstance) loadingInstance.close()
+
   }
 }
 
 const addCourse = async () => {
   if (!newCourseName.value) return
   try {
-    loadingInstance = ElLoading.service({
-      text: '正在添加...',
-      background: 'rgba(0, 0, 0, 0.7)'
-    })
+
     await insertCourse(userStore.id, {
       courseName: newCourseName.value
     })
@@ -128,7 +118,7 @@ const addCourse = async () => {
       message: '添加课程失败'
     })
   } finally {
-    if (loadingInstance) loadingInstance.close()
+
   }
 }
 
@@ -144,10 +134,7 @@ const deleteCourse = async (courseId: number) => {
   })
     .then(async () => {
       try {
-        loadingInstance = ElLoading.service({
-          text: '正在删除...',
-          background: 'rgba(0, 0, 0, 0.7)'
-        })
+
         await deleteCourseById(courseId)
         ElMessage({
           type: 'success',
@@ -161,7 +148,6 @@ const deleteCourse = async (courseId: number) => {
         })
         console.error('删除课程失败:', error)
       } finally {
-        if (loadingInstance) loadingInstance.close()
       }
     })
     .catch(() => {
@@ -184,10 +170,7 @@ const editCourse = (courseId: number) => {
 const confirmEditCourse = async () => {
   if (!editingCourseName.value || editingCourseId.value === null) return
   try {
-    loadingInstance = ElLoading.service({
-      text: '正在更新...',
-      background: 'rgba(0, 0, 0, 0.7)'
-    })
+
     await updateCourse(editingCourseId.value, {
       courseName: editingCourseName.value
     })
@@ -204,7 +187,7 @@ const confirmEditCourse = async () => {
       message: '更新课程失败'
     })
   } finally {
-    if (loadingInstance) loadingInstance.close()
+
   }
 }
 

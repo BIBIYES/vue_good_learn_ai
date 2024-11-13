@@ -45,11 +45,6 @@
       </el-col>
     </el-row>
 
-    <!-- 如果没有试卷，显示提示信息 -->
-    <div v-else class="no-exam-papers">
-      <el-empty description="暂无试卷" />
-    </div>
-
     <!-- 添加试卷的弹窗 -->
     <el-dialog title="添加试卷" v-model="isAddExamPaperDialogVisible">
       <el-input v-model="newExamPaperName" placeholder="输入试卷名称" />
@@ -92,31 +87,25 @@ const editingExamPaperName = ref('')
 const editingExamPaperId = ref<number | null>(null)
 const router = useRouter()
 const userStore = useUserStore()
-let loadingInstance: any = null
+
 
 const HandelSelectExamPapersByUserId = async () => {
   try {
-    loadingInstance = ElLoading.service({
-      text: '加载中...',
-      background: 'rgba(0, 0, 0, 0.7)'
-    })
+    
     const res = await selectExamPapersByUserId(userStore.id)
     examPapers.value = res.data || []
   } catch (error) {
     console.error('获取试卷失败:', error)
     ElMessage.error('获取试卷失败')
   } finally {
-    if (loadingInstance) loadingInstance.close()
+    
   }
 }
 
 const addExamPaper = async () => {
   if (!newExamPaperName.value) return
   try {
-    loadingInstance = ElLoading.service({
-      text: '正在添加...',
-      background: 'rgba(0, 0, 0, 0.7)'
-    })
+    
     await insertExamPaperByUserId(userStore.id, {
       examPaperName: newExamPaperName.value
     })
@@ -128,7 +117,7 @@ const addExamPaper = async () => {
     console.error('添加试卷失败:', error)
     ElMessage.error('添加试卷失败')
   } finally {
-    if (loadingInstance) loadingInstance.close()
+    
   }
 }
 
@@ -144,10 +133,7 @@ const confirmDeleteExam = (examPaperId: number) => {
   })
     .then(async () => {
       try {
-        loadingInstance = ElLoading.service({
-          text: '正在删除...',
-          background: 'rgba(0, 0, 0, 0.7)'
-        })
+        
         await deleteExamPaperById(examPaperId)
         ElMessage.success('删除成功')
         await HandelSelectExamPapersByUserId()
@@ -155,7 +141,7 @@ const confirmDeleteExam = (examPaperId: number) => {
         console.error('删除试卷失败:', error)
         ElMessage.error('删除失败')
       } finally {
-        if (loadingInstance) loadingInstance.close()
+       
       }
     })
     .catch(() => {
@@ -175,10 +161,7 @@ const editExamPaper = (examPaperId: number) => {
 const confirmEditExamPaper = async () => {
   if (!editingExamPaperName.value || editingExamPaperId.value === null) return
   try {
-    loadingInstance = ElLoading.service({
-      text: '正在更新...',
-      background: 'rgba(0, 0, 0, 0.7)'
-    })
+  
     await updateExamPaperById(editingExamPaperId.value, {
       examPaperName: editingExamPaperName.value
     })
@@ -189,7 +172,7 @@ const confirmEditExamPaper = async () => {
     console.error('更新试卷失败:', error)
     ElMessage.error('更新试卷失败')
   } finally {
-    if (loadingInstance) loadingInstance.close()
+   
   }
 }
 

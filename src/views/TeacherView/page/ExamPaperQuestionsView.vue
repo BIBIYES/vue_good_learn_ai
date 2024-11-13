@@ -1,7 +1,7 @@
 <script setup>
 import { Edit } from '@element-plus/icons-vue'
 import { useUserStore } from '@/stores/userStore'
-import { selectExamPaperById } from '@/api/examPaperApi'
+import { selectExamPaperById, getExamPaperUserStatus } from '@/api/examPaperApi'
 import { selectCoursesByUserId } from '@/api/userApi'
 import { selectCourseByIdSearch } from '@/api/courseApi'
 import {
@@ -12,7 +12,7 @@ import { onMounted, ref, nextTick } from 'vue'
 import { useRoute } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { messageTools } from '@/utils/messageTools'
-import {Notebook ,Calendar,Document} from '@element-plus/icons-vue'
+import { Notebook, Calendar, Document, View } from '@element-plus/icons-vue'
 
 const router = useRoute()
 const userStore = useUserStore()
@@ -97,20 +97,20 @@ const questionsList = ref([])
 // 搜索触发
 const handelSelectQuestionsByCourseIdSearch = async () => {
 
-  
-    currentCourseId.value = courseId
-    const res = await selectCourseByIdSearch(courseId.value, keyWord.value)
-    questionsList.value = res.data
-    if(res.code === 200){
-      messageTools.successMessage(res.msg)
-    }
-    else{
-      messageTools.warningMessage(res.msg)
-    }
-    await nextTick()
-    setSelectedRows()
 
- 
+  currentCourseId.value = courseId
+  const res = await selectCourseByIdSearch(courseId.value, keyWord.value)
+  questionsList.value = res.data
+  if (res.code === 200) {
+    messageTools.successMessage(res.msg)
+  }
+  else {
+    messageTools.warningMessage(res.msg)
+  }
+  await nextTick()
+  setSelectedRows()
+
+
 }
 
 const handelSelectQuestionsByCourseId = async (id) => {
@@ -185,12 +185,57 @@ const setSelectedRows = () => {
     console.error('multipleTableRef is not available')
   }
 }
+// 存放当前试卷用户提交状态
+const examPaperUserStatus = ref([])
+// 获取当前试卷用户的状态
+const handelGetExamPaperUserStatus = () => {
+  getExamPaperUserStatus(examPaperId).then((res) => {
+    examPaperUserStatus.value = res.data
+  })
+}
 
+// 计算试卷完成属性
+const completionStatus = computed(() => {
+  if (examPaperUserStatus.value.length === 0) {
+    return 0
+  }
+  const sum = examPaperUserStatus.value.length
+  const completed = examPaperUserStatus.value.filter(item => item.status === "已完成").length
+  return parseFloat(((completed / sum) * 100).toFixed(2))
+})
+
+// 过滤器
+const filteredExamPaperUserStatus = computed(() => {
+  // 如果没有过滤器生效，则返回所有数据
+  if (!selectedStatusFilter.value) {
+    return examPaperUserStatus.value
+  }
+  // 否则返回匹配的状态数据
+  return examPaperUserStatus.value.filter(
+    (user) => user.status === selectedStatusFilter.value
+  )
+})
+
+// 当前过滤器的状态
+const selectedStatusFilter = ref(null)
+
+// 过滤状态方法
+const filterStatus = (value, row) => {
+  if (value) {
+    selectedStatusFilter.value = value
+  } else {
+    selectedStatusFilter.value = null
+  }
+  return row.status === value
+}
+// 侧边栏显示控制
+const drawer = ref(false)
 const multipleTableRef = ref()
 
 onMounted(async () => {
   await handelSelectExamPaperById()
   await handelSelectExamPaperQuestionsByExamPaperId()
+  await handelGetExamPaperUserStatus()
 })
 </script>
 
@@ -199,23 +244,35 @@ onMounted(async () => {
     <!-- 试卷信息展示 -->
     <div class="exam-paper-container">
       <h2>
-      试卷信息
+        试卷信息
       </h2>
+      <div class="demo-progress">
+        <el-progress :percentage="completionStatus" :indeterminate="true" color="#3370ff"><span>{{ completionStatus }}
+            完成率</span></el-progress>
+      </div>
       <div class="exam-paper-details">
         <div class="detail-item">
-          <el-icon :size="18"><Notebook /></el-icon>
+          <el-icon :size="18">
+            <Notebook />
+          </el-icon>
           <span><strong>试卷ID: </strong>{{ examPaper.examPaperId }}</span>
         </div>
         <div class="detail-item">
-          <el-icon :size="18"><Document /></el-icon>
+          <el-icon :size="18">
+            <Document />
+          </el-icon>
           <span><strong>试卷名称：</strong>{{ examPaper.examPaperName }}</span>
         </div>
         <div class="detail-item">
-          <el-icon :size="18"><Calendar /></el-icon>
+          <el-icon :size="18">
+            <Calendar />
+          </el-icon>
           <span><strong>创建时间：</strong>{{ examPaper.examPaperCreatedDate }}</span>
         </div>
         <div class="detail-item">
-          <el-icon :size="18"><Calendar /></el-icon>
+          <el-icon :size="18">
+            <Calendar />
+          </el-icon>
           <span><strong>更新时间：</strong>{{ examPaper.examPaperUpdatedDate }}</span>
         </div>
       </div>
@@ -223,9 +280,32 @@ onMounted(async () => {
 
     <!-- 编辑按钮 -->
     <div class="controller-box">
+      <!-- 侧边栏 -->
+      <el-drawer v-model="drawer" title="完成情况详情"  >
+        <el-table :data="filteredExamPaperUserStatus" stripe style="width: 100%" height="100%">
+          <el-table-column prop="username" label="姓名" width="180" />
+          <el-table-column prop="joinDate" label="加入时间" width="180" />
+          <el-table-column prop="status" label="状态" :filters="[
+            { text: '已完成', value: '已完成' },
+            { text: '未完成', value: '未完成' }
+          ]" :filter-method="filterStatus">
+            <template v-slot="scope">
+              <el-tag :type="scope.row.status === '已完成' ? 'success' : 'danger'">
+                {{ scope.row.status }}
+              </el-tag>
+            </template>
+          </el-table-column>
+        </el-table>
+      </el-drawer>
+
+      <el-button style="margin-left: 16px" @click="drawer = true" :icon="View">
+       
+        查看完成情况
+      </el-button>
       <el-button type="primary" :icon="Edit" @click="HandelDialogTableVisible()">
         编辑试卷
       </el-button>
+
     </div>
 
     <!-- 已关联题目列表 -->
@@ -264,7 +344,8 @@ onMounted(async () => {
             <el-table-column label="题目创建日期" property="questionCreatedDate" />
             <el-table-column align="right">
               <template #header>
-                <el-input v-model="keyWord" @keyup.enter="handelSelectQuestionsByCourseIdSearch"  placeholder="输入标题按下回车来搜索" />
+                <el-input v-model="keyWord" @keyup.enter="handelSelectQuestionsByCourseIdSearch"
+                  placeholder="输入标题按下回车来搜索" />
               </template>
             </el-table-column>
           </el-table>
@@ -284,6 +365,10 @@ onMounted(async () => {
 
 <style lang="less" scoped>
 /* 试卷信息的样式 */
+.demo-progress {
+  width: 400px;
+}
+
 .exam-paper-container {
   border: 1px solid #ccc;
   border-radius: 8px;
@@ -337,8 +422,10 @@ h2 {
   align-items: center;
   justify-content: flex-end;
   padding-right: 20px;
-  margin-top: 20px; /* 顶部间距调整 */
-  margin-bottom: 20px; /* 底部间距调整，确保与表格之间的间距 */
+  margin-top: 20px;
+  /* 顶部间距调整 */
+  margin-bottom: 20px;
+  /* 底部间距调整，确保与表格之间的间距 */
 }
 
 /* 试卷题目列表的样式 */

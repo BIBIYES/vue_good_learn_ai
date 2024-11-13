@@ -17,7 +17,7 @@ export function selectQuestionsByCourseId(courseId: number, pageNum: number = 1,
 }
 
 export const selectCourseByIdSearch = (courseId: number, keyWord: string) => {
-  return request.get(`/courses/${courseId}/questions/search`,{
+  return request.get(`/courses/${courseId}/questions/search`, {
     params: {
       keyWord
     }
