@@ -8,6 +8,7 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     BatchUploadQuestions: typeof import('./../components/BatchUploadQuestions.vue')['default']
+    CheckQuestionBox: typeof import('./../components/CheckQuestionBox.vue')['default']
     CourseCard: typeof import('./../components/CourseCard.vue')['default']
     ElAside: typeof import('element-plus/es')['ElAside']
     ElAvatar: typeof import('element-plus/es')['ElAvatar']
@@ -40,6 +41,8 @@ declare module 'vue' {
     ElTable: typeof import('element-plus/es')['ElTable']
     ElTableColumn: typeof import('element-plus/es')['ElTableColumn']
     ElTag: typeof import('element-plus/es')['ElTag']
+    ElTooltip: typeof import('element-plus/es')['ElTooltip']
+    MarkdownContext: typeof import('./../components/common/MarkdownContext.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     TestQuestion: typeof import('./../components/TestQuestion.vue')['default']

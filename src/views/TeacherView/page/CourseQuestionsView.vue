@@ -49,8 +49,8 @@
       </download-excel>
       <el-button type="primary" :icon="Plus" @click="showAddDialog">添加新题目</el-button>
     </div>
-    <el-drawer v-model="testQuestionView" title="测试该题目">
-      <TestQuestion ></TestQuestion>
+    <el-drawer v-model="testQuestionView" title="测试该题目" size="40%">
+      <TestQuestion :questionsData="questionRow" ></TestQuestion>
     </el-drawer>
     <!-- 表格显示题目列表 -->
     <el-table stripe :data="questions.list" style="width: 100%">
@@ -63,7 +63,7 @@
         <template #default="scope">
           
 
-          <el-button size="small" @click="handelTestQuestions()">测该题目</el-button>
+          <el-button size="small" @click="handelTestQuestions(scope.row)">测该题目</el-button>
           <el-button size="small" @click="editDialog(scope.row)">编辑</el-button>
           <el-button size="small" type="danger" @click="confirmDelete(scope.row.questionId)">删除</el-button>
         </template>
@@ -133,6 +133,7 @@ import { useUserStore } from '@/stores/userStore'
 import type { Course } from '@/models/CourseModel'
 import { VMarkdownEditor } from 'vue3-markdown'
 import 'vue3-markdown/dist/style.css'
+import { da } from 'element-plus/es/locales.mjs'
 
 // 获取路由参数中的课程ID
 const route = useRoute()
@@ -272,7 +273,11 @@ const confirmDelete = (questionId: number) => {
 }
 
 const testQuestionView = ref(false)
-const handelTestQuestions = ()=>{
+const questionRow = ref({})
+const handelTestQuestions = (data:object)=>{
+  console.log(data);
+  questionRow.value = data
+  
   testQuestionView.value = true
 }
 

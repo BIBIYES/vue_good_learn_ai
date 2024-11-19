@@ -51,7 +51,16 @@ const router = createRouter({
           component: () =>
             import('@/views/TeacherView/page/ExamPaperQuestionsView.vue'), // 跳转到试卷详情页
           props: true // 通过 props 传递路由参数
+        },
+        {
+          path:"/check-page/:userId/:examPaperId",
+          name:"check-page",
+          meta:{
+            title:"好助学-试卷检查"
+          },
+          component:()=>import("@/views/TeacherView/page/CheckPage.vue")
         }
+
       ]
     },
     {

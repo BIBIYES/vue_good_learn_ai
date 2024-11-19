@@ -1,24 +1,18 @@
 <template>
   <el-container style="height: 100vh; border: 1px solid #dcdfe6">
     <!-- 侧边栏，包括头像和菜单 -->
-    <el-aside
-      width="80px"
-      style="
+    <el-aside width="80px" style="
         background-color: white;
         padding-top: 20px;
         padding-bottom: 20px;
         display: flex;
         flex-direction: column;
         align-items: center;
-      "
-    >
+      ">
       <!-- 用户头像下拉菜单 -->
       <el-dropdown @command="handleCommand" trigger="click">
         <div style="margin-bottom: 30px; cursor: pointer">
-          <el-avatar
-            src="https://s21.ax1x.com/2024/10/05/pA8a5C9.jpg"
-            size="large"
-          ></el-avatar>
+          <el-avatar src="https://s21.ax1x.com/2024/10/05/pA8a5C9.jpg" size="large"></el-avatar>
         </div>
         <template #dropdown>
           <el-dropdown-menu>
@@ -29,15 +23,13 @@
       </el-dropdown>
 
       <!-- 菜单 -->
-      <el-menu
-        :default-active="activeIndex"
-        class="menu-container"
-        :router="true"
-      >
+      <el-menu :default-active="activeIndex" class="menu-container" :router="true">
         <!-- 我的课程菜单项 -->
         <el-menu-item index="/teacher/course">
           <div class="menu-item-container">
-            <el-icon class="menu-icon"><DataAnalysis /></el-icon>
+            <el-icon class="menu-icon">
+              <DataAnalysis />
+            </el-icon>
             <div class="menu-text">我的课程</div>
           </div>
         </el-menu-item>
@@ -45,11 +37,27 @@
         <!-- 我的试卷菜单项 -->
         <el-menu-item index="/teacher/exam-papers">
           <div class="menu-item-container">
-            <el-icon class="menu-icon"><Notebook /></el-icon>
+            <el-icon class="menu-icon">
+              <Notebook />
+            </el-icon>
             <div class="menu-text">我的试卷</div>
           </div>
         </el-menu-item>
       </el-menu>
+      <div class="icon">
+        <div class="item">
+          <el-tooltip class="box-item" effect="light" content="反馈问题给作者" placement="right">
+            <img src="@/assets/img/tencent-qq.svg" alt="QQ" @click="navigateToLink('https://qm.qq.com/q/Uezs3opRMQ')">
+          </el-tooltip>
+        </div>
+        <div class="item">
+          <el-tooltip class="box-item" effect="light" content="前往作者首页" placement="right">
+            <img src="@/assets/img/github-mark.svg" alt="github" @click="navigateToLink('https://github.com/BIBIYES')">
+          </el-tooltip>
+        </div>
+      </div>
+
+
     </el-aside>
 
     <!-- 主内容区 -->
@@ -69,6 +77,11 @@ import { DataAnalysis, Notebook } from '@element-plus/icons-vue'
 const userStore = useUserStore()
 const router = useRouter()
 const route = useRoute()
+
+
+const navigateToLink = (url: String) => {
+  window.location.href = `${url}`
+}
 
 // 计算当前激活的菜单项
 const activeIndex = computed(() => {
@@ -127,6 +140,30 @@ const logout = () => {
   justify-content: space-between;
   transition: all 0.3s ease;
   margin-bottom: 20px;
+}
+
+.icon {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  flex-direction: column;
+  width: 100%;
+  margin: 0 auto;
+  height: 100px;
+
+
+}
+
+.item {
+  width: 100%;
+  height: 30px;
+  display: flex;
+  justify-content: center;
+  align-items: center
+}
+
+img {
+  height: 100%;
 }
 
 .menu-item-container {

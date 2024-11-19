@@ -14,12 +14,14 @@ import { ElMessage } from 'element-plus'
 import { messageTools } from '@/utils/messageTools'
 import { Notebook, Calendar, Document, View } from '@element-plus/icons-vue'
 
-const router = useRoute()
+
+const route = useRoute()
+const router = useRouter()
 const userStore = useUserStore()
 // 用户id
 const userId = userStore.id
 // 试卷id
-const examPaperId = router.params.examPaperId
+const examPaperId = parseInt(route.params.examPaperId)
 
 // 试卷信息
 const examPaper = ref({
@@ -231,7 +233,11 @@ const filterStatus = (value, row) => {
 // 侧边栏显示控制
 const drawer = ref(false)
 const multipleTableRef = ref()
+const navigateToDetails = (userId, examPaperId) => {
+  console.log(userId, examPaperId)
+  router.push(`/check-page/${userId}/${examPaperId}`)
 
+}
 onMounted(async () => {
   await handelSelectExamPaperById()
   await handelSelectExamPaperQuestionsByExamPaperId()
@@ -281,10 +287,18 @@ onMounted(async () => {
     <!-- 编辑按钮 -->
     <div class="controller-box">
       <!-- 侧边栏 -->
-      <el-drawer v-model="drawer" title="完成情况详情"  >
+      <el-drawer v-model="drawer" title="完成情况详情" size="30%">
         <el-table :data="filteredExamPaperUserStatus" stripe style="width: 100%" height="100%">
-          <el-table-column prop="username" label="姓名" width="180" />
+          <el-table-column label="姓名" width="180">
+            <template v-slot="scope">
+              <el-button @click="navigateToDetails(scope.row.userId, examPaperId)">
+                {{ scope.row.username }}
+              </el-button>
+            </template>
+          </el-table-column>
+
           <el-table-column prop="joinDate" label="加入时间" width="180" />
+
           <el-table-column prop="status" label="状态" :filters="[
             { text: '已完成', value: '已完成' },
             { text: '未完成', value: '未完成' }
@@ -296,10 +310,10 @@ onMounted(async () => {
             </template>
           </el-table-column>
         </el-table>
+
       </el-drawer>
 
       <el-button style="margin-left: 16px" @click="drawer = true" :icon="View">
-       
         查看完成情况
       </el-button>
       <el-button type="primary" :icon="Edit" @click="HandelDialogTableVisible()">
