@@ -49,7 +49,7 @@
       </download-excel>
       <el-button type="primary" :icon="Plus" @click="showAddDialog">添加新题目</el-button>
     </div>
-    <el-drawer v-model="testQuestionView" title="测试该题目" size="40%">
+    <el-drawer v-model="testQuestionView" title="测试该题目" size="40%" :destroy-on-close="true" @close="() => questionRow = {}">
       <TestQuestion :questionsData="questionRow" ></TestQuestion>
     </el-drawer>
     <!-- 表格显示题目列表 -->
@@ -124,7 +124,7 @@
 
 <script setup lang="ts">
 import { Plus, Memo, Document, Calendar, Refresh } from '@element-plus/icons-vue'
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { ElMessageBox, ElMessage } from 'element-plus'
 import { createQuestion, deleteQuestionById, updateQuestion } from '@/api/questionApi'
@@ -274,10 +274,8 @@ const confirmDelete = (questionId: number) => {
 
 const testQuestionView = ref(false)
 const questionRow = ref({})
-const handelTestQuestions = (data:object)=>{
-  console.log(data);
+const handelTestQuestions = (data:object) => {
   questionRow.value = data
-  
   testQuestionView.value = true
 }
 

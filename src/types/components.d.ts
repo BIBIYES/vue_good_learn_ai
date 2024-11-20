@@ -10,6 +10,7 @@ declare module 'vue' {
     BatchUploadQuestions: typeof import('./../components/BatchUploadQuestions.vue')['default']
     CheckQuestionBox: typeof import('./../components/CheckQuestionBox.vue')['default']
     CourseCard: typeof import('./../components/CourseCard.vue')['default']
+    ElAlert: typeof import('element-plus/es')['ElAlert']
     ElAside: typeof import('element-plus/es')['ElAside']
     ElAvatar: typeof import('element-plus/es')['ElAvatar']
     ElButton: typeof import('element-plus/es')['ElButton']

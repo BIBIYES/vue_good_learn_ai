@@ -15,33 +15,59 @@
         </div>
       </transition>
 
-      <div class="input-container" :class="{ 'rainbow-border': isRainbow }">
+      <div class="input-container">
         <el-input v-model="answers[currentQuestionIndex]" type="textarea" placeholder="请输入你的答案"
-          :autosize="{ minRows: 4, maxRows: 10 }"></el-input>
-        <button class="circle-button" @click="fetchAiAnswer()" :disabled="isFetching"></button>
+          :autosize="{ minRows: 4, maxRows: 10 }" @paste.native="preventPasteInput" onpaste="return false"></el-input>
       </div>
       <div class="ai-container markdown-body" v-if="aiAnswers[currentQuestionIndex]">
-        <div v-html="marked(aiAnswers[currentQuestionIndex])"></div>
+        <div class="ai-header">
+          <img src="../../../assets/bot.svg" alt="AI Logo" class="ai-logo">
+          <span class="ai-title">龙梦GPT回应</span>
+        </div>
+        <div class="ai-content">
+          <div v-html="marked(filteredAiAnswer)"></div>
+          
+          <el-alert
+            v-if="currentAnswerValidity !== null"
+            :title="currentAnswerValidity ? '回答正确！' : '回答错误，请查看反馈并修改。'"
+            :type="currentAnswerValidity ? 'success' : 'error'"
+            :description="currentAnswerValidity ? '你的答案符合要求，可以继续下一题。' : '请根据上方的反馈修改你的答案。'"
+            show-icon
+            :closable="false"
+            style="margin-top: 15px;"
+          />
+        </div>
       </div>
 
       <div class="button-group">
         <el-button type="primary" :icon="ArrowLeft" v-if="currentQuestionIndex > 0" @click="previousQuestion">
           上一题
         </el-button>
-        <el-button type="primary" :icon="ArrowRight" v-if="currentQuestionIndex < questions.length - 1"
-          @click="nextQuestion">
-          下一题
+        
+        <el-button 
+          type="warning" 
+          @click="handleSendQuestion()" 
+          :loading="isFetching"
+          :disabled="isFetching">
+          {{ isFetching ? '正在检验' : '检验答案' }}
         </el-button>
-        <el-button type="success" :icon="Check" v-else @click="HandelSubmitAnswer()">
-          提交试卷
-        </el-button>
+        
+        <template v-if="currentAnswerValidity">
+          <el-button type="primary" :icon="ArrowRight" v-if="currentQuestionIndex < questions.length - 1"
+            @click="nextQuestion">
+            下一题
+          </el-button>
+          <el-button type="success" :icon="Check" v-else @click="HandelSubmitAnswer()">
+            提交试卷
+          </el-button>
+        </template>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed, watch, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { marked } from 'marked'
@@ -50,6 +76,8 @@ import { selectExamPaperQuestionsByExamPaperId } from '@/api/examPaperQuestionAp
 import { submitAnswer } from '@/api/studentAnswerApi'
 import { useUserStore } from '@/stores/userStore'
 import { messageTools } from '@/utils/messageTools'
+import { fastgpt } from '@/utils/FastGpt';
+const { isLoading, error, results, sendQuestion } = fastgpt();
 import 'github-markdown-css/github-markdown.css'
 
 const userStore = useUserStore()
@@ -60,67 +88,99 @@ const userId = userStore.id
 const questions = ref([])
 const currentQuestionIndex = ref(0)
 const answers = ref([])
-const isRainbow = ref(false)
 const isFetching = ref(false)
-// 存储每道题ai的回答
-const aiAnswers = ref([])
+// 存储每道题的ai回答
+const aiAnswers = ref([]) // 用于存储所有题目的AI回答
+const rawAiAnswer = ref('') // 用于存储当前题目的原始回答
 
-const fetchAiAnswer = async () => {
-  // 如果用户输入的答案为空则不请求ai
+// 修改计算属性
+const filteredAiAnswer = computed(() => {
+  if (!rawAiAnswer.value) return '';
+  // 移除包含 #valid# 或 #invalid# 的最后一行
+  return rawAiAnswer.value.replace(/\n.*#(valid|invalid)#.*$/g, '');
+});
+
+// 修改答案验证的计算属性
+const currentAnswerValidity = computed(() => {
+  if (!rawAiAnswer.value) return null;
+  
+  if (/#invalid#/i.test(rawAiAnswer.value)) {
+    return false;
+  }
+  if (/#valid#/i.test(rawAiAnswer.value)) {
+    return true;
+  }
+  return null;
+});
+
+/**
+ * 发送问题
+ */
+const handleSendQuestion = () => {
   if (!answers.value[currentQuestionIndex.value]) {
-    messageTools.warningMessage('请输入答案后再请求AI')
+    messageTools.warningMessage('请输入答案后再检验')
     return
   }
+
   if (isFetching.value) return
   isFetching.value = true
-  isRainbow.value = true
+
+  // 清除当前题目的AI回答
+  rawAiAnswer.value = ''
+  aiAnswers.value[currentQuestionIndex.value] = ''
 
   const prompt =
     questions.value[currentQuestionIndex.value].questionContent +
     '我的答案是' +
     answers.value[currentQuestionIndex.value] +
-    '请问正确吗？'
+    '参考答案是'+
+    questions.value[currentQuestionIndex.value].answer +
+    '请问正确吗？请先给出详细解释，之后在回答最后一行用#valid#表示正确，用#invalid#表示错误'
+console.log(prompt);
 
-  // 初始化aiAnswer为空串
-  aiAnswers.value[currentQuestionIndex.value] = ''
-
-  const eventSource = new EventSource(
-    `${import.meta.env.VITE_API_BASE_URL}/chat/sse?prompt=${encodeURIComponent(prompt)}`
-  )
-
-
-  eventSource.onmessage = (event) => {
-    // 将接收到的数据追加到当前的 aiAnswer
-    aiAnswers.value[currentQuestionIndex.value] += event.data
-  }
-
-  eventSource.onerror = (error) => {
-    console.error('发生错误:', error)
-    eventSource.close()
-    isFetching.value = false
-    isRainbow.value = false
-  }
-
-  eventSource.onopen = () => {
-    console.log('连接已打开')
-  }
-
-  eventSource.addEventListener('end', () => {
-    eventSource.close()
-    isFetching.value = false
-    isRainbow.value = false
-  })
-
-  // 如果服务器没有发送'end'事件，可以设置超时自动关闭
-  setTimeout(() => {
-    if (isFetching.value) {
-      eventSource.close()
-      isFetching.value = false
-      isRainbow.value = false
-      console.log('连接超时，已关闭')
+  const params = {
+    chatId: route.params.id,
+    variables: {
+      uid: route.params.id,
+      name: '张三'
+    },
+    messages: [
+      {
+        role: 'user',
+        content: prompt
+      }
+    ],
+    onData: (response) => {
+      try {
+        if (response && response.choices && response.choices[0]) {
+          if (response.choices[0].finish_reason === null) {
+            const content = response.choices[0].delta.content || ''
+            rawAiAnswer.value += content
+            aiAnswers.value[currentQuestionIndex.value] = rawAiAnswer.value
+          } else {
+            isFetching.value = false
+            // 根据最终结果显示提示信息
+            if (/#valid#/i.test(rawAiAnswer.value)) {
+              messageTools.successMessage('回答正确！可以进入下一题')
+            }
+          }
+        }
+      } catch (error) {
+        console.error('处理AI响应时出错:', error)
+        isFetching.value = false
+      }
     }
-  }, 30000)
+  }
+
+  try {
+    sendQuestion(params)
+  } catch (error) {
+    console.error('发送问题时出错:', error)
+    messageTools.errorMessage('请求AI助手失败，请稍后重试')
+    isFetching.value = false
+  }
 }
+
 
 const fetchQuestions = async () => {
   try {
@@ -128,7 +188,7 @@ const fetchQuestions = async () => {
     if (response.code === 200) {
       questions.value = response.data
       answers.value = Array(response.data.length).fill('')
-      aiAnswers.value = Array(response.data.length).fill('') // 初始化 aiAnswers
+      aiAnswers.value = Array(response.data.length).fill('') // 初始化所有题目的AI回答
     } else {
       ElMessage.error('获取题目失败：' + response.message)
     }
@@ -137,17 +197,66 @@ const fetchQuestions = async () => {
   }
 }
 
-onMounted(fetchQuestions)
+// 添加键盘快捷键防护
+const preventShortcuts = (event) => {
+  // 防止 Ctrl+V 粘贴
+  if (event.ctrlKey && event.key === 'v') {
+    event.preventDefault()
+    messageTools.warningMessage('为了学习效果，请勿使用快捷键粘贴')
+  }
+  // 防止 Ctrl+C 复制
+  if (event.ctrlKey && event.key === 'c') {
+    event.preventDefault()
+    messageTools.warningMessage('为了学习效果，请勿使用快捷键复制')
+  }
+}
+
+// 修改 onMounted
+onMounted(() => {
+  fetchQuestions()
+  
+  // AI回答区域的事件监听
+  const aiContainer = document.querySelector('.ai-container')
+  if (aiContainer) {
+    aiContainer.addEventListener('copy', preventCopyPaste)
+    aiContainer.addEventListener('paste', preventCopyPaste)
+    aiContainer.addEventListener('cut', preventCopyPaste)
+    aiContainer.addEventListener('contextmenu', preventContextMenu)
+  }
+
+  // 添加全局键盘事件监听
+  document.addEventListener('keydown', preventShortcuts)
+})
+
+// 修改 onUnmounted
+onUnmounted(() => {
+  const aiContainer = document.querySelector('.ai-container')
+  if (aiContainer) {
+    aiContainer.removeEventListener('copy', preventCopyPaste)
+    aiContainer.removeEventListener('paste', preventCopyPaste)
+    aiContainer.removeEventListener('cut', preventCopyPaste)
+    aiContainer.removeEventListener('contextmenu', preventContextMenu)
+  }
+
+  // 移除全局键盘事件监听
+  document.removeEventListener('keydown', preventShortcuts)
+})
 
 const nextQuestion = () => {
-  if (currentQuestionIndex.value < questions.value.length - 1) {
+  if (currentQuestionIndex.value < questions.value.length - 1 && currentAnswerValidity.value) {
     currentQuestionIndex.value++
+    // 清除新题目的AI回答
+    rawAiAnswer.value = ''
+  } else if (!currentAnswerValidity.value) {
+    messageTools.warningMessage('请先完成当前题目并确保答案正确')
   }
 }
 
 const previousQuestion = () => {
   if (currentQuestionIndex.value > 0) {
     currentQuestionIndex.value--
+    // 恢复上一题的AI回答
+    rawAiAnswer.value = aiAnswers.value[currentQuestionIndex.value] || ''
   }
 }
 
@@ -172,15 +281,10 @@ const HandelSubmitAnswer = async () => {
 
   // 所有答案均已填写，构建答案列表
   const answerList = answers.value.map((answer, index) => {
-    // 构建答案对象
     const item = {
       examPaperQuestionId: questions.value[index].questionId,
-      answerContent: answer
-    }
-    // 如果存在对应的 aiAnswer，且不为空，添加到对象中
-    const aiAnswer = aiAnswers.value[index]
-    if (aiAnswer && aiAnswer.trim() !== '') {
-      item.aiAnswer = aiAnswer
+      answerContent: answer,
+      aiAnswer: aiAnswers.value[index] // 使用对应题目的AI回答
     }
     return item
   })
@@ -193,6 +297,22 @@ const HandelSubmitAnswer = async () => {
   } else {
     messageTools.errorMessage(res.msg)
   }
+}
+
+// 在 script setup 中以下函数
+const preventCopyPaste = (event) => {
+  event.preventDefault()
+  messageTools.warningMessage('为了学习效果，请勿复制粘贴')
+}
+
+const preventContextMenu = (event) => {
+  event.preventDefault()
+}
+
+// 添加新的防粘贴函数
+const preventPasteInput = (event) => {
+  event.preventDefault()
+  messageTools.warningMessage('为了学习效果，请勿粘贴答案')
 }
 </script>
 
@@ -243,71 +363,45 @@ const HandelSubmitAnswer = async () => {
   position: relative;
   width: 100%;
   margin-bottom: 20px;
-  transition: border 0.3s ease;
 }
 
 .ai-container {
   width: 100%;
-  background-color: #fff7e6;
-  padding: 15px;
+  background-color: #fff;
+  padding: 0;
   margin-bottom: 20px;
-  border-radius: 5px;
+  border-radius: 8px;
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
 }
 
-.circle-button {
-  position: absolute;
-  right: 10px;
-  bottom: 10px;
-  width: 30px;
-  height: 30px;
-  background-color: #007bff;
-  background: url(../../../assets/bot.svg) center center;
-  background-size: cover;
-  border: none;
-  border-radius: 50%;
-  cursor: pointer;
-  box-shadow: 0 0 5px rgba(0, 0, 0, 0);
+.ai-header {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  background-color: #f5f7fa;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+  border-bottom: 1px solid #e4e7ed;
 }
 
-.circle-button:disabled {
-  background-color: #999;
-  cursor: not-allowed;
+.ai-logo {
+  width: 24px;
+  height: 24px;
+  margin-right: 8px;
 }
 
-.rainbow-border {
-  border: 3px solid transparent;
-  border-radius: 7px;
-  animation: rainbow 2s infinite;
+.ai-title {
+  font-size: 16px;
+  font-weight: 500;
+  color: #303133;
 }
 
-@keyframes rainbow {
-  0% {
-    border-color: red;
-  }
-
-  16% {
-    border-color: orange;
-  }
-
-  33% {
-    border-color: yellow;
-  }
-
-  50% {
-    border-color: green;
-  }
-
-  66% {
-    border-color: blue;
-  }
-
-  83% {
-    border-color: indigo;
-  }
-
-  100% {
-    border-color: violet;
-  }
+.ai-content {
+  padding: 16px;
 }
 
 .button-group {
@@ -345,4 +439,9 @@ const HandelSubmitAnswer = async () => {
 .fade-leave-to {
   opacity: 0;
 }
+
+.input-container :deep(.el-textarea__inner) {
+  resize: none; /* 禁止手动调整文本框大小 */
+}
 </style>
+
