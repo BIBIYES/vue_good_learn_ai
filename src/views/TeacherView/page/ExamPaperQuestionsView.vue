@@ -8,9 +8,9 @@ import {
   selectExamPaperQuestionsByExamPaperId,
   updateExamPaperQuestions
 } from '@/api/examPaperQuestionApi'
-import { onMounted, ref, nextTick } from 'vue'
+import { onMounted, ref, nextTick, computed } from 'vue'
 import { useRoute } from 'vue-router'
-import { ElMessage } from 'element-plus'
+import { ElMessage, ElMessageBox } from 'element-plus'
 import { messageTools } from '@/utils/messageTools'
 import { Notebook, Calendar, Document, View } from '@element-plus/icons-vue'
 
@@ -70,10 +70,18 @@ const handelSelectExamPaperQuestionsByExamPaperId = async () => {
 
 // 题目编辑区对话框
 const dialogTableVisible = ref(false)
-const HandelDialogTableVisible = () => {
+const HandelDialogTableVisible = async () => {
   dialogTableVisible.value = !dialogTableVisible.value
   if (dialogTableVisible.value) {
-    handelSelectCoursesByUserId() // 加载所有课程
+    document.body.style.overflow = 'hidden'
+    // 加载课程列表
+    await handelSelectCoursesByUserId()
+    // 如果有课程，自动加载第一个课程的题目
+    if (coursesList.value.length > 0) {
+      await handelSelectQuestionsByCourseId(coursesList.value[0].courseId)
+    }
+  } else {
+    document.body.style.overflow = 'auto'
   }
 }
 
@@ -98,28 +106,32 @@ const currentCourseId = ref(null)
 const questionsList = ref([])
 // 搜索触发
 const handelSelectQuestionsByCourseIdSearch = async () => {
-
-
-  currentCourseId.value = courseId
-  const res = await selectCourseByIdSearch(courseId.value, keyWord.value)
-  questionsList.value = res.data
-  if (res.code === 200) {
-    messageTools.successMessage(res.msg)
+  if (!currentCourseId.value) {
+    messageTools.warningMessage('请先选择一个课程')
+    return
   }
-  else {
-    messageTools.warningMessage(res.msg)
+
+  try {
+    const res = await selectCourseByIdSearch(currentCourseId.value, keyWord.value)
+    questionsList.value = res.data
+    if (res.code === 200) {
+      messageTools.successMessage(res.msg)
+    } else {
+      messageTools.warningMessage(res.msg)
+    }
+    await nextTick()
+    setSelectedRows()
+  } catch (error) {
+    console.error('Error searching questions:', error)
+    messageTools.errorMessage('搜索失败，请重试')
   }
-  await nextTick()
-  setSelectedRows()
-
-
 }
 
 const handelSelectQuestionsByCourseId = async (id) => {
   courseId.value = id
   try {
-    currentCourseId.value = courseId
-    const res = await selectCourseByIdSearch(courseId.value, keyWord.value)
+    currentCourseId.value = id
+    const res = await selectCourseByIdSearch(id, keyWord.value)
     questionsList.value = res.data
     await nextTick()
     setSelectedRows()
@@ -131,61 +143,84 @@ const handelSelectQuestionsByCourseId = async (id) => {
 
 // 处理表格中的题目选中变化
 const handleSelectionChange = (selection) => {
-  console.log('Selection changed:', selection)
-
   if (!Array.isArray(selection)) {
     console.error('Invalid selection:', selection)
     return
   }
 
-  // 移除当前课程未选中的题目
-  questionCache.value = questionCache.value.filter(
-    (question) => question.courseId !== currentCourseId.value
-  )
-
-  // 添加当前课程选中的题目
+  // 更新当前课程的选中状态
   const selectedWithCourse = selection.map((question) => ({
     questionId: question.questionId,
     questionTitle: question.questionTitle,
     courseId: currentCourseId.value
   }))
-  questionCache.value = [...questionCache.value, ...selectedWithCourse]
+
+  // 更新缓存：保留其他课程的选中状态，更新当前课程的选中状态
+  questionCache.value = [
+    ...questionCache.value.filter(q => q.courseId !== currentCourseId.value),
+    ...selectedWithCourse
+  ]
+
+  console.log('Updated question cache:', questionCache.value)
 }
 
 // 提交选中的题目到后端
 const submitQuestions = async () => {
   try {
-    const selectedQuestionIds = questionCache.value.map(
-      (question) => question.questionId
-    )
-    const res = await updateExamPaperQuestions(examPaperId, selectedQuestionIds)
-    if (res.code === 200) {
-      ElMessage.success('试卷题目关联更新成功')
-      dialogTableVisible.value = false // 关闭对话框
-      await handelSelectExamPaperQuestionsByExamPaperId() // 重新加载试卷题目
-    } else {
-      ElMessage.error('试卷题目关联更新失败')
-    }
+    // 去重处理
+    const uniqueQuestionIds = [...new Set(questionCache.value.map(q => q.questionId))]
+    
+    // 显示确认对话框
+    ElMessageBox.confirm(
+      uniqueQuestionIds.length === 0 
+        ? '确定要清空试卷中的所有题目吗？' 
+        : `确定要更新试卷题目吗？当前选中 ${uniqueQuestionIds.length} 道题目。`,
+      '确认操作',
+      {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: uniqueQuestionIds.length === 0 ? 'warning' : 'info'
+      }
+    ).then(async () => {
+      const res = await updateExamPaperQuestions(examPaperId, uniqueQuestionIds)
+      if (res.code === 200) {
+        messageTools.successMessage(
+          uniqueQuestionIds.length === 0 
+            ? '已清空试卷所有题目' 
+            : '试卷题目关联更新成功'
+        )
+        dialogTableVisible.value = false // 关闭对话框
+        await handelSelectExamPaperQuestionsByExamPaperId() // 重新加载试卷题目
+      } else {
+        messageTools.errorMessage('操作失败：' + res.msg)
+      }
+    }).catch(() => {
+      messageTools.infoMessage('已取消操作')
+    })
   } catch (error) {
     console.error('Error submitting questions:', error)
-    ElMessage.error('提交失败，请稍后重试')
+    messageTools.errorMessage('交失败，请稍后重试')
   }
 }
 
 // 确保在切换课程后，重新选中已经缓存的题目
 const setSelectedRows = () => {
-  if (multipleTableRef.value) {
-    questionCache.value.forEach((cachedQuestion) => {
-      const row = questionsList.value.find(
-        (q) => q.questionId === cachedQuestion.questionId
-      )
-      if (row) {
-        multipleTableRef.value.toggleRowSelection(row, true)
-      }
-    })
-  } else {
-    console.error('multipleTableRef is not available')
-  }
+  if (!multipleTableRef.value) return
+
+  // 清除当前表格的所有选中状态
+  multipleTableRef.value.clearSelection()
+
+  // 获取当前课程在缓存中的题目
+  const currentCourseQuestions = questionCache.value.filter(
+    q => q.courseId === currentCourseId.value
+  )
+
+  // 遍历当前表格中的每一行，检查是否应该被选中
+  questionsList.value.forEach(question => {
+    if (currentCourseQuestions.some(q => q.questionId === question.questionId)) {
+      multipleTableRef.value.toggleRowSelection(question, true)
+    }
+  })
 }
 // 存放当前试卷用户提交状态
 const examPaperUserStatus = ref([])
@@ -212,7 +247,7 @@ const filteredExamPaperUserStatus = computed(() => {
   if (!selectedStatusFilter.value) {
     return examPaperUserStatus.value
   }
-  // 否则返回匹配的状态数据
+  // 则返回匹配的状态数据
   return examPaperUserStatus.value.filter(
     (user) => user.status === selectedStatusFilter.value
   )
@@ -238,6 +273,32 @@ const navigateToDetails = (userId, examPaperId) => {
   router.push(`/check-page/${userId}/${examPaperId}`)
 
 }
+
+// 修改分页相关的数据
+const currentPage = ref(1)
+const pageSize = ref(10)
+
+// 计算属性：当前页的数据
+const paginatedQuestions = computed(() => {
+  const start = (currentPage.value - 1) * pageSize.value
+  const end = start + pageSize.value
+  return examPaperQuestions.value.slice(start, end)
+})
+
+// 计算总页数
+const total = computed(() => examPaperQuestions.value.length)
+
+// 处理页码改变
+const handleCurrentChange = (val) => {
+  currentPage.value = val
+}
+
+// 处理每页显示数量改变
+const handleSizeChange = (val) => {
+  pageSize.value = val
+  currentPage.value = 1 // 重置到第一页
+}
+
 onMounted(async () => {
   await handelSelectExamPaperById()
   await handelSelectExamPaperQuestionsByExamPaperId()
@@ -325,14 +386,32 @@ onMounted(async () => {
     <!-- 已关联题目列表 -->
     <div class="exam-paper-questions" v-if="examPaperQuestions.length > 0">
       <h3>试卷题目列表</h3>
-      <!-- 使用 el-table 来渲染题目 -->
-      <el-table :data="examPaperQuestions" style="width: 100%">
-        <el-table-column label="题目ID" prop="questionId" width="120"></el-table-column>
-        <el-table-column label="题目标题" prop="questionTitle"></el-table-column>
-        <el-table-column label="题干" prop="questionContent"></el-table-column>
-        <el-table-column label="答案" prop="answer"></el-table-column>
-        <el-table-column label="创建日期" prop="questionCreatedDate"></el-table-column>
+      <el-table 
+        :data="paginatedQuestions" 
+        style="width: 100%"
+        :cell-style="{ padding: '5px 0' }"
+        :row-style="{ height: '50px' }"
+      >
+        <el-table-column label="题目ID" prop="questionId" width="120" show-overflow-tooltip></el-table-column>
+        <el-table-column label="题目标题" prop="questionTitle" show-overflow-tooltip></el-table-column>
+        <el-table-column label="题干" prop="questionContent" show-overflow-tooltip></el-table-column>
+        <el-table-column label="答案" prop="answer" show-overflow-tooltip></el-table-column>
+        <el-table-column label="创建日期" prop="questionCreatedDate" width="180"></el-table-column>
       </el-table>
+
+      <!-- 分页组件 -->
+      <div class="pagination-container">
+        <el-pagination
+          v-model:current-page="currentPage"
+          v-model:page-size="pageSize"
+          :page-sizes="[5, 10, 20, 50]"
+          :total="total"
+          @size-change="handleSizeChange"
+          @current-change="handleCurrentChange"
+          layout="total, sizes, prev, pager, next, jumper"
+          background
+        />
+      </div>
     </div>
 
     <!-- 题目选择对话框 -->
@@ -341,21 +420,28 @@ onMounted(async () => {
         <div class="course-box">
           <!-- 课程列表 -->
           <div class="course-item" v-for="(course, index) in coursesList" :key="index"
+            :class="{ 'active': currentCourseId === course.courseId }"
             @click="handelSelectQuestionsByCourseId(course.courseId)">
             {{ course.courseName }}
           </div>
         </div>
         <div class="questions-box">
-          <!-- 题目列表多选表格 -->
-          <el-table ref="multipleTableRef" :data="questionsList" style="width: 100%" @select="handleSelectionChange"
-            @select-all="handleSelectionChange">
+          <el-table 
+            ref="multipleTableRef" 
+            :data="questionsList" 
+            style="width: 100%" 
+            @select="handleSelectionChange"
+            @select-all="handleSelectionChange"
+            :cell-style="{ padding: '5px 0' }"
+            :row-style="{ height: '30px' }"
+          >
             <el-table-column type="selection" width="55" />
             <el-table-column label="题目ID" width="120">
               <template #default="scope">{{ scope.row.questionId }}</template>
             </el-table-column>
-            <el-table-column label="题目标题" width="120" property="questionTitle" />
-            <el-table-column label="题干" property="questionContent" />
-            <el-table-column label="题目创建日期" property="questionCreatedDate" />
+            <el-table-column label="题目标题" width="120" property="questionTitle" show-overflow-tooltip />
+            <el-table-column label="题干" property="questionContent" show-overflow-tooltip />
+            <el-table-column label="题目创建日期" property="questionCreatedDate" width="180" />
             <el-table-column align="right">
               <template #header>
                 <el-input v-model="keyWord" @keyup.enter="handelSelectQuestionsByCourseIdSearch"
@@ -378,6 +464,10 @@ onMounted(async () => {
 
 
 <style lang="less" scoped>
+.app{
+  width: 100%;
+  height: 100%;
+}
 /* 试卷信息的样式 */
 .demo-progress {
   width: 400px;
@@ -387,7 +477,7 @@ onMounted(async () => {
   border: 1px solid #ccc;
   border-radius: 8px;
   padding: 20px;
-  margin: 20px 0;
+  margin-bottom: 15px;
   background-color: #f9f9f9;
   display: flex;
   flex-direction: column;
@@ -436,18 +526,14 @@ h2 {
   align-items: center;
   justify-content: flex-end;
   padding-right: 20px;
-  margin-top: 20px;
   /* 顶部间距调整 */
-  margin-bottom: 20px;
   /* 底部间距调整，确保与表格之间的间距 */
 }
 
 /* 试卷题目列表的样式 */
-.exam-paper-questions {
-  margin-top: 30px;
-}
 
 .exam-paper-questions h3 {
+margin: 0;
   font-size: 20px;
   font-weight: bold;
   margin-bottom: 20px;
@@ -490,6 +576,11 @@ h2 {
       &:hover {
         background-color: rgb(181, 181, 181);
       }
+
+      &.active {
+        background-color: #409EFF;
+        color: white;
+      }
     }
   }
 
@@ -497,6 +588,129 @@ h2 {
     width: 65%;
     height: 600px;
     overflow-y: auto;
+  }
+}
+
+/* 添加表格相关样式 */
+:deep(.el-table) {
+  // 设置表格行高
+  .el-table__row {
+    height: 30px;
+    line-height: 30px;
+  }
+  
+  // 设置单元格内容省略
+  .cell {
+    line-height: 20px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  // 调整表头高度
+  .el-table__header th {
+    height: 40px;
+    line-height: 40px;
+    padding: 0;
+  }
+}
+
+/* 添加分页容器样式 */
+.pagination-container {
+  margin-top: 20px;
+  display: flex;
+  justify-content: center;
+  padding: 10px 0;
+}
+
+/* 分页组件样式优化 */
+:deep(.el-pagination) {
+  .el-pagination__total {
+    margin-right: 16px;
+  }
+
+  .el-pagination__sizes {
+    margin-right: 16px;
+  }
+
+  .btn-prev,
+  .btn-next {
+    background-color: #f4f4f5;
+    
+    &:hover {
+      color: #409EFF;
+    }
+  }
+
+  .el-pager li {
+    background-color: #f4f4f5;
+    
+    &:hover {
+      color: #409EFF;
+    }
+    
+    &.active {
+      background-color: #409EFF;
+      color: white;
+    }
+  }
+}
+
+/* 表格内容溢出处理 */
+:deep(.el-table) {
+  .cell {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+/* 对话框样式覆盖 */
+:deep(.el-dialog) {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  margin: 0 !important;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+}
+
+:deep(.el-dialog__body) {
+  flex: 1;
+  overflow: hidden;
+}
+
+/* 当对话框打开时禁用背景滚动 */
+:deep(.el-overlay) {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  overflow: hidden;
+}
+
+/* 内容区域的滚动条样式 */
+.content {
+  .questions-box {
+    height: 500px;
+    overflow-y: auto;
+    
+    /* 自定义滚动条样式 */
+    &::-webkit-scrollbar {
+      width: 6px;
+    }
+    
+    &::-webkit-scrollbar-thumb {
+      background-color: #dcdfe6;
+      border-radius: 3px;
+    }
+    
+    &::-webkit-scrollbar-track {
+      background-color: #f5f7fa;
+    }
   }
 }
 </style>

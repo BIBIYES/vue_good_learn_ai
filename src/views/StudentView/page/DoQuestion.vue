@@ -19,7 +19,7 @@
         <el-input v-model="answers[currentQuestionIndex]" type="textarea" placeholder="请输入你的答案"
           :autosize="{ minRows: 4, maxRows: 10 }" @paste.native="preventPasteInput" onpaste="return false"></el-input>
       </div>
-      <div class="ai-container markdown-body" v-if="aiAnswers[currentQuestionIndex]">
+      <div class="ai-container markdown-body" v-if="aiAnswers[currentQuestionIndex]" :class="{ 'shine-active': showShineEffect }">
         <div class="ai-header">
           <img src="../../../assets/bot.svg" alt="AI Logo" class="ai-logo">
           <span class="ai-title">龙梦GPT回应</span>
@@ -93,6 +93,9 @@ const isFetching = ref(false)
 const aiAnswers = ref([]) // 用于存储所有题目的AI回答
 const rawAiAnswer = ref('') // 用于存储当前题目的原始回答
 
+// 添加动画控制状态
+const showShineEffect = ref(true)
+
 // 修改计算属性
 const filteredAiAnswer = computed(() => {
   if (!rawAiAnswer.value) return '';
@@ -124,6 +127,7 @@ const handleSendQuestion = () => {
 
   if (isFetching.value) return
   isFetching.value = true
+  showShineEffect.value = true // 开始动画
 
   // 清除当前题目的AI回答
   rawAiAnswer.value = ''
@@ -159,7 +163,10 @@ console.log(prompt);
             aiAnswers.value[currentQuestionIndex.value] = rawAiAnswer.value
           } else {
             isFetching.value = false
-            // 根据最终结果显示提示信息
+            // AI回答完成后，延迟关闭动画
+            setTimeout(() => {
+              showShineEffect.value = false
+            }, 500)
             if (/#valid#/i.test(rawAiAnswer.value)) {
               messageTools.successMessage('回答正确！可以进入下一题')
             }
@@ -168,6 +175,7 @@ console.log(prompt);
       } catch (error) {
         console.error('处理AI响应时出错:', error)
         isFetching.value = false
+        showShineEffect.value = false
       }
     }
   }
@@ -376,6 +384,8 @@ const preventPasteInput = (event) => {
   -webkit-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
+  position: relative; /* 添加相对定位 */
+  overflow: hidden; /* 确保光效不会溢出 */
 }
 
 .ai-header {
@@ -442,6 +452,35 @@ const preventPasteInput = (event) => {
 
 .input-container :deep(.el-textarea__inner) {
   resize: none; /* 禁止手动调整文本框大小 */
+}
+
+/* 添加动画相关样式 */
+.ai-container.shine-active::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.8) 50%,
+    transparent
+  );
+  animation: shine 0.8s ease-in-out infinite;
+  z-index: 1;
+}
+
+@keyframes shine {
+  0% {
+    left: -50%;
+    opacity: 0.5;
+  }
+  100% {
+    left: 100%;
+    opacity: 0.8;
+  }
 }
 </style>
 

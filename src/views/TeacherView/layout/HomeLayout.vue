@@ -1,5 +1,5 @@
 <template>
-  <el-container style="height: 100vh; border: 1px solid #dcdfe6">
+  <el-container style="height: 100vh; border: 1px solid #dcdfe6;">
     <!-- 侧边栏，包括头像和菜单 -->
     <el-aside width="80px" style="
         background-color: white;
@@ -8,6 +8,7 @@
         display: flex;
         flex-direction: column;
         align-items: center;
+        width: 150px;
       ">
       <!-- 用户头像下拉菜单 -->
       <el-dropdown @command="handleCommand" trigger="click">
@@ -23,7 +24,7 @@
       </el-dropdown>
 
       <!-- 菜单 -->
-      <el-menu :default-active="activeIndex" class="menu-container" :router="true">
+      <el-menu :default-active="activeIndex" class="menu-container" :router="true"  style=" width: 100%;">
         <!-- 我的课程菜单项 -->
         <el-menu-item index="/teacher/course">
           <div class="menu-item-container">
@@ -130,16 +131,14 @@ const logout = () => {
   width: 100%;
 }
 
-.el-menu-item {
+.el-menu-item  {
   width: 48px;
   height: 58px;
   border-radius: 10px;
-  display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: space-between;
   transition: all 0.3s ease;
   margin-bottom: 20px;
+  padding: 0!important;
 }
 
 .icon {
@@ -167,11 +166,10 @@ img {
 }
 
 .menu-item-container {
-  width: 48px !important;
+  width: 100% !important;
   height: 58px;
   border-radius: 10px;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: space-between;
   padding: 7px;
@@ -183,7 +181,7 @@ img {
 }
 
 .menu-icon {
-  font-size: 20px;
+  font-size: 24px;
   color: #667085;
   display: flex;
   justify-content: center;
@@ -191,9 +189,9 @@ img {
 }
 
 .menu-text {
-  width: 48px;
+  width: 100%;
   height: 20px;
-  font-size: 10px;
+  font-size: 14px;
   line-height: 20px !important;
   text-align: center;
 }
@@ -227,5 +225,40 @@ img {
 .el-menu-item.is-active .menu-text,
 .el-menu-item:hover .menu-text {
   color: #409eff;
+}
+
+/* 调整菜单项的样式 */
+:deep(.el-menu-item) {
+  width:80%;
+  /* 增加菜单项的宽度 */
+  
+  /* 最小高度设置为60px，确保足够的点击区域 */
+  min-height: 60px !important;
+  /* 设置行高等于高度，确保垂直居中 */
+  line-height: 60px !important;
+  /* 使用flex布局来对齐图标和文字 */
+  display: flex !important;
+  align-items: center !important;
+}
+
+/* 调整菜单项中图标和文字的布局 */
+:deep(.el-menu-item .el-icon) {
+  font-size: 24px;
+  vertical-align: middle;
+}
+
+/* 调整菜单项文字样式 */
+:deep(.el-menu-item span) {
+  font-size: 14px;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+/* 当菜单项被选中时的样式 */
+:deep(.el-menu-item.is-active) {
+  /* 设置选中时的背景色 */
+  background-color: #ecf5ff !important;
+  /* 设置选中时的文字颜色 */
+  color: #409eff !important;
 }
 </style>

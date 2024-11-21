@@ -28,6 +28,9 @@ const rawAiAnswer = ref('');
 
 const { sendQuestion } = fastgpt();
 
+// 添加一个状态来控制动画
+const showShineEffect = ref(true)
+
 // 修改计算属性：用于显示的过滤后的内容
 const filteredAiAnswer = computed(() => {
   if (!rawAiAnswer.value) return '';
@@ -57,6 +60,7 @@ const getAIAnswer = async () => {
 
   if (isFetching.value) return;
   isFetching.value = true;
+  showShineEffect.value = true // 开始动画
   
   rawAiAnswer.value = ''; // 清除原始回答
 
@@ -88,11 +92,16 @@ const getAIAnswer = async () => {
             rawAiAnswer.value += content; // 存储完整回答
           } else {
             isFetching.value = false;
+            // AI回答完成后，等待一小段时间再关闭动画
+            setTimeout(() => {
+              showShineEffect.value = false
+            }, 500)
           }
         }
       } catch (error) {
         console.error('处理AI响应时出错:', error);
         isFetching.value = false;
+        showShineEffect.value = false;
       }
     }
   };
@@ -103,13 +112,14 @@ const getAIAnswer = async () => {
     console.error('发送问题时出错:', error);
     messageTools.errorMessage('请求AI助手失败，请稍后重试');
     isFetching.value = false;
+    showShineEffect.value = false;
   }
 };
 </script>
 
 <template>
   <div class="question-wrapper">
-    <el-card class="question-card" shadow="hover">
+    <el-card class="question-card" shadow="hover" :class="{ 'shine-active': showShineEffect }">
       <template #header>
         <div class="card-header">
           <h2>{{ questionsData.questionTitle }}</h2>
@@ -156,10 +166,12 @@ const getAIAnswer = async () => {
         </div>
 
         <!-- AI回答区域 -->
-        <div v-if="filteredAiAnswer" class="ai-answer-section">
+        <div v-if="filteredAiAnswer" class="ai-answer-section" :class="{ 'shine-active': showShineEffect }">
           <div class="ai-header">
             <img src="../assets/bot.svg" alt="AI Logo" class="ai-logo">
-            <span class="ai-title">龙梦GPT回应</span>
+            <span class="ai-title">
+              重工AI好助学响应
+            </span>
           </div>
           <div class="ai-content markdown-body">
             <div v-html="marked(filteredAiAnswer)"></div>
@@ -190,6 +202,8 @@ const getAIAnswer = async () => {
   transition: all 0.3s ease;
   border: none;
   background-color: rgba(255, 255, 255, 0.95);
+  position: relative;
+  overflow: hidden;
 }
 
 .question-card:hover {
@@ -255,6 +269,35 @@ const getAIAnswer = async () => {
   overflow: hidden;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
   background-color: #fff;
+  position: relative;
+}
+
+.ai-answer-section.shine-active::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.8) 50%,
+    transparent
+  );
+  animation: shine 0.8s ease-in-out infinite;
+  z-index: 1;
+}
+
+@keyframes shine {
+  0% {
+    left: -50%;
+    opacity: 0.5;
+  }
+  100% {
+    left: 100%;
+    opacity: 0.8;
+  }
 }
 
 .ai-header {
@@ -263,6 +306,7 @@ const getAIAnswer = async () => {
   padding: 12px 16px;
   background-color: #f5f7fa;
   border-bottom: 1px solid #e4e7ed;
+  position: relative;
 }
 
 .ai-logo {

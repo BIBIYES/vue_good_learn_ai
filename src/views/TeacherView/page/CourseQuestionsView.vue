@@ -53,17 +53,21 @@
       <TestQuestion :questionsData="questionRow" ></TestQuestion>
     </el-drawer>
     <!-- 表格显示题目列表 -->
-    <el-table stripe :data="questions.list" style="width: 100%">
-      <el-table-column prop="questionId" label="题目ID" width="120" />
-      <el-table-column prop="questionTitle" label="题目标题" width="180" />
-      <el-table-column prop="questionContent" label="题目内容" />
-      <el-table-column prop="answer" label="参考答案" />
-      <el-table-column label="操作" width="250">
-
+    <el-table 
+      stripe 
+      :data="questions.list" 
+      style="width: 100%"
+      :cell-style="{ padding: '5px 0' }"
+      :row-style="{ height: '50px' }"
+    >
+      <el-table-column prop="questionId" label="题目ID" width="120" show-overflow-tooltip />
+      <el-table-column prop="questionTitle" label="题目标题" width="180" show-overflow-tooltip />
+      <el-table-column prop="questionContent" label="题目内容" show-overflow-tooltip />
+      <el-table-column prop="answer" label="参考答案" show-overflow-tooltip />
+      <el-table-column label="操作" width="350">
         <template #default="scope">
-          
-
           <el-button size="small" @click="handelTestQuestions(scope.row)">测该题目</el-button>
+          <el-button size="small" @click="handleCopyQuestion(scope.row)">复制该题目</el-button>
           <el-button size="small" @click="editDialog(scope.row)">编辑</el-button>
           <el-button size="small" type="danger" @click="confirmDelete(scope.row.questionId)">删除</el-button>
         </template>
@@ -152,15 +156,11 @@ const userStore = useUserStore()
 
 // 获取题目列表
 const HandelSelectQuestionsByCourseId = async () => {
-  try {
     const res = await selectQuestionsByCourseId(courseId, currentPage.value, pageSize.value)
     questions.value = {
       list: res.data.list || [],
       total: res.data.total || 0
     }
-  } catch (error) {
-    console.error('没有题目', error)
-  }
 }
 
 // 修改每页条数时的处理
@@ -211,7 +211,14 @@ const newQuestion = ref({
   answer: ''
 })
 const showAddDialog = () => {
-  newQuestion.value = { questionTitle: '', questionContent: '', courseId, userId: userStore.id, answer: '' }
+  newQuestion.value = { 
+    questionTitle: '', 
+    questionContent: '', 
+    courseId, 
+    userId: userStore.id, 
+    answer: '' 
+  }
+  document.body.style.overflow = 'hidden' // 禁用背景滚动
   addDialogVisible.value = true
 }
 const addQuestion = async () => {
@@ -229,6 +236,13 @@ const addQuestion = async () => {
     ElMessage({ type: 'error', message: '题目添加失败' })
   }
 }
+
+// 添加关闭对话框时的处理
+watch(addDialogVisible, (newVal) => {
+  if (!newVal) {
+    document.body.style.overflow = 'auto' // 恢复背景滚动
+  }
+})
 
 // 编辑题目
 const editDialogVisible = ref(false)
@@ -278,10 +292,23 @@ const handelTestQuestions = (data:object) => {
   questionRow.value = data
   testQuestionView.value = true
 }
+// 复制添加题目
+const handleCopyQuestion = async (question: any) => {
+  console.log(question);
+  try {
+    await createQuestion(courseId, question)
+    ElMessage({ type: 'success', message: '复制添加成功' })
+    await HandelSelectQuestionsByCourseId()
+    addDialogVisible.value = false
+  } catch (error) {
+    ElMessage({ type: 'error', message: '复制添加失败' })
+  }
+  
+}
 
 </script>
 
-<style scoped>
+<style lang="less" scoped>
 .course-info {
   padding: 20px;
   background-color: #ffffff;
@@ -360,5 +387,121 @@ const handelTestQuestions = (data:object) => {
 .el-table,
 .el-dialog__header {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* 修改表格相关样式 */
+:deep(.el-table) {
+  .el-table__row {
+    height: 50px !important;
+    line-height: 50px;
+  }
+  
+  .cell {
+    line-height: 40px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .el-table__header th {
+    height: 50px;
+    line-height: 50px;
+    padding: 0;
+  }
+
+  .el-button--small {
+    margin: 8px 4px;
+  }
+}
+
+/* 添加表格基础样式 */
+.el-table {
+  th, td {
+    text-align: center;
+  }
+
+  th {
+    background-color: #f5f7fa;
+  }
+}
+
+/* 修改表格行高 */
+:deep(.el-table__row) {
+  height: 50px !important;
+}
+
+/* 修改单元格内边距 */
+:deep(.el-table td) {
+  padding: 8px 0;
+}
+
+/* 修改表头样式 */
+:deep(.el-table__header) {
+  th {
+    height: 40px;
+    line-height: 40px;
+    padding: 0;
+    background-color: #f5f7fa;
+  }
+}
+
+/* 添加文本溢出处理 */
+:deep(.el-table .cell) {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* 修改对话框样式 */
+:deep(.el-dialog) {
+  position: absolute !important;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  margin: 0 !important;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 0 !important;
+}
+
+:deep(.el-dialog__body) {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+}
+
+:deep(.el-dialog__header) {
+  padding: 20px;
+  margin: 0;
+}
+
+:deep(.el-dialog__footer) {
+  padding: 20px;
+  margin: 0;
+}
+
+/* 当对话框打开时禁用背景滚动 */
+:deep(.el-overlay) {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  overflow: hidden;
+}
+
+/* 自定义滚动条样式 */
+:deep(.el-dialog__body::-webkit-scrollbar) {
+  width: 6px;
+}
+
+:deep(.el-dialog__body::-webkit-scrollbar-thumb) {
+  background-color: #dcdfe6;
+  border-radius: 3px;
+}
+
+:deep(.el-dialog__body::-webkit-scrollbar-track) {
+  background-color: #f5f7fa;
 }
 </style>
