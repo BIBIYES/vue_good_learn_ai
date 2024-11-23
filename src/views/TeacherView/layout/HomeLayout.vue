@@ -15,6 +15,14 @@
 
       <!-- 菜单 -->
       <el-menu :default-active="activeIndex" class="menu-container" :router="true" style="width: 100%;">
+        <el-menu-item index="/teacher/home">
+          <div class="menu-item-container">
+            <el-icon class="menu-icon">
+              <DataAnalysis />
+            </el-icon>
+            <div class="menu-text">首页</div>
+          </div>
+        </el-menu-item>
         <!-- 我的课程菜单项 -->
         <el-menu-item index="/teacher/course">
           <div class="menu-item-container">

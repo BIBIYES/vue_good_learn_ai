@@ -18,6 +18,14 @@ const router = createRouter({
       component: () => import('../views/TeacherView/layout/HomeLayout.vue'),
       children: [
         {
+          path: '/teacher/home',
+          name: 'home',
+          meta: {
+            title: '好助学-首页'
+          },
+          component: () => import('../views/TeacherView/page/HomePage.vue')
+        },
+        {
           path: '/teacher/course',
           name: 'myCourses',
           meta: {
