@@ -3,8 +3,8 @@ import type { AxiosInstance } from 'axios'
 import { messageTools } from './messageTools'
 
 const request: AxiosInstance = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL,
-  timeout: 3000
+  baseURL: '/api',
+  timeout: 5000
 })
 // 添加请求拦截器
 request.interceptors.request.use(

@@ -59,8 +59,15 @@ const router = createRouter({
             title:"好助学-试卷检查"
           },
           component:()=>import("@/views/TeacherView/page/CheckPage.vue")
+        },
+        {
+          path: '/teacher/profile',
+          name: 'teacherProfile',
+          meta: {
+            title: '好助学-个人信息'
+          },
+          component: () => import('@/views/TeacherView/page/UserProfileView.vue')
         }
-
       ]
     },
     {
@@ -87,6 +94,14 @@ const router = createRouter({
             title: '好助学-试卷列表'
           },
           component: () => import('@/views/StudentView/page/ExamPaper.vue')
+        },
+        {
+          path: '/student/profile',
+          name: 'studentProfile',
+          meta: {
+            title: '好助学-个人信息'
+          },
+          component: () => import('@/views/StudentView/page/UserProfileView.vue')
         }
       ]
     },
@@ -97,7 +112,8 @@ const router = createRouter({
         title: '好助学-做题'
       },
       component: () => import('@/views/StudentView/page/DoQuestion.vue')
-    }
+    },
+    
   ]
 })
 

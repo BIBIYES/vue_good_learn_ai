@@ -17,7 +17,8 @@
 
       <div class="input-container">
         <el-input v-model="answers[currentQuestionIndex]" type="textarea" placeholder="请输入你的答案"
-          :autosize="{ minRows: 4, maxRows: 10 }" @paste.native="preventPasteInput" onpaste="return false"></el-input>
+          :autosize="{ minRows: 4, maxRows: 10 }" @paste.native="preventPasteInput" @drop.prevent="preventDrop"
+          @dragover.prevent onpaste="return false"></el-input>
       </div>
       <div class="ai-container markdown-body" v-if="aiAnswers[currentQuestionIndex]" :class="{ 'shine-active': showShineEffect }">
         <div class="ai-header">
@@ -138,15 +139,15 @@ const handleSendQuestion = () => {
     '我的答案是' +
     answers.value[currentQuestionIndex.value] +
     '参考答案是'+
-    questions.value[currentQuestionIndex.value].answer +
-    '请问正确吗？请先给出详细解释，之后在回答最后一行用#valid#表示正确，用#invalid#表示错误'
+    questions.value[currentQuestionIndex.value].answer
+    
 console.log(prompt);
 
   const params = {
-    chatId: route.params.id,
+    chatId: userStore.id,
     variables: {
       uid: route.params.id,
-      name: '张三'
+      name: userStore.name
     },
     messages: [
       {
@@ -207,15 +208,10 @@ const fetchQuestions = async () => {
 
 // 添加键盘快捷键防护
 const preventShortcuts = (event) => {
-  // 防止 Ctrl+V 粘贴
+  // 只防止 Ctrl+V 粘贴
   if (event.ctrlKey && event.key === 'v') {
     event.preventDefault()
     messageTools.warningMessage('为了学习效果，请勿使用快捷键粘贴')
-  }
-  // 防止 Ctrl+C 复制
-  if (event.ctrlKey && event.key === 'c') {
-    event.preventDefault()
-    messageTools.warningMessage('为了学习效果，请勿使用快捷键复制')
   }
 }
 
@@ -223,30 +219,13 @@ const preventShortcuts = (event) => {
 onMounted(() => {
   fetchQuestions()
   
-  // AI回答区域的事件监听
-  const aiContainer = document.querySelector('.ai-container')
-  if (aiContainer) {
-    aiContainer.addEventListener('copy', preventCopyPaste)
-    aiContainer.addEventListener('paste', preventCopyPaste)
-    aiContainer.addEventListener('cut', preventCopyPaste)
-    aiContainer.addEventListener('contextmenu', preventContextMenu)
-  }
-
-  // 添加全局键盘事件监听
+  // 只保留输入框的粘贴防护
   document.addEventListener('keydown', preventShortcuts)
 })
 
 // 修改 onUnmounted
 onUnmounted(() => {
-  const aiContainer = document.querySelector('.ai-container')
-  if (aiContainer) {
-    aiContainer.removeEventListener('copy', preventCopyPaste)
-    aiContainer.removeEventListener('paste', preventCopyPaste)
-    aiContainer.removeEventListener('cut', preventCopyPaste)
-    aiContainer.removeEventListener('contextmenu', preventContextMenu)
-  }
-
-  // 移除全局键盘事件监听
+  // 只需要移除键盘事件监听
   document.removeEventListener('keydown', preventShortcuts)
 })
 
@@ -322,6 +301,12 @@ const preventPasteInput = (event) => {
   event.preventDefault()
   messageTools.warningMessage('为了学习效果，请勿粘贴答案')
 }
+
+// 在 script setup 中添加新的防拖拽函数
+const preventDrop = (event) => {
+  event.preventDefault()
+  messageTools.warningMessage('为了学习效果，请勿拖拽输入答案')
+}
 </script>
 
 <style scoped>
@@ -380,12 +365,8 @@ const preventPasteInput = (event) => {
   margin-bottom: 20px;
   border-radius: 8px;
   box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
-  user-select: none;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  position: relative; /* 添加相对定位 */
-  overflow: hidden; /* 确保光效不会溢出 */
+  position: relative;
+  overflow: hidden;
 }
 
 .ai-header {

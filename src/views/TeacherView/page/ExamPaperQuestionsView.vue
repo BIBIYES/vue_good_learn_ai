@@ -243,7 +243,7 @@ const completionStatus = computed(() => {
 
 // 过滤器
 const filteredExamPaperUserStatus = computed(() => {
-  // 如果没有过滤器生效，则返回所有数据
+  // 如果没有��滤器生效，则返回所有数据
   if (!selectedStatusFilter.value) {
     return examPaperUserStatus.value
   }
@@ -619,7 +619,7 @@ margin: 0;
 .pagination-container {
   margin-top: 20px;
   display: flex;
-  justify-content: center;
+  justify-content: flex-start;
   padding: 10px 0;
 }
 

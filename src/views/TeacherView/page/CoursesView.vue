@@ -2,15 +2,30 @@
   <div>
     <div class="header">
       <h2>我的课程</h2>
-      <el-button type="primary" @click="showAddCourseDialog">
-        <el-icon>
-          <Plus />
-        </el-icon> 添加课程
-      </el-button>
+      <div class="header-right">
+        <el-input
+          v-model="searchKeyword"
+          placeholder="搜索课程"
+          clearable
+          @clear="handleSearchClear"
+          class="search-input"
+        >
+          <template #prefix>
+            <el-icon>
+              <Search />
+            </el-icon>
+          </template>
+        </el-input>
+        <el-button type="primary" @click="showAddCourseDialog">
+          <el-icon>
+            <Plus />
+          </el-icon> 添加课程
+        </el-button>
+      </div>
     </div>
 
-    <el-row v-if="courses.length > 0" :gutter="20">
-      <el-col :xs="24" :sm="12" :md="8" :lg="6" v-for="course in courses" :key="course.courseId">
+    <el-row v-if="filteredCourses.length > 0" :gutter="20">
+      <el-col :xs="24" :sm="12" :md="8" :lg="6" v-for="course in filteredCourses" :key="course.courseId">
         <el-card class="course-card" shadow="hover" @click="goToCourseDetail(course.courseId)">
           <div class="course-icon">
             <el-icon :size="40" color="#409EFF">
@@ -67,13 +82,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { deleteCourseById, updateCourse } from '@/api/courseApi'
 import { selectCoursesByUserId, insertCourse } from '@/api/userApi'
 import { useUserStore } from '@/stores/userStore'
 import { ElMessageBox, ElMessage } from 'element-plus'
-import { Plus, Reading, Calendar, Edit, Delete } from '@element-plus/icons-vue'
+import { Plus, Reading, Calendar, Edit, Delete, Search } from '@element-plus/icons-vue'
 
 const courses = ref<any[]>([])
 const isAddCourseDialogVisible = ref(false)
@@ -83,7 +98,20 @@ const editingCourseName = ref('')
 const editingCourseId = ref<number | null>(null)
 const router = useRouter()
 const userStore = useUserStore()
+const searchKeyword = ref('')
 
+const filteredCourses = computed(() => {
+  if (!searchKeyword.value) {
+    return courses.value
+  }
+  return courses.value.filter(course => 
+    course.courseName.toLowerCase().includes(searchKeyword.value.toLowerCase())
+  )
+})
+
+const handleSearchClear = () => {
+  searchKeyword.value = ''
+}
 
 const fetchCourses = async () => {
   try {
@@ -215,6 +243,16 @@ onMounted(() => {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 20px;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.search-input {
+  width: 250px;
 }
 
 .course-card {

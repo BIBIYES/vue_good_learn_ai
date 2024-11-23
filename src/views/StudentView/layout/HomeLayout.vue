@@ -1,47 +1,33 @@
 <template>
-  <el-container style="height: 100vh; border: 1px solid #dcdfe6">
-    <!-- 侧边栏，包括头像和菜单 -->
-    <el-aside
-      width="80px"
-      style="
+  <el-container style="height: 100vh; border: 1px solid #dcdfe6;">
+    <el-aside style="
         background-color: white;
-        padding-top: 20px;
-        padding-bottom: 20px;
+        padding: 20px 0;
         display: flex;
         flex-direction: column;
-        align-items: center;
-      "
-    >
-      <!-- 用户头像下拉菜单 -->
-      <el-dropdown @command="handleCommand" trigger="click">
-        <div style="margin-bottom: 30px; cursor: pointer">
-          <el-avatar
-            src="https://s21.ax1x.com/2024/10/05/pA8a5C9.jpg"
-            size="large"
-          ></el-avatar>
-        </div>
-        <template #dropdown>
-          <el-dropdown-menu>
-            <el-dropdown-item command="editInfo">编辑信息</el-dropdown-item>
-            <el-dropdown-item command="logout">退出登录</el-dropdown-item>
-          </el-dropdown-menu>
-        </template>
-      </el-dropdown>
+        width: 250px;
+      ">
+      <!-- 添加顶部 Logo -->
+      <div class="logo-container">
+        <el-icon class="logo-icon"><School /></el-icon>
+        <h1 class="logo-text">好助学</h1>
+      </div>
 
       <!-- 菜单 -->
-      <el-menu
-        :default-active="activeIndex"
-        class="menu-container"
-        :router="true"
-      >
+      <el-menu :default-active="activeIndex" class="menu-container" :router="true" style="width: 100%;">
         <!-- 我的试卷菜单项 -->
         <el-menu-item index="/student/exam-paper">
           <div class="menu-item-container">
-            <el-icon class="menu-icon"><Notebook /></el-icon>
+            <el-icon class="menu-icon">
+              <Notebook />
+            </el-icon>
             <div class="menu-text">我的试卷</div>
           </div>
         </el-menu-item>
       </el-menu>
+
+      <!-- 使用新组件替换原来的底部区域 -->
+      <UserProfileFooter />
     </el-aside>
 
     <!-- 主内容区 -->
@@ -54,44 +40,14 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-import { ElMessage } from 'element-plus'
-import { useUserStore } from '@/stores/userStore'
-import { DataAnalysis, Notebook } from '@element-plus/icons-vue'
+import { Notebook, School } from '@element-plus/icons-vue'
+import UserProfileFooter from '@/components/UserProfileFooter.vue'
 
-const userStore = useUserStore()
 const router = useRouter()
 const route = useRoute()
 
 // 计算当前激活的菜单项
-const activeIndex = computed(() => {
-  const path = route.path
-  if (path.startsWith('/teacher/course')) {
-    return '/teacher/course'
-  } else if (path.startsWith('/teacher/exam-papers')) {
-    return '/teacher/exam-papers'
-  }
-  // 如果没有匹配，返回当前路由的路径
-  return path
-})
-
-// 处理用户下拉菜单的命令
-const handleCommand = (command: string) => {
-  if (command === 'editInfo') {
-    // 处理编辑信息的逻辑
-    console.log('编辑信息')
-    // 这里可以添加跳转到编辑信息页面的逻辑
-    // 例如：router.push('/edit-profile')
-  } else if (command === 'logout') {
-    logout()
-  }
-}
-
-// 退出登录
-const logout = () => {
-  userStore.clearUser()
-  ElMessage.success('退出登录成功')
-  router.push('/login')
-}
+const activeIndex = computed(() => route.path)
 </script>
 
 <style scoped>
@@ -101,7 +57,7 @@ const logout = () => {
 }
 
 .menu-container {
-  flex-grow: 1;
+  flex-grow: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -111,22 +67,19 @@ const logout = () => {
 
 .el-menu-item {
   width: 48px;
-  height: 58px;
+  height: 48px;
   border-radius: 10px;
-  display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: space-between;
   transition: all 0.3s ease;
-  margin-bottom: 20px;
+  margin-bottom: 10px;
+  padding: 0!important;
 }
 
 .menu-item-container {
-  width: 48px !important;
-  height: 58px;
+  width: 100% !important;
+  height: 48px;
   border-radius: 10px;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: space-between;
   padding: 7px;
@@ -138,7 +91,7 @@ const logout = () => {
 }
 
 .menu-icon {
-  font-size: 20px;
+  font-size: 24px;
   color: #667085;
   display: flex;
   justify-content: center;
@@ -146,9 +99,9 @@ const logout = () => {
 }
 
 .menu-text {
-  width: 48px;
+  width: 100%;
   height: 20px;
-  font-size: 10px;
+  font-size: 14px;
   line-height: 20px !important;
   text-align: center;
 }
@@ -182,5 +135,60 @@ const logout = () => {
 .el-menu-item.is-active .menu-text,
 .el-menu-item:hover .menu-text {
   color: #409eff;
+}
+
+/* 调整菜单项的样式 */
+:deep(.el-menu-item) {
+  width: 80%;
+  min-height: 48px !important;
+  line-height: 48px !important;
+  display: flex !important;
+  align-items: center !important;
+}
+
+/* 调整菜单项中图标和文字的布局 */
+:deep(.el-menu-item .el-icon) {
+  font-size: 24px;
+  vertical-align: middle;
+}
+
+/* 调整菜单项文字样式 */
+:deep(.el-menu-item span) {
+  font-size: 14px;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+/* 当菜单项被选中时的样式 */
+:deep(.el-menu-item.is-active) {
+  background-color: #ecf5ff !important;
+  color: #409eff !important;
+}
+
+/* Logo 相关样式 */
+.logo-container {
+  padding: 0 20px;
+  margin-bottom: 30px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  height: 50px;
+}
+
+.logo-icon {
+  font-size: 28px;
+  color: #409EFF;
+}
+
+.logo-text {
+  color: #409EFF;
+  font-size: 25px;
+  font-weight: bold;
+  margin: 0;
+  background: linear-gradient(45deg, #409EFF, #36cfc9);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  letter-spacing: 2px;
 }
 </style>

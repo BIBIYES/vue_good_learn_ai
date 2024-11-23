@@ -1,6 +1,5 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
-import type { User } from '@/models/User'
 
 export const useUserStore = defineStore(
   'goodlearnai',
@@ -11,14 +10,22 @@ export const useUserStore = defineStore(
     const name = ref<string>('')
     const role = ref<string>('')
     const token = ref<string>('')
+    const birthday = ref<string | null>(null)
+    const address = ref<string | null>(null)
+    const cqipcId = ref<string | null>(null)
+    const avatar = ref<string | null>(null)
 
     // Actions
-    function setUser(user: User) {
-      email.value = user.email
+    function setUser(user: any) {
+      email.value = user.user_email || user.email
       id.value = user.id
       name.value = user.name
       role.value = user.role
       token.value = user.token
+      birthday.value = user.birthday
+      address.value = user.address
+      cqipcId.value = user.cqipc_id || user.cqipcId
+      avatar.value = user.avatar
     }
 
     function clearUser() {
@@ -27,6 +34,10 @@ export const useUserStore = defineStore(
       name.value = ''
       role.value = ''
       token.value = ''
+      birthday.value = null
+      address.value = null
+      cqipcId.value = null
+      avatar.value = null
     }
     
     return {
@@ -35,6 +46,10 @@ export const useUserStore = defineStore(
       name,
       role,
       token,
+      birthday,
+      address,
+      cqipcId,
+      avatar,
       setUser,
       clearUser
     }

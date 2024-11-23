@@ -1,10 +1,8 @@
 <script setup>
 import { getExamPaperStudentAnswer } from '@/api/studentAnswerApi'
 import { ref, onMounted } from 'vue'
-import { useRoute } from 'vue-router'
-import { marked } from 'marked'
-import '@/assets/css/github-markdown.css'
-
+import { useRoute, useRouter } from 'vue-router'
+import MarkdownContext from '@/components/common/MarkdownContext.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -16,21 +14,13 @@ const index = ref(1)
 
 // 获取试卷答案
 const handelGetExamPaperAnswer = async () => {
-    console.log(userId, examPaperId)
     const res = await getExamPaperStudentAnswer(userId, examPaperId)
-    console.log(res)
     examPaperStudentAnswerList.value = res.data
 }
 
 const handlePageChange = (page) => {
     index.value = page
 }
-
-// 将题干内容转换为 Markdown
-const renderMarkdown = (content) => {
-    return marked(content)
-}
-
 
 onMounted(() => {
     handelGetExamPaperAnswer()
@@ -39,92 +29,170 @@ onMounted(() => {
 
 <template>
     <div class="container">
-        <el-card class="main-card" v-if="examPaperStudentAnswerList.length" style="min-height: 800px; position: relative;">
+        <el-card class="main-card" v-if="examPaperStudentAnswerList.length">
             <template #header>
-                <el-button @click="router.go(-1)">返回</el-button>
-                <h2 class="card-title">{{ examPaperStudentAnswerList[index - 1].examPaperName }}-{{ examPaperStudentAnswerList[index-1].username }}</h2>
+                <div class="card-header">
+                    <el-button @click="router.go(-1)">返回</el-button>
+                    <h2 class="card-title">{{ examPaperStudentAnswerList[index - 1].examPaperName }}-{{ examPaperStudentAnswerList[index-1].username }}</h2>
+                </div>
             </template>
             
-            <div class="content-section">
-                <h3>题目标题</h3>
-                <p>{{ examPaperStudentAnswerList[index - 1].questionTitle }}</p>
-            </div>
+            <div class="card-body">
+                <el-scrollbar height="650px" class="custom-scrollbar">
+                    <div class="card-content">
+                        <div class="content-section">
+                            <h3>题目标题</h3>
+                            <div class="section-content">
+                                {{ examPaperStudentAnswerList[index - 1].questionTitle }}
+                            </div>
+                        </div>
 
-            <div class="content-section">
-                <h3>题干</h3>
-                <div class="article-content markdown-body" v-html="renderMarkdown(examPaperStudentAnswerList[index - 1].questionContent)"></div>
-            </div>
+                        <div class="content-section">
+                            <h3>题干</h3>
+                            <div class="section-content">
+                                <MarkdownContext :content="examPaperStudentAnswerList[index - 1].questionContent" />
+                            </div>
+                        </div>
 
-            <div class="content-section">
-                <h3>学生回答</h3>
-                <p>{{ examPaperStudentAnswerList[index - 1].answerContent }}</p>
-            </div>
+                        <div class="content-section">
+                            <h3>学生回答</h3>
+                            <div class="section-content">
+                                <MarkdownContext :content="examPaperStudentAnswerList[index - 1].answerContent" />
+                            </div>
+                        </div>
 
-            <div class="content-section" v-if="examPaperStudentAnswerList[index - 1].aiAnswer">
-                <h3>AI响应</h3>
-                <p>{{ examPaperStudentAnswerList[index - 1].aiAnswer }}</p>
-            </div>
-            
-            <div class="footer-pagination" style="position: absolute; bottom: 0px; left: 25%;">
-                <el-pagination 
-                    :default-page-size="1" 
-                    :current-page="index" 
-                    @current-change="handlePageChange" 
-                    background 
-                    layout="prev, pager, next, jumper" 
-                    :total="examPaperStudentAnswerList.length" 
-                />
+                        <div class="content-section" v-if="examPaperStudentAnswerList[index - 1].aiAnswer">
+                            <div class="ai-header">
+                                <img src="@/assets/bot.svg" alt="AI" class="ai-avatar">
+                                <span>好助学 AI</span>
+                            </div>
+                            <div class="ai-content">
+                                <MarkdownContext :content="examPaperStudentAnswerList[index - 1].aiAnswer" />
+                            </div>
+                        </div>
+                    </div>
+                </el-scrollbar>
+                
+                <div class="footer-pagination">
+                    <el-pagination 
+                        :default-page-size="1" 
+                        :current-page="index" 
+                        @current-change="handlePageChange" 
+                        background 
+                        layout="prev, pager, next, jumper" 
+                        :total="examPaperStudentAnswerList.length" 
+                    />
+                </div>
             </div>
         </el-card>
     </div>
 </template>
 
-<style>
-@import 'github-markdown-css/github-markdown.css';
+<style scoped>
 .container {
     display: flex;
     justify-content: center;
-    padding: 20px;
+    box-sizing: border-box;
+    height: 100% !important;
 }
 
 .main-card {
-    max-width: 80%;
+    max-width: 90%;
     width: 100%;
     margin: 0 auto;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     border-radius: 8px;
-    overflow: hidden;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.card-body {
+    position: relative;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.card-content {
+    padding-bottom: 70px; /* 为分页器留出空间 */
+}
+
+.custom-scrollbar {
+    margin-right: 4px;
+    height: calc(100vh - 200px) !important;
+}
+
+.card-header {
+    display: flex;
+    align-items: center;
+    gap: 20px;
 }
 
 .card-title {
     font-size: 1.5em;
     font-weight: bold;
-    text-align: center;
     color: #333;
+    margin: 0;
+    flex-grow: 1;
+    text-align: center;
 }
 
 .content-section {
-    padding: 16px;
-    border-bottom: 1px solid #f0f0f0;
+    padding: 20px;
+    border-bottom: 1px solid #ebeef5;
 }
 
 .content-section h3 {
     font-size: 1.2em;
-    color: #555;
-    margin-bottom: 8px;
+    color: #303133;
+    margin-bottom: 16px;
 }
 
-.content-section p {
-    font-size: 1em;
-    color: #666;
-    margin: 0;
+.section-content {
+    color: #606266;
     line-height: 1.6;
+    font-size: 14px;
 }
 
-.footer-pagination {
+.ai-header {
     display: flex;
-    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+}
+
+.ai-avatar {
+    width: 24px;
+    height: 24px;
+}
+
+.ai-content {
+    background-color: #f8f9fa;
+    border-radius: 8px;
     padding: 16px;
 }
 
+.footer-pagination {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    padding: 16px 20px;
+    background-color: #fff;
+    border-top: 1px solid #ebeef5;
+}
+
+:deep(.el-scrollbar__bar.is-horizontal) {
+    display: none;
+}
+
+:deep(.el-scrollbar__bar.is-vertical) {
+    width: 6px;
+}
+
+:deep(.el-scrollbar__thumb) {
+    background-color: #909399;
+    opacity: 0.3;
+}
 </style>

@@ -92,3 +92,28 @@ export function insertStudentJoinExamPaper(
 export function getStudentJoinExamPaper(userId: number) {
   return request.get(`/user/${userId}/student-exam-papers`)
 }
+
+/**
+ * 更新用户个人信息
+ * @param data 用户信息
+ * @returns 更新结果
+ */
+export const updateUserProfile = (data: {
+  userId: number
+  username: string
+  cqipcId: string | null
+  birthday: string | null
+  address: string | null
+  avatar: string | null
+}) => {
+  return request.put('/user/profile', data)
+}
+
+/**
+ * 上传用户头像
+ * @param formData 包含头像文件的 FormData 对象
+ * @returns 上传结果
+ */
+export const uploadAvatar = (formData: FormData) => {
+  return request.post('/files/avatar', formData)
+}

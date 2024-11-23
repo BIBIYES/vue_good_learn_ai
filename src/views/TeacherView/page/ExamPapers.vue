@@ -2,18 +2,33 @@
   <div>
     <div class="header">
       <h2>我的试卷</h2>
-      <el-button type="primary" @click="showAddExamPaperDialog">
-        <el-icon><Plus /></el-icon> 添加试卷
-      </el-button>
+      <div class="header-right">
+        <el-input
+          v-model="searchKeyword"
+          placeholder="搜索试卷"
+          clearable
+          @clear="handleSearchClear"
+          class="search-input"
+        >
+          <template #prefix>
+            <el-icon>
+              <Search />
+            </el-icon>
+          </template>
+        </el-input>
+        <el-button type="primary" @click="showAddExamPaperDialog">
+          <el-icon><Plus /></el-icon> 添加试卷
+        </el-button>
+      </div>
     </div>
 
-    <el-row v-if="examPapers.length > 0" :gutter="20">
+    <el-row v-if="filteredExamPapers.length > 0" :gutter="20">
       <el-col
         :xs="24"
         :sm="12"
         :md="8"
         :lg="6"
-        v-for="exam in examPapers"
+        v-for="exam in filteredExamPapers"
         :key="exam.examPaperId"
       >
         <el-card
@@ -68,7 +83,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { deleteExamPaperById, updateExamPaperById } from '@/api/examPaperApi'
 import {
@@ -77,7 +92,7 @@ import {
 } from '@/api/userApi'
 import { useUserStore } from '@/stores/userStore'
 import { ElMessageBox, ElMessage, ElLoading } from 'element-plus'
-import { Plus, Document, Calendar, Edit, Delete } from '@element-plus/icons-vue'
+import { Plus, Document, Calendar, Edit, Delete, Search } from '@element-plus/icons-vue'
 
 const examPapers = ref<any[]>([])
 const isAddExamPaperDialogVisible = ref(false)
@@ -87,7 +102,16 @@ const editingExamPaperName = ref('')
 const editingExamPaperId = ref<number | null>(null)
 const router = useRouter()
 const userStore = useUserStore()
+const searchKeyword = ref('')
 
+const filteredExamPapers = computed(() => {
+  if (!searchKeyword.value) {
+    return examPapers.value
+  }
+  return examPapers.value.filter(exam => 
+    exam.examPaperName.toLowerCase().includes(searchKeyword.value.toLowerCase())
+  )
+})
 
 const HandelSelectExamPapersByUserId = async () => {
   try {
@@ -189,6 +213,10 @@ const formatDate = (dateString: string) => {
   })
 }
 
+const handleSearchClear = () => {
+  searchKeyword.value = ''
+}
+
 onMounted(() => {
   HandelSelectExamPapersByUserId()
 })
@@ -200,6 +228,16 @@ onMounted(() => {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 20px;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.search-input {
+  width: 250px;
 }
 
 .exam-paper-card {
