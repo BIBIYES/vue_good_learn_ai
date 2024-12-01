@@ -266,6 +266,9 @@ onMounted(() => {
 .exam-name {
   font-size: 18px;
   margin-bottom: 8px;
+  width: 80%;
+  overflow: hidden;
+  text-overflow: ellipsis; 
   color: #303133;
 }
 
