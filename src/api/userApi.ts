@@ -117,3 +117,4 @@ export const updateUserProfile = (data: {
 export const uploadAvatar = (formData: FormData) => {
   return request.post('/files/avatar', formData)
 }
+

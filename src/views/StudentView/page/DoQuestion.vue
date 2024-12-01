@@ -17,7 +17,7 @@
 
       <div class="input-container">
         <el-input v-model="answers[currentQuestionIndex]" type="textarea" placeholder="请输入你的答案"
-          :autosize="{ minRows: 4, maxRows: 10 }" @paste.native="preventPasteInput" @drop.prevent="preventDrop"
+          :autosize="{ minRows: 4, maxRows: 10 }" @paste="preventPasteInput" @drop.prevent="preventDrop"
           @dragover.prevent onpaste="return false"></el-input>
       </div>
       <div class="ai-container markdown-body" v-if="aiAnswers[currentQuestionIndex]" :class="{ 'shine-active': showShineEffect }">
