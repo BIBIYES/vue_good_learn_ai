@@ -35,7 +35,7 @@
         </el-menu-item>
         <el-menu-item index="/student/wrong-question">
           <div class="menu-item-container">
-            <el-icon class="menu-icon"><DocumentCopy /></el-icon>
+            <el-icon class="menu-icon"><Warning /></el-icon>
             <div class="menu-text">错题本</div>
           </div>
         </el-menu-item>
@@ -61,7 +61,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-import { HomeFilled, DocumentCopy, School, Menu } from '@element-plus/icons-vue'
+import { HomeFilled, DocumentCopy, School, Menu, Warning } from '@element-plus/icons-vue'
 import UserProfileFooter from '@/components/UserProfileFooter.vue'
 
 const route = useRoute()
