@@ -28,6 +28,7 @@
         :sm="12"
         :md="8"
         :lg="6"
+        :xl="4"
         v-for="exam in filteredExamPapers"
         :key="exam.examPaperId"
       >
@@ -36,15 +37,23 @@
           shadow="hover"
           @click="goToExamDetail(exam.examPaperId)"
         >
-          <div class="exam-icon">
-            <el-icon :size="40" color="#409EFF"><Document /></el-icon>
-          </div>
-          <div class="exam-info">
-            <h3 class="exam-name">{{ exam.examPaperName }}</h3>
-            <p class="exam-date" v-if="exam.examPaperUpdatedDate">
-              <el-icon><Calendar /></el-icon>
-              更新时间: {{ formatDate(exam.examPaperUpdatedDate) }}
-            </p>
+          <div class="card-content">
+            <div class="exam-icon">
+              <el-icon :size="40" color="#409EFF"><Document /></el-icon>
+            </div>
+            <div class="exam-info">
+              <el-tooltip
+                :content="exam.examPaperName"
+                placement="top"
+                :show-after="1000"
+              >
+                <h3 class="exam-name">{{ exam.examPaperName }}</h3>
+              </el-tooltip>
+              <p class="exam-date" v-if="exam.examPaperUpdatedDate">
+                <el-icon><Calendar /></el-icon>
+                更新时间: {{ formatDate(exam.examPaperUpdatedDate) }}
+              </p>
+            </div>
           </div>
           <div class="exam-actions">
             <el-button link @click.stop="editExamPaper(exam.examPaperId)">
@@ -241,11 +250,17 @@ onMounted(() => {
 }
 
 .exam-paper-card {
-  height: 100%;
+  height: 160px;
   display: flex;
   flex-direction: column;
   transition: all 0.3s;
   border-radius: 10px;
+}
+
+.card-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
 }
 
 .exam-paper-card:hover {
@@ -256,24 +271,29 @@ onMounted(() => {
 .exam-icon {
   display: flex;
   justify-content: center;
-  margin-bottom: 16px;
+  margin-bottom: 8px;
 }
 
 .exam-info {
-  flex-grow: 1;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
 }
 
 .exam-name {
-  font-size: 18px;
-  margin-bottom: 8px;
-  width: 80%;
-  overflow: hidden;
-  text-overflow: ellipsis; 
+  font-size: 16px;
+  margin-bottom: 4px;
   color: #303133;
+  width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding-right: 10px;
 }
 
 .exam-date {
-  font-size: 14px;
+  font-size: 13px;
   color: #909399;
   display: flex;
   align-items: center;
@@ -286,11 +306,13 @@ onMounted(() => {
 .exam-actions {
   display: flex;
   justify-content: space-between;
-  margin-top: 16px;
+  padding: 16px 8px;
+  margin-top: auto;
+  background-color: #fff;
 }
 
 .exam-actions .el-button {
-  padding: 0;
+  padding: 0 12px;
 }
 
 .no-exam-papers {
@@ -299,6 +321,30 @@ onMounted(() => {
 }
 
 .el-row {
-  margin-bottom: 20px;
+  margin: 0 -10px;
+}
+
+.el-col {
+  padding: 10px;
+}
+
+@media screen and (max-width: 768px) {
+  .header {
+    flex-direction: column;
+    gap: 16px;
+  }
+  
+  .header-right {
+    width: 100%;
+    flex-direction: column;
+  }
+  
+  .search-input {
+    width: 100%;
+  }
+  
+  .header-right .el-button {
+    width: 100%;
+  }
 }
 </style>

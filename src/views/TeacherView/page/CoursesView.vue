@@ -25,7 +25,15 @@
     </div>
 
     <el-row v-if="filteredCourses.length > 0" :gutter="20">
-      <el-col :xs="24" :sm="12" :md="8" :lg="6" v-for="course in filteredCourses" :key="course.courseId">
+      <el-col
+        :xs="24"
+        :sm="12"
+        :md="8"
+        :lg="6"
+        :xl="4"
+        v-for="course in filteredCourses"
+        :key="course.courseId"
+      >
         <el-card class="course-card" shadow="hover" @click="goToCourseDetail(course.courseId)">
           <div class="course-icon">
             <el-icon :size="40" color="#409EFF">
@@ -256,7 +264,7 @@ onMounted(() => {
 }
 
 .course-card {
-  height: 100%;
+  height: 160px;
   display: flex;
   flex-direction: column;
   transition: all 0.3s;
@@ -271,21 +279,29 @@ onMounted(() => {
 .course-icon {
   display: flex;
   justify-content: center;
-  margin-bottom: 16px;
+  margin-bottom: 8px;
 }
 
 .course-info {
-  flex-grow: 1;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
 }
 
 .course-name {
-  font-size: 18px;
-  margin-bottom: 8px;
+  font-size: 16px;
+  margin-bottom: 4px;
   color: #303133;
+  width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding-right: 10px;
 }
 
 .course-date {
-  font-size: 14px;
+  font-size: 13px;
   color: #909399;
   display: flex;
   align-items: center;
@@ -298,11 +314,13 @@ onMounted(() => {
 .course-actions {
   display: flex;
   justify-content: space-between;
-  margin-top: 16px;
+  padding: 16px 8px;
+  margin-top: auto;
+  background-color: #fff;
 }
 
 .course-actions .el-button {
-  padding: 0;
+  padding: 0 12px;
 }
 
 .no-courses {
@@ -311,6 +329,31 @@ onMounted(() => {
 }
 
 .el-row {
-  margin-bottom: 20px;
+  margin: 0 -10px;
+}
+
+.el-col {
+  padding: 10px;
+}
+
+/* 添加响应式布局样式 */
+@media screen and (max-width: 768px) {
+  .header {
+    flex-direction: column;
+    gap: 16px;
+  }
+  
+  .header-right {
+    width: 100%;
+    flex-direction: column;
+  }
+  
+  .search-input {
+    width: 100%;
+  }
+  
+  .header-right .el-button {
+    width: 100%;
+  }
 }
 </style>
