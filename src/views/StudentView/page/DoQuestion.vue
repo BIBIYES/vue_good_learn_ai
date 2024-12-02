@@ -78,6 +78,7 @@ import { submitAnswer } from '@/api/studentAnswerApi'
 import { useUserStore } from '@/stores/userStore'
 import { messageTools } from '@/utils/messageTools'
 import { fastgpt } from '@/utils/FastGpt';
+import { addWrongQuestion } from '@/api/WrongQuestionApi'
 const { isLoading, error, results, sendQuestion } = fastgpt();
 import 'github-markdown-css/github-markdown.css'
 
@@ -155,7 +156,7 @@ console.log(prompt);
         content: prompt
       }
     ],
-    onData: (response) => {
+    onData: async (response) => {
       try {
         if (response && response.choices && response.choices[0]) {
           if (response.choices[0].finish_reason === null) {
@@ -164,11 +165,24 @@ console.log(prompt);
             aiAnswers.value[currentQuestionIndex.value] = rawAiAnswer.value
           } else {
             isFetching.value = false
-            // AI回答完成后，延迟关闭动画
             setTimeout(() => {
               showShineEffect.value = false
             }, 500)
-            if (/#valid#/i.test(rawAiAnswer.value)) {
+            
+            // 检查答案是否错误，如果错误则添加到错题本
+            if (/#invalid#/i.test(rawAiAnswer.value)) {
+              // 构造错题数据
+              const wrongQuestionData = {
+                userId: userId,
+                examPaperId: Number(examPaperId),
+                questionId: questions.value[currentQuestionIndex.value].questionId,
+                wrongAnswer: answers.value[currentQuestionIndex.value],
+                aiAnswer: rawAiAnswer.value
+              }
+              
+              // 调用添加错题接口
+              await handleAddWrongQuestion(wrongQuestionData)
+            } else if (/#valid#/i.test(rawAiAnswer.value)) {
               messageTools.successMessage('回答正确！可以进入下一题')
             }
           }
@@ -307,6 +321,18 @@ const preventDrop = (event) => {
   event.preventDefault()
   messageTools.warningMessage('为了学习效果，请勿拖拽输入答案')
 }
+
+// 添加错题记录
+const handleAddWrongQuestion = async (questionData) => {    
+  try {
+    await addWrongQuestion(questionData)
+    console.log('错题添加成功')
+  } catch (error) {
+    console.error('添加错题记录失败:', error)
+    messageTools.errorMessage('添加错题记录失败')
+  }
+}
+
 </script>
 
 <style scoped>

@@ -8,23 +8,67 @@ const router = createRouter({
       name: 'index',
       redirect: '/login'
     },
+    
+    {
+      path: '/login',
+      name: 'login',
+      meta: {
+        title: '好助学-登录页'
+      },
+      component: () => import('../views/LoginView.vue')
+    },
+    {
+      path: '/student',
+      name: 'student',
+      redirect: '/student/home',
+      meta: {
+        title: '好助学-学生端'
+      },
+      component: () => import('@/views/StudentView/layout/HomeLayout.vue'),
+      children: [
+        {
+          path: 'home',
+          name: 'studentHome',
+          meta: {
+            title: '好助学-首页'
+          },
+          component: () => import('@/views/StudentView/page/HomeView.vue')
+        },
+        {
+          path: 'exam-paper',
+          name: 'exam-paper',
+          meta: {
+            title: '好助学-试卷列表'
+          },
+          component: () => import('@/views/StudentView/page/ExamPaper.vue')
+        },
+        {
+          path: 'profile',
+          name: 'studentProfile',
+          meta: {
+            title: '好助学-个人信息'
+          },
+          component: () => import('@/views/StudentView/page/UserProfileView.vue')
+        }
+      ]
+    },
+    {
+      path: '/student/do-question/:examPaperId',
+      name: 'DoQuestion',
+      meta: {
+        title: '好助学-做题'
+      },
+      component: () => import('@/views/StudentView/page/DoQuestion.vue')
+    },
     {
       path: '/teacher',
-      name: 'home',
-      redirect:'/teacher/course',
+      name: 'teacher',
+      redirect: '/teacher/course',
       meta: {
         title: '好助学-教师端'
       },
       component: () => import('../views/TeacherView/layout/HomeLayout.vue'),
       children: [
-        // {
-        //   path: '/teacher/home',
-        //   name: 'home',
-        //   meta: {
-        //     title: '好助学-首页'
-        //   },
-        //   component: () => import('../views/TeacherView/page/HomePage.vue')
-        // },
         {
           path: '/teacher/course',
           name: 'myCourses',
@@ -43,7 +87,7 @@ const router = createRouter({
             import('../views/TeacherView/page/CourseQuestionsView.vue')
         },
         {
-          path: '/teacher/exam-papers', // 新的试卷页面路由
+          path: '/teacher/exam-papers',
           name: 'examPapers',
           meta: {
             title: '好助学-试卷列表'
@@ -57,16 +101,16 @@ const router = createRouter({
             title: '好助学-试卷详情'
           },
           component: () =>
-            import('@/views/TeacherView/page/ExamPaperQuestionsView.vue'), // 跳转到试卷详情页
-          props: true // 通过 props 传递路由参数
+            import('@/views/TeacherView/page/ExamPaperQuestionsView.vue'),
+          props: true
         },
         {
-          path:"/check-page/:userId/:examPaperId",
-          name:"check-page",
-          meta:{
-            title:"好助学-试卷检查"
+          path: "/check-page/:userId/:examPaperId",
+          name: "check-page",
+          meta: {
+            title: "好助学-试卷检查"
           },
-          component:()=>import("@/views/TeacherView/page/CheckPage.vue")
+          component: () => import("@/views/TeacherView/page/CheckPage.vue")
         },
         {
           path: '/teacher/profile',
@@ -78,49 +122,7 @@ const router = createRouter({
         }
       ]
     },
-    {
-      path: '/login',
-      name: 'login',
-      meta: {
-        title: '好助学-登录页'
-      },
-      component: () => import('../views/LoginView.vue')
-    },
-    {
-      path: '/student',
-      name: 'student',
-      redirect: '/student/exam-paper',
-      meta: {
-        title: '好助学-学生端'
-      },
-      component: () => import('@/views/StudentView/layout/HomeLayout.vue'),
-      children: [
-        {
-          path: '/student/exam-paper',
-          name: 'exam-paper',
-          meta: {
-            title: '好助学-试卷列表'
-          },
-          component: () => import('@/views/StudentView/page/ExamPaper.vue')
-        },
-        {
-          path: '/student/profile',
-          name: 'studentProfile',
-          meta: {
-            title: '好助学-个人信息'
-          },
-          component: () => import('@/views/StudentView/page/UserProfileView.vue')
-        }
-      ]
-    },
-    {
-      path: '/student/do-question/:examPaperId',
-      name: 'DoQuestion',
-      meta: {
-        title: '好助学-做题'
-      },
-      component: () => import('@/views/StudentView/page/DoQuestion.vue')
-    },
+    
     
   ]
 })

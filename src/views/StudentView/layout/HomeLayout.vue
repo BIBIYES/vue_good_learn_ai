@@ -21,9 +21,15 @@
 
       <!-- 菜单 -->
       <el-menu :default-active="activeIndex" class="menu-container" :router="true">
+        <el-menu-item index="/student/home">
+          <div class="menu-item-container">
+            <el-icon class="menu-icon"><HomeFilled /></el-icon>
+            <div class="menu-text">首页</div>
+          </div>
+        </el-menu-item>
         <el-menu-item index="/student/exam-paper">
           <div class="menu-item-container">
-            <el-icon class="menu-icon"><Notebook /></el-icon>
+            <el-icon class="menu-icon"><DocumentCopy /></el-icon>
             <div class="menu-text">我的试卷</div>
           </div>
         </el-menu-item>
@@ -49,7 +55,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-import { Notebook, School, Menu } from '@element-plus/icons-vue'
+import { HomeFilled, DocumentCopy, School, Menu } from '@element-plus/icons-vue'
 import UserProfileFooter from '@/components/UserProfileFooter.vue'
 
 const route = useRoute()

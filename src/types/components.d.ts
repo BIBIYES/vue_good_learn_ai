@@ -7,6 +7,7 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    AllExamPaperStatus: typeof import('./../components/charts/AllExamPaperStatus.vue')['default']
     BatchUploadQuestions: typeof import('./../components/BatchUploadQuestions.vue')['default']
     ElAlert: typeof import('element-plus/es')['ElAlert']
     ElAside: typeof import('element-plus/es')['ElAside']
