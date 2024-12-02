@@ -3,7 +3,7 @@
     <div class="profile-card">
       <div class="profile-header">
         <div class="avatar-wrapper">
-          <el-avatar :size="100" :src="'/api' + userStore.avatar" />
+          <el-avatar :size="100" :src=avatarUrl />
           <div class="avatar-upload">
             <el-upload class="avatar-uploader" action="#" :auto-upload="false" :show-file-list="false"
               :on-change="handleAvatarChange" accept="image/*">
@@ -22,7 +22,7 @@
           <el-form-item label="用户名" prop="name">
             <el-input v-model="profileForm.name" />
           </el-form-item>
-          
+
           <el-form-item label="邮箱">
             <el-input v-model="profileForm.email" disabled />
           </el-form-item>
@@ -43,7 +43,7 @@
       </div>
 
       <div class="profile-actions">
-        <el-button type="primary" @click="handleSave">保存修改</el-button>
+        <el-button type="primary" @click="handleSave()">保存修改</el-button>
         <el-button @click="handleCancel">取消</el-button>
       </div>
     </div>
@@ -57,81 +57,89 @@ import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { updateUserProfile, uploadAvatar } from "@/api/userApi"
 const router = useRouter()
-    const userStore = useUserStore()
-    const formRef = ref(null)
+const userStore = useUserStore()
+const formRef = ref(null)
 
-    const profileForm = ref({
-      id: userStore.id,
-      name: userStore.name,
-      cqipcId: userStore.cqipcId,
-      birthday: userStore.birthday ? userStore.birthday : "",
-      address: userStore.address,
-      avatar: userStore.avatar,
-      email: userStore.email
-    })
+const profileForm = ref({
+  id: userStore.id,
+  name: userStore.name,
+  cqipcId: userStore.cqipcId,
+  birthday: userStore.birthday ? userStore.birthday : "",
+  address: userStore.address,
+  avatar: userStore.avatar,
+  email: userStore.email
+})
 
-    const rules = {
-      name: [
-        { required: true, message: '请输入用户名', trigger: 'blur' },
-        { min: 2, max: 20, message: '长度在 2 到 20 个字符', trigger: 'blur' }
-      ],
-      cqipcId: [
-        { required: true, message: '请输入学校ID', trigger: 'blur' }
-      ]
+const rules = {
+  name: [
+    { required: true, message: '请输入用户名', trigger: 'blur' },
+    { min: 2, max: 20, message: '长度在 2 到 20 个字符', trigger: 'blur' }
+  ],
+  cqipcId: [
+    { required: true, message: '请输入学校ID', trigger: 'blur' }
+  ]
+}
+// 头像计算属性
+const avatarUrl = computed(() => {
+  // 如果上传了头像
+
+  if (userStore.avatar) {
+    return '/api/' + profileForm.value.avatar
+  }
+  return `https://q2.qlogo.cn/headimg_dl?dst_uin=${userStore.email}&spec=640`
+})
+const handleAvatarChange = async (uploadFile) => {
+  if (!uploadFile.raw) return
+
+  const formData = new FormData()
+  formData.append('file', uploadFile.raw)
+
+  try {
+    const res = await uploadAvatar(formData)
+    if (res.code === 200) {
+      profileForm.value.avatar = res.data
+      ElMessage.success('头像上传成功！保存后生效')
     }
+  } catch (error) {
+    ElMessage.error('头像上传失败')
+  }
+}
 
-    const handleAvatarChange = async (uploadFile) => {
-      if (!uploadFile.raw) return
+const handleSave = async () => {
+  if (!formRef.value) return
 
-      const formData = new FormData()
-      formData.append('file', uploadFile.raw)
-
+  await formRef.value.validate(async (valid) => {
+    if (valid) {
       try {
-        const res = await uploadAvatar(formData)
+        const res = await updateUserProfile({
+          userId: profileForm.value.id,
+          username: profileForm.value.name,
+          cqipcId: profileForm.value.cqipcId,
+          birthday: profileForm.value.birthday || null,
+          address: profileForm.value.address || null,
+          avatar: profileForm.value.avatar || null
+        })
         if (res.code === 200) {
-          profileForm.value.avatar = res.data
-          ElMessage.success('头像上传成功！保存后生效')
+          ElMessage.success(res.msg)
+          userStore.setUser({
+            ...userStore.$state,
+            name: profileForm.value.name,
+            cqipc_id: profileForm.value.cqipcId,
+            birthday: profileForm.value.birthday,
+            address: profileForm.value.address,
+            avatar: profileForm.value.avatar
+          })
         }
       } catch (error) {
-        ElMessage.error('头像上传失败')
+        ElMessage.error('保存失败')
       }
     }
+  })
+}
 
-    const handleSave = async () => {
-      if (!formRef.value) return
-
-      await formRef.value.validate(async (valid) => {
-        if (valid) {
-          try {
-            const res = await updateUserProfile({
-              userId: profileForm.value.id,
-              username: profileForm.value.name,
-              cqipcId: profileForm.value.cqipcId,
-              birthday: profileForm.value.birthday || null,
-              address: profileForm.value.address || null,
-              avatar: profileForm.value.avatar || null
-            })
-            if (res.code === 200) {
-              ElMessage.success('保存成功')
-              userStore.setUser({
-                ...userStore.$state,
-                name: profileForm.value.name,
-                cqipc_id: profileForm.value.cqipcId,
-                birthday: profileForm.value.birthday,
-                address: profileForm.value.address,
-                avatar: profileForm.value.avatar
-              })
-            }
-          } catch (error) {
-            ElMessage.error('保存失败')
-          }
-        }
-      })
-    }
-
-    const handleCancel = () => {
-      router.back()
-    }
+const handleCancel = () => {
+  router.back()
+}
 </script>
 
 <style scoped>

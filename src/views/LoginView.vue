@@ -226,6 +226,8 @@ const handleLogin = async () => {
     })
     // 直接将API返回的数据存储到store中
     userStore.setUser(res.data)
+    console.log(res.data);
+    
     
     // 判断是学生还是老师
     if (res.data.role === 'student') {

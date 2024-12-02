@@ -3,7 +3,7 @@
     <div class="bottom-content">
       <div class="user-info">
         <el-avatar 
-          :src="'/api'+userStore.avatar" 
+          :src=avatarUrl 
           :size="40"
         ></el-avatar>
         <div class="user-details">
@@ -39,6 +39,16 @@ const handleLogout = () => {
   ElMessage.success('退出登录成功')
   router.push('/login')
 }
+
+// 头像计算属性
+const avatarUrl = computed(() => {
+  // 如果上传了头像
+
+  if (userStore.avatar) {
+    return '/api/' + userStore.avatar
+  }
+  return `https://q2.qlogo.cn/headimg_dl?dst_uin=${userStore.email}&spec=640`
+})
 </script>
 
 <style scoped>
