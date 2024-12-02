@@ -91,45 +91,51 @@ const getStatusStyle = (status) => {
       </div>
     </div>
 
-    <div class="mypapers-box">
-      <el-card
+    <el-row :gutter="20">
+      <el-col 
+        :xs="24"
+        :sm="12"
+        :md="8"
+        :lg="6"
+        :xl="4"
         v-for="paper in myPapers"
         :key="paper.examPaperId"
-        class="paper-card"
-        shadow="hover"
-        @click="() => handleGoToPaper(paper.examPaperId)"
       >
-        <div class="paper-header">
-          <h3>{{ paper.examPaperName }}</h3>
-          <el-tag :style="getStatusStyle(paper.status)" effect="dark">
-            {{ paper.status }}
-          </el-tag>
-        </div>
-        <div class="paper-content">
-          <div class="paper-info">
-            <el-icon><Document /></el-icon>
-            <span>试卷ID: {{ paper.examPaperId }}</span>
+        <el-card
+          class="paper-card"
+          shadow="hover"
+          @click="() => handleGoToPaper(paper.examPaperId)"
+        >
+          <div class="paper-header">
+            <h3>{{ paper.examPaperName }}</h3>
+            <el-tag :style="getStatusStyle(paper.status)" effect="dark">
+              {{ paper.status }}
+            </el-tag>
           </div>
-          <div class="paper-info">
-            <el-icon><User /></el-icon>
-            <span>作者: {{ paper.username }}</span>
+          <div class="paper-content">
+            <div class="paper-info">
+              <el-icon><Document /></el-icon>
+              <span>试卷ID: {{ paper.examPaperId }}</span>
+            </div>
+            <div class="paper-info">
+              <el-icon><User /></el-icon>
+              <span>作者: {{ paper.username }}</span>
+            </div>
+            <div class="paper-info">
+              <el-icon><Calendar /></el-icon>
+              <span>创建时间: {{ new Date(paper.joinDate).toLocaleString() }}</span>
+            </div>
           </div>
-          <div class="paper-info">
-            <el-icon><Calendar /></el-icon>
-            <span
-              >创建时间: {{ new Date(paper.joinDate).toLocaleString() }}</span
-            >
-          </div>
-        </div>
-      </el-card>
-    </div>
+        </el-card>
+      </el-col>
+    </el-row>
   </div>
 </template>
 
 <style lang="less">
 .app {
   background-color: #f4f4f7;
-  max-height: 100vh;
+  min-height: 100%;
   padding: 20px;
 }
 
@@ -148,19 +154,16 @@ const getStatusStyle = (status) => {
   }
 }
 
-.mypapers-box {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 20px;
-}
-
 .paper-card {
+  height: 160px;
   transition: all 0.3s ease;
   border-radius: 10px;
   cursor: pointer;
+  margin-bottom: 20px;
 
   &:hover {
     transform: translateY(-5px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   }
 
   .paper-header {
@@ -171,8 +174,12 @@ const getStatusStyle = (status) => {
 
     h3 {
       margin: 0;
-      font-size: 18px;
+      font-size: 16px;
       color: var(--el-color-primary);
+      width: calc(100% - 80px);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .el-tag {
@@ -182,6 +189,7 @@ const getStatusStyle = (status) => {
       font-size: 12px;
       border-radius: 10px;
       border: none;
+      flex-shrink: 0;
     }
   }
 
@@ -191,11 +199,45 @@ const getStatusStyle = (status) => {
       align-items: center;
       margin-bottom: 8px;
       color: var(--el-text-color-secondary);
+      font-size: 13px;
 
       .el-icon {
         margin-right: 8px;
+        flex-shrink: 0;
+      }
+
+      span {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
       }
     }
+  }
+}
+
+/* 移动端适配 */
+@media screen and (max-width: 768px) {
+  .app {
+    padding: 15px;
+  }
+
+  .controller-box {
+    .controller-addpapers {
+      width: 100%;
+      flex-direction: column;
+
+      .el-input {
+        width: 100%;
+      }
+
+      .el-button {
+        width: 100%;
+      }
+    }
+  }
+
+  .paper-card {
+    margin-bottom: 15px;
   }
 }
 </style>
