@@ -115,6 +115,6 @@ export const updateUserProfile = (data: {
  * @returns 上传结果
  */
 export const uploadAvatar = (formData: FormData) => {
-  return request.post('/files/avatar', formData)
+  return request.post('/file/upload-avatar', formData)
 }
 

@@ -84,7 +84,7 @@ const avatarUrl = computed(() => {
   // 如果上传了头像
 
   if (userStore.avatar) {
-    return '/api/' + profileForm.value.avatar
+    return '/api' + userStore.avatar
   }
   return `https://q2.qlogo.cn/headimg_dl?dst_uin=${userStore.email}&spec=640`
 })
@@ -92,7 +92,7 @@ const handleAvatarChange = async (uploadFile) => {
   if (!uploadFile.raw) return
 
   const formData = new FormData()
-  formData.append('file', uploadFile.raw)
+  formData.append('photo', uploadFile.raw)
 
   try {
     const res = await uploadAvatar(formData)
