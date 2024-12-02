@@ -49,6 +49,14 @@ const router = createRouter({
             title: '好助学-个人信息'
           },
           component: () => import('@/views/StudentView/page/UserProfileView.vue')
+        },
+        {
+          path: 'wrong-question',
+          name: 'wrongQuestion',
+          meta: {
+            title: '好助学-错题本'
+          },
+          component: () => import('@/views/StudentView/page/WrongQuestionView.vue')
         }
       ]
     },

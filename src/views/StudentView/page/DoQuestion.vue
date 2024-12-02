@@ -220,7 +220,7 @@ const fetchQuestions = async () => {
   }
 }
 
-// 添加键盘快捷键防护
+// 添加键盘快捷���防护
 const preventShortcuts = (event) => {
   // 只防止 Ctrl+V 粘贴
   if (event.ctrlKey && event.key === 'v') {
@@ -343,6 +343,8 @@ const handleAddWrongQuestion = async (questionData) => {
   background: url(../../../assets/img/loginBackground.png);
   background-position: -500px;
   background-size: cover;
+  overflow-x: hidden;
+  position: relative;
 }
 
 .exam-container {
@@ -355,6 +357,10 @@ const handleAddWrongQuestion = async (questionData) => {
   border-radius: 8px;
   max-width: 800px;
   margin: 0 auto;
+  width: calc(100% - 40px);
+  box-sizing: border-box;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
 }
 
 .question-info {
@@ -376,12 +382,17 @@ const handleAddWrongQuestion = async (questionData) => {
   padding: 10px;
   border-radius: 10px;
   background-color: #fff;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  word-break: break-word;
+  box-sizing: border-box;
 }
 
 .input-container {
   position: relative;
   width: 100%;
   margin-bottom: 20px;
+  box-sizing: border-box;
 }
 
 .ai-container {
@@ -393,6 +404,7 @@ const handleAddWrongQuestion = async (questionData) => {
   box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
   position: relative;
   overflow: hidden;
+  box-sizing: border-box;
 }
 
 .ai-header {
@@ -419,6 +431,9 @@ const handleAddWrongQuestion = async (questionData) => {
 
 .ai-content {
   padding: 16px;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  word-break: break-word;
 }
 
 .button-group {
@@ -488,6 +503,14 @@ const handleAddWrongQuestion = async (questionData) => {
     left: 100%;
     opacity: 0.8;
   }
+}
+
+/* 确保markdown内容不会溢出 */
+:deep(.markdown-body) {
+  max-width: 100%;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  word-break: break-word;
 }
 </style>
 

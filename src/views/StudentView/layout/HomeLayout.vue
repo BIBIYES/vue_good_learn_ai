@@ -33,6 +33,12 @@
             <div class="menu-text">我的试卷</div>
           </div>
         </el-menu-item>
+        <el-menu-item index="/student/wrong-question">
+          <div class="menu-item-container">
+            <el-icon class="menu-icon"><DocumentCopy /></el-icon>
+            <div class="menu-text">错题本</div>
+          </div>
+        </el-menu-item>
       </el-menu>
 
       <UserProfileFooter />
