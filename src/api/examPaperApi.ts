@@ -39,3 +39,8 @@ export const getExamPaperUserStatus = (examPaperId:number)=>{
   return request.get(`/studentExamPapers/${examPaperId}`)
 
 }
+
+// 获取所有已经完成的试卷
+export const getAllCompletedExamPapers = ()=>{
+  return request.get(`/studentExamPapers/get-all-papers`)
+}

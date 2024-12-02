@@ -78,6 +78,7 @@ import { submitAnswer } from '@/api/studentAnswerApi'
 import { useUserStore } from '@/stores/userStore'
 import { messageTools } from '@/utils/messageTools'
 import { fastgpt } from '@/utils/FastGpt';
+import { addWrongQuestion } from '@/api/WrongQuestionApi'
 const { isLoading, error, results, sendQuestion } = fastgpt();
 import 'github-markdown-css/github-markdown.css'
 
@@ -155,7 +156,7 @@ console.log(prompt);
         content: prompt
       }
     ],
-    onData: (response) => {
+    onData: async (response) => {
       try {
         if (response && response.choices && response.choices[0]) {
           if (response.choices[0].finish_reason === null) {
@@ -164,11 +165,24 @@ console.log(prompt);
             aiAnswers.value[currentQuestionIndex.value] = rawAiAnswer.value
           } else {
             isFetching.value = false
-            // AI回答完成后，延迟关闭动画
             setTimeout(() => {
               showShineEffect.value = false
             }, 500)
-            if (/#valid#/i.test(rawAiAnswer.value)) {
+            
+            // 检查答案是否错误，如果错误则添加到错题本
+            if (/#invalid#/i.test(rawAiAnswer.value)) {
+              // 构造错题数据
+              const wrongQuestionData = {
+                userId: userId,
+                examPaperId: Number(examPaperId),
+                questionId: questions.value[currentQuestionIndex.value].questionId,
+                wrongAnswer: answers.value[currentQuestionIndex.value],
+                aiAnswer: rawAiAnswer.value
+              }
+              
+              // 调用添加错题接口
+              await handleAddWrongQuestion(wrongQuestionData)
+            } else if (/#valid#/i.test(rawAiAnswer.value)) {
               messageTools.successMessage('回答正确！可以进入下一题')
             }
           }
@@ -206,7 +220,7 @@ const fetchQuestions = async () => {
   }
 }
 
-// 添加键盘快捷键防护
+// 添加键盘快捷���防护
 const preventShortcuts = (event) => {
   // 只防止 Ctrl+V 粘贴
   if (event.ctrlKey && event.key === 'v') {
@@ -307,6 +321,18 @@ const preventDrop = (event) => {
   event.preventDefault()
   messageTools.warningMessage('为了学习效果，请勿拖拽输入答案')
 }
+
+// 添加错题记录
+const handleAddWrongQuestion = async (questionData) => {    
+  try {
+    await addWrongQuestion(questionData)
+    console.log('错题添加成功')
+  } catch (error) {
+    console.error('添加错题记录失败:', error)
+    messageTools.errorMessage('添加错题记录失败')
+  }
+}
+
 </script>
 
 <style scoped>
@@ -317,6 +343,8 @@ const preventDrop = (event) => {
   background: url(../../../assets/img/loginBackground.png);
   background-position: -500px;
   background-size: cover;
+  overflow-x: hidden;
+  position: relative;
 }
 
 .exam-container {
@@ -329,6 +357,10 @@ const preventDrop = (event) => {
   border-radius: 8px;
   max-width: 800px;
   margin: 0 auto;
+  width: calc(100% - 40px);
+  box-sizing: border-box;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
 }
 
 .question-info {
@@ -350,12 +382,17 @@ const preventDrop = (event) => {
   padding: 10px;
   border-radius: 10px;
   background-color: #fff;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  word-break: break-word;
+  box-sizing: border-box;
 }
 
 .input-container {
   position: relative;
   width: 100%;
   margin-bottom: 20px;
+  box-sizing: border-box;
 }
 
 .ai-container {
@@ -367,6 +404,7 @@ const preventDrop = (event) => {
   box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
   position: relative;
   overflow: hidden;
+  box-sizing: border-box;
 }
 
 .ai-header {
@@ -393,6 +431,9 @@ const preventDrop = (event) => {
 
 .ai-content {
   padding: 16px;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  word-break: break-word;
 }
 
 .button-group {
@@ -462,6 +503,14 @@ const preventDrop = (event) => {
     left: 100%;
     opacity: 0.8;
   }
+}
+
+/* 确保markdown内容不会溢出 */
+:deep(.markdown-body) {
+  max-width: 100%;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  word-break: break-word;
 }
 </style>
 

@@ -204,7 +204,7 @@ const registerRules = ref({
   ],
   userPassword: [
     { required: true, message: '请输入密码', trigger: 'blur' },
-    { min: 6, max: 12, message: '��码长度应在6到12个字符之间', trigger: 'blur' }
+    { min: 6, max: 12, message: '密码长度应在6到12个字符之间', trigger: 'blur' }
   ],
   confirmPassword: [
     { required: true, message: '请再次输入密码', trigger: 'blur' },
@@ -224,14 +224,11 @@ const handleLogin = async () => {
       type: 'success',
       plain: true
     })
-    // 直接将API返回的数据存储到store中
+    // 将API返回的数据存储到store中
     userStore.setUser(res.data)
-    console.log(res.data);
-    
-    
-    // 判断是学生还是老师
+    // 修改跳转逻辑
     if (res.data.role === 'student') {
-      await router.push('/student')
+      await router.push('/student/home')  // 改为跳转到home页面
     } else {
       await router.push('/teacher/course')
     }
