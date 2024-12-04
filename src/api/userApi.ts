@@ -118,3 +118,8 @@ export const uploadAvatar = (formData: FormData) => {
   return request.post('/file/upload-avatar', formData)
 }
 
+
+// 获取所有学生的信息
+export function getAllStudents(name: string) {
+  return request.get('/user/get-all-student', { params: { name } })
+}

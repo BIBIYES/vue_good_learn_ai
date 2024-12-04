@@ -1,7 +1,30 @@
+<script setup>
+import { getWrongQuestion } from '@/api/WrongQuestionApi'
+import { useUserStore } from '@/stores/userStore'
+// 获取用户信息
+const userStore = useUserStore()
+
+const userId = userStore.id
+
+// 错题
+const wrongQuestions = ref([])
+
+// 获取错题
+const handleGetWrongQuestions = async () => {
+  const params = {
+    examPaperName: "",
+    questionTitle: ""
+  }
+  const res = await getWrongQuestion(userId, params)
+  console.log(res);
+  
+  wrongQuestions.value = res.data
+}
+
+onMounted(() => {
+  handleGetWrongQuestions()
+})
+</script>
 <template>
-  <div>
-    <h1>我还没写出来呢.....就我一个人干活哭唧唧</h1>
-    <h1>提醒一下哎，现在错误的题目也会记录到数据库中了</h1>
-    <img src="@\assets\img\QQ20241203-043111.png" alt="">
-  </div>
+  
 </template>

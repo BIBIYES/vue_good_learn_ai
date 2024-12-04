@@ -67,9 +67,7 @@ onMounted(() => {
 </template>
 
 <style scoped lang="less">
-.home-container {
-  padding: 20px;
-}
+
 
 .welcome-section {
   margin-bottom: 30px;

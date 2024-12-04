@@ -78,7 +78,8 @@ const getStatusStyle = (status) => {
 
 <template>
   <div class="app">
-    <div class="controller-box">
+    <div class="header">
+      <h2>我的试卷</h2>
       <div class="controller-addpapers">
         <el-input v-model="examPaperId" placeholder="输入试卷id来添加试卷">
           <template #prefix>
@@ -136,13 +137,20 @@ const getStatusStyle = (status) => {
 .app {
   background-color: #f4f4f7;
   min-height: 100%;
-  padding: 20px;
+  
 }
 
-.controller-box {
-  margin-bottom: 20px;
+.header {
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+
+  h2 {
+    margin: 0;
+    font-size: 22px;
+    color: #303133;
+  }
 
   .controller-addpapers {
     display: flex;
@@ -221,7 +229,11 @@ const getStatusStyle = (status) => {
     padding: 15px;
   }
 
-  .controller-box {
+  .header {
+    flex-direction: column;
+    gap: 16px;
+    align-items: flex-start;
+
     .controller-addpapers {
       width: 100%;
       flex-direction: column;

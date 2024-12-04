@@ -8,3 +8,8 @@ export const addWrongQuestion = (wrongQuestionData) => {
     data: wrongQuestionData
   })
 }
+
+// 获取错题
+export const getWrongQuestion = (userId, params) => {
+  return request.get(`/wrong-question/user/${userId}`, { params })
+}

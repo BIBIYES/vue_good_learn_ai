@@ -127,6 +127,14 @@ const router = createRouter({
             title: '好助学-个人信息'
           },
           component: () => import('@/views/TeacherView/page/UserProfileView.vue')
+        },
+        {
+          path: '/teacher/student-terminal',
+          name: 'studentTerminal',
+          meta: {
+            title: '好助学-学生终端'
+          },
+          component: () => import('@/views/TeacherView/page/StudentTerminal.vue')
         }
       ]
     },

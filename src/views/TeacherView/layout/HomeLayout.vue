@@ -34,6 +34,12 @@
             <div class="menu-text">我的试卷</div>
           </div>
         </el-menu-item>
+        <el-menu-item index="/teacher/student-terminal">
+          <div class="menu-item-container">
+            <el-icon class="menu-icon"><Notebook /></el-icon>
+            <div class="menu-text">学生终端</div>
+          </div>
+        </el-menu-item>
       </el-menu>
 
       <UserProfileFooter />
