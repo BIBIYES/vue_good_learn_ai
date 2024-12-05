@@ -66,8 +66,8 @@
             @click="nextQuestion">
             下一题
           </el-button>
-          <el-button type="success" :icon="Check" v-else @click="HandelSubmitAnswer()">
-            提交试卷
+          <el-button type="success" :icon="Check" v-else @click="handleMarkAsDone">
+            完成练习
           </el-button>
         </template>
       </div>
@@ -89,6 +89,7 @@ import { FastGPT } from '@/utils/FastGpt'
 import { addWrongQuestion } from '@/api/WrongQuestionApi'
 import 'github-markdown-css/github-markdown.css'
 import {getQuestionById} from '@/api/questionApi'
+import { markWrongQuestionAsDone } from '@/api/WrongQuestionApi'
 
 const userStore = useUserStore()
 const route = useRoute()
@@ -148,7 +149,7 @@ const handleSendQuestion = async () => {
   const prompt = questions.value[currentQuestionIndex.value].questionContent + '\n' +
     '我的答案是' + '\n' +
     answers.value[currentQuestionIndex.value] + '\n' +
-    '参考答案是' + '\n' +
+    '参考答案��' + '\n' +
     questions.value[currentQuestionIndex.value].answer
 
   const params = {
@@ -243,48 +244,16 @@ const previousQuestion = () => {
   }
 }
 
-// 提交答案
-const HandelSubmitAnswer = async () => {
-  // 收集未填写的题目的索引（从 0 开始）
-  const emptyAnswerIndices = answers.value
-    .map((answer, index) => (answer.trim() === '' ? index : -1))
-    .filter((index) => index !== -1)
-
-  if (emptyAnswerIndices.length > 0) {
-    // 将索引转换为题���（从 1 开始）
-    const questionNumbers = emptyAnswerIndices.map((index) => index + 1)
-    // 生成提示信息
-    const message = `第 ${questionNumbers.join(
-      '、'
-    )} 题未填写，请填写后再提交。`
-    // 弹出提示
-    messageTools.warningMessage(message)
-    return // 终止函数，防止提交
+// 添加标记完成的处理函数
+const handleMarkAsDone = async () => {
+  try {
+    await markWrongQuestionAsDone(questionId, userId)
+    messageTools.successMessage('练习完成！')
+    router.push('/student/wrong-question')  // 返回错题本页面
+  } catch (error) {
+    console.error('标记完成失败:', error)
+    messageTools.errorMessage('标记完成失败，请重试')
   }
-
-  // 所有答案均已填写，构建答案列表
-  const answerList = answers.value.map((answer, index) => {
-    const item = {
-      examPaperQuestionId: questions.value[index].questionId,
-      answerContent: answer,
-      aiAnswer: aiAnswers.value[index] // 使用对应题目的AI回答
-    }
-    return item
-  })
-
-  // 提交答案列表
-  const res = await submitAnswer(userId, examPaperId, answerList)
-  if (res.code == 200) {
-    messageTools.successMessage(res.msg)
-    router.push('/student/exam-paper')
-  } else {
-    messageTools.errorMessage(res.msg)
-  }
-}
-// 添加新的防粘贴函数
-const preventPasteInput = (event) => {
-  event.preventDefault()
-  messageTools.warningMessage('为了学习效果，请勿粘贴答案')
 }
 
 // 在 script setup 中添加新的防拖拽函数
@@ -372,7 +341,7 @@ const handleGetAiQuestion = async () => {
               // 清理可能存在的markdown标记
               let cleanResponse = tempResponse
                 .replace(/```json\n?/g, '')  // 移除开始的 ```json
-                .replace(/```\n?/g, '')      // 移除结束的 ```
+                .replace(/```\n?/g, '')      // ���除结束的 ```
                 .trim()                      // 移除首尾空白
 
               // 尝试解析JSON
