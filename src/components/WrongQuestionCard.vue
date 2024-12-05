@@ -1,7 +1,10 @@
 <script setup>
-import { WarningFilled } from '@element-plus/icons-vue'
+import { WarningFilled, TrophyBase } from '@element-plus/icons-vue'
+import { useRouter } from 'vue-router'
 
-defineProps({
+const router = useRouter()
+
+const props = defineProps({
   wrongQuestion: {
     type: Object,
     required: true,
@@ -14,22 +17,59 @@ defineProps({
     })
   }
 })
+
+// 跳转到智能练习页面
+const handlePractice = () => {
+  router.push({
+    path: '/student/practice',
+    query: {
+      wrongQuestionId: props.wrongQuestion.questionId
+    }
+  })
+}
 </script>
 
 <template>
   <el-row class="wrong-question-card">
     <el-col :span="24">
       <div class="card-content">
-        <div class="icon-wrapper">
-          <el-icon class="question-icon"><WarningFilled /></el-icon>
+        <div class="card-header">
+          <div class="left-section">
+            <el-tag size="small" type="warning" effect="plain">
+              <el-icon class="question-icon"><WarningFilled /></el-icon>
+              错题记录
+            </el-tag>
+            <span class="paper-name">{{ wrongQuestion.examPaperName }}</span>
+          </div>
+          <div class="right-section">
+            <el-button 
+              type="primary"
+              @click="handlePractice"
+            >
+              <el-icon><TrophyBase /></el-icon>
+              智能练习
+            </el-button>
+          </div>
         </div>
         <div class="question-info">
-          <div class="paper-name">{{ wrongQuestion.examPaperName }}</div>
-          <div class="question-title">{{ wrongQuestion.questionTitle }}</div>
-          <div class="question-content">{{ wrongQuestion.questionContent }}</div>
+          <div class="question-title">
+            <span class="title-label">题目：</span>
+            {{ wrongQuestion.questionTitle }}
+          </div>
+          <div class="question-content">
+            <MarkdownContext :content="wrongQuestion.questionContent" />
+          </div>
           <div class="wrong-answer">
-            <span class="wrong-answer-label">错误答案：</span>
-            <span class="wrong-answer-content">{{ wrongQuestion.wrongAnswer }}</span>
+            <el-alert
+              type="error"
+              :closable="false"
+              show-icon
+            >
+              <template #title>
+                <span class="wrong-answer-label">错误答案：</span>
+                <span class="wrong-answer-content">{{ wrongQuestion.wrongAnswer }}</span>
+              </template>
+            </el-alert>
           </div>
         </div>
       </div>
@@ -41,11 +81,12 @@ defineProps({
 .wrong-question-card {
   width: 100%;
   background: #fff;
-  border-radius: 8px;
-  padding: 16px;
+  border-radius: 12px;
+  padding: 20px;
   box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.05);
-  transition: all 0.3s;
-  margin-bottom: 16px;
+  transition: all 0.3s ease;
+  margin-bottom: 20px;
+  border: 1px solid #ebeef5;
 }
 
 .wrong-question-card:hover {
@@ -53,53 +94,63 @@ defineProps({
   transform: translateY(-2px);
 }
 
-.card-content {
+.card-header {
   display: flex;
-  align-items: flex-start;
-  gap: 16px;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #ebeef5;
 }
 
-.icon-wrapper {
-  flex-shrink: 0;
+.left-section {
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
 .question-icon {
-  font-size: 24px;
-  color: #f56c6c;
-}
-
-.question-info {
-  flex: 1;
+  margin-right: 4px;
 }
 
 .paper-name {
   font-size: 14px;
-  color: #909399;
-  margin-bottom: 8px;
+  color: #606266;
+}
+
+.question-info {
+  padding: 0 10px;
 }
 
 .question-title {
-  font-size: 16px;
-  font-weight: 500;
+  font-size: 15px;
   color: #303133;
-  margin-bottom: 8px;
+  margin-bottom: 16px;
+  line-height: 1.6;
+}
+
+.title-label {
+  color: #909399;
+  font-weight: 500;
 }
 
 .question-content {
   font-size: 14px;
   color: #606266;
-  line-height: 1.5;
-  margin-bottom: 8px;
+  line-height: 1.6;
+  margin-bottom: 16px;
+  padding: 16px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
 }
 
 .wrong-answer {
-  font-size: 14px;
-  line-height: 1.5;
+  margin-top: 16px;
 }
 
 .wrong-answer-label {
-  color: #e6a23c;
   font-weight: 500;
+  margin-right: 8px;
 }
 
 .wrong-answer-content {
@@ -107,18 +158,28 @@ defineProps({
 }
 
 @media screen and (max-width: 768px) {
-  .card-content {
+  .wrong-question-card {
+    padding: 16px;
+  }
+
+  .card-header {
     flex-direction: column;
-    align-items: center;
+    align-items: flex-start;
+    gap: 12px;
   }
-  
-  .icon-wrapper {
-    margin-bottom: 12px;
-  }
-  
-  .question-info {
+
+  .right-section {
     width: 100%;
-    text-align: center;
+    display: flex;
+    justify-content: flex-end;
   }
+
+  .question-content {
+    padding: 12px;
+  }
+}
+
+.el-icon {
+  margin-right: 4px;
 }
 </style>

@@ -6,6 +6,7 @@ import { useRouter } from 'vue-router'
 import Typed from 'typed.js'
 import { createSession } from '@/api/AIChatApi'
 import { ElMessage } from 'element-plus'
+import { Sunny, Monitor, Calendar, EditPen } from '@element-plus/icons-vue'
 
 const textareaRef = ref(null)
 const typewriterElement = ref(null)
@@ -102,27 +103,27 @@ const adjustHeight = () => {
         <div class="item-box">
           <div class="item">
             <div class="icon">
-              <img src="../assets/img/bulb-on-svgrepo-com.png" alt="" />
+              <el-icon :size="25" color="#409EFF"><Sunny /></el-icon>
             </div>
             <div class="text">给您提供一个灵感</div>
           </div>
           <div class="item">
             <div class="icon">
-              <img src="../assets/img/code-svgrepo-com.png" alt="" />
+              <el-icon :size="25" color="#409EFF"><Monitor /></el-icon>
             </div>
             <div class="text">帮您检查代码</div>
           </div>
           <div class="item">
             <div class="icon">
-              <img src="../assets/img/calendar-lines-pen-svgrepo-com.png" alt="" />
+              <el-icon :size="25" color="#409EFF"><Calendar /></el-icon>
             </div>
             <div class="text">帮您制定健身计划</div>
           </div>
           <div class="item">
             <div class="icon">
-              <img src="../assets/img/search.png" alt="" />
+              <el-icon :size="25" color="#409EFF"><EditPen /></el-icon>
             </div>
-            <div class="text">AIGC帮你生成背景图场景图</div>
+            <div class="text">帮您润色文章</div>
           </div>
         </div>
       </div>
@@ -276,11 +277,9 @@ const adjustHeight = () => {
             width: 25px;
             height: 25px;
             margin-bottom: 5px;
-
-            img {
-              width: 100%;
-              
-            }
+            display: flex;
+            align-items: center;
+            justify-content: center;
           }
         }
       }

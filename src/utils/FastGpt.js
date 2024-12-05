@@ -1,12 +1,20 @@
-export function fastgpt() {
-  const isLoading = ref(false);
-  const error = ref(null);
-  const results = ref([]);
+import { ref } from 'vue'
 
-  const sendQuestion = async ({ chatId, variables, messages, onData }) => {
-    isLoading.value = true;
-    error.value = null;
-    results.value = [];
+export class FastGPT {
+  constructor(apiKey) {
+    if (!apiKey) {
+      throw new Error('API key is required');
+    }
+    this.apiKey = apiKey;
+    this.isLoading = ref(false);
+    this.error = ref(null);
+    this.results = ref([]);
+  }
+
+  async sendQuestion({ chatId, variables, messages, onData }) {
+    this.isLoading.value = true;
+    this.error.value = null;
+    this.results.value = [];
 
     const data = {
       chatId: chatId || 'abcd',
@@ -20,7 +28,7 @@ export function fastgpt() {
       const response = await fetch('https://cloud.fastgpt.cn/api/v1/chat/completions', {
         method: 'POST',
         headers: {
-          'Authorization': 'Bearer fastgpt-urpkByyW8oYea2ApEdvAzTaFsszfndHce36pZY7DXMC12NcXzt6aQ3', // Replace with your API key
+          'Authorization': `Bearer ${this.apiKey}`,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify(data)
@@ -40,7 +48,7 @@ export function fastgpt() {
         buffer += decoder.decode(value, { stream: true });
 
         let lines = buffer.split('\n');
-        buffer = lines.pop(); // Retain incomplete line
+        buffer = lines.pop();
 
         for (let line of lines) {
           line = line.trim();
@@ -48,12 +56,12 @@ export function fastgpt() {
             const dataStr = line.slice(5).trim();
             if (dataStr === '[DONE]') {
               console.log('Stream complete');
-              isLoading.value = false;
+              this.isLoading.value = false;
               return;
             }
             try {
               const json = JSON.parse(dataStr);
-              results.value.push(json);
+              this.results.value.push(json);
               if (typeof onData === 'function') {
                 onData(json);
               }
@@ -64,17 +72,11 @@ export function fastgpt() {
         }
       }
     } catch (err) {
-      error.value = err;
+      this.error.value = err;
       console.error('Fetch error:', err);
+      throw err;
     } finally {
-      isLoading.value = false;
+      this.isLoading.value = false;
     }
-  };
-  return {
-    isLoading,
-    error,
-    results,
-    sendQuestion
-  };
+  }
 }
-

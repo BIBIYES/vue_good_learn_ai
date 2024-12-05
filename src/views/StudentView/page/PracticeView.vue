@@ -1,4 +1,12 @@
 <template>
+  <div v-if="!questions.length" class="loading-container">
+    <div class="generating-content">
+      <el-icon class="is-loading">
+        <Loading />
+      </el-icon>
+      <span class="generating-text">正在生成相关题目...</span>
+    </div>
+  </div>
   <div class="app">
     <div v-if="questions.length" class="exam-container">
       <div class="question-info">
@@ -23,7 +31,7 @@
       <div class="ai-container markdown-body" v-if="aiAnswers[currentQuestionIndex]" :class="{ 'shine-active': showShineEffect }">
         <div class="ai-header">
           <img src="../../../assets/bot.svg" alt="AI Logo" class="ai-logo">
-          <span class="ai-title">龙梦GPT回应</span>
+          <span class="ai-title">好助学AI回应</span>
         </div>
         <div class="ai-content">
           <div v-html="marked(filteredAiAnswer)"></div>
@@ -72,7 +80,7 @@ import { ref, onMounted, computed, watch, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { marked } from 'marked'
-import { ArrowLeft, ArrowRight, Check } from '@element-plus/icons-vue'
+import { ArrowLeft, ArrowRight, Check, Loading } from '@element-plus/icons-vue'
 import { selectExamPaperQuestionsByExamPaperId } from '@/api/examPaperQuestionApi'
 import { submitAnswer } from '@/api/studentAnswerApi'
 import { useUserStore } from '@/stores/userStore'
@@ -80,11 +88,12 @@ import { messageTools } from '@/utils/messageTools'
 import { FastGPT } from '@/utils/FastGpt'
 import { addWrongQuestion } from '@/api/WrongQuestionApi'
 import 'github-markdown-css/github-markdown.css'
+import {getQuestionById} from '@/api/questionApi'
 
 const userStore = useUserStore()
 const route = useRoute()
 const router = useRouter()
-const examPaperId = route.params.examPaperId
+const questionId = route.query.wrongQuestionId
 const userId = userStore.id
 const questions = ref([])
 const currentQuestionIndex = ref(0)
@@ -204,20 +213,7 @@ watch(() => fastGPT.isLoading.value, (newValue) => {
   isFetching.value = newValue
 })
 
-const fetchQuestions = async () => {
-  try {
-    const response = await selectExamPaperQuestionsByExamPaperId(examPaperId)
-    if (response.code === 200) {
-      questions.value = response.data
-      answers.value = Array(response.data.length).fill('')
-      aiAnswers.value = Array(response.data.length).fill('') // 初始化所有题目的AI回答
-    } else {
-      ElMessage.error('获取题目失败：' + response.message)
-    }
-  } catch (error) {
-    ElMessage.error('发生错误：' + error.message)
-  }
-}
+
 
 
 const preventShortcuts = (event) => {
@@ -228,19 +224,6 @@ const preventShortcuts = (event) => {
   }
 }
 
-// 修改 onMounted
-onMounted(() => {
-  fetchQuestions()
-  
-  // 只保留输入框的粘贴防护
-  document.addEventListener('keydown', preventShortcuts)
-})
-
-// 修改 onUnmounted
-onUnmounted(() => {
-  // 只需要移除键盘事件监听
-  document.removeEventListener('keydown', preventShortcuts)
-})
 
 const nextQuestion = () => {
   if (currentQuestionIndex.value < questions.value.length - 1 && currentAnswerValidity.value) {
@@ -268,7 +251,7 @@ const HandelSubmitAnswer = async () => {
     .filter((index) => index !== -1)
 
   if (emptyAnswerIndices.length > 0) {
-    // 将索引转换为题号（从 1 开始）
+    // 将索引转换为题���（从 1 开始）
     const questionNumbers = emptyAnswerIndices.map((index) => index + 1)
     // 生成提示信息
     const message = `第 ${questionNumbers.join(
@@ -321,14 +304,127 @@ const handleAddWrongQuestion = async (questionData) => {
   }
 }
 
+
+// 修改 onUnmounted
+onUnmounted(() => {
+  // 只需要移除键盘事件监听
+  document.removeEventListener('keydown', preventShortcuts)
+})
+// 修改 onMounted
+onMounted(() => {
+  handleGetQuestionById()
+// 只保留输入框的粘贴防护
+document.addEventListener('keydown', preventShortcuts)
+})
+/**
+ * 以上是答题的业务逻辑
+ * 以下是ai生成同类型题目的逻辑
+ */
+
+ // 错误的题目
+const wrongQuestion = ref(null)
+// ai生成的题目
+const aiQuestions = ref([])
+// 获取错误题目
+const handleGetQuestionById = async () => {
+  console.log(questionId);
+  
+  const res = await getQuestionById(questionId)
+  // 只要题干部分
+  wrongQuestion.value = res.data.questionContent
+  console.log(res);
+  handleGetAiQuestion()
+}
+
+// 实例化第二个fastgpt
+const fastGPT2 = new FastGPT("fastgpt-xfXO0Ti0ybbUYy4TsgYFiEh9bxYbsXTdOIyFAcMYu047t2H202NzrW")
+
+// 获取ai生成的同类型题目
+const handleGetAiQuestion = async () => {
+  if (fastGPT2.isLoading.value) return
+  
+  const prompt = wrongQuestion.value + '\n' +
+    '请生成一道与上述题目类型相同科目相同的题目。3道题。请直接返回JSON数组，不要包含任何其他格式：[{"questionTitle":"题目标题","questionContent":"题目内容"},...]'
+  
+  let tempResponse = ''  // 用于累积完整的响应
+
+  const params = {
+    chatId: userStore.id,
+    variables: {
+      uid: route.params.id,
+      name: userStore.name
+    },
+    messages: [
+      {
+        role: 'user',
+        content: prompt
+      }
+    ],
+    onData: (response) => {
+      try {
+        if (response && response.choices && response.choices[0]) {
+          if (response.choices[0].finish_reason === null) {
+            const content = response.choices[0].delta.content || ''
+            tempResponse += content
+          } else {
+            // 流式响应结束，清理并解析JSON
+            try {
+              // 清理可能存在的markdown标记
+              let cleanResponse = tempResponse
+                .replace(/```json\n?/g, '')  // 移除开始的 ```json
+                .replace(/```\n?/g, '')      // 移除结束的 ```
+                .trim()                      // 移除首尾空白
+
+              // 尝试解析JSON
+              const parsedQuestions = JSON.parse(cleanResponse)
+              
+              // 验证解析结果是否为数组
+              if (!Array.isArray(parsedQuestions)) {
+                throw new Error('解析结果不是数组')
+              }
+
+              // 将解析后的题目添加到 questions 数组
+              questions.value = parsedQuestions.map((q, index) => ({
+                ...q,
+                questionId: `ai_${index}`,
+                answer: ''
+              }))
+              
+              // 初始化对应的答案数组
+              answers.value = new Array(questions.value.length).fill('')
+              // 初始化AI答案数组
+              aiAnswers.value = new Array(questions.value.length).fill('')
+              
+              messageTools.successMessage('题目生成完成')
+            } catch (error) {
+              console.error('解析AI返回的JSON失败:', error)
+              console.log('原始响应:', tempResponse) // 用于调试
+              messageTools.errorMessage('解析题目失败，请重试')
+            }
+          }
+        }
+      } catch (error) {
+        console.error('处理AI响应时出错:', error)
+        messageTools.errorMessage('生成题目失败')
+      }
+    }
+  }
+
+  try {
+    tempResponse = ''  // 重置临时响应
+    await fastGPT2.sendQuestion(params)
+  } catch (error) {
+    console.error('请求AI失败:', error)
+    messageTools.errorMessage('请求AI助手失败，请稍后重试')
+  }
+}
 </script>
 
 <style scoped>
 .app {
   padding-top: 10px;
-  width: 100vw;
-  height: 100vh;
-  background: url(../../../assets/img/loginBackground.png);
+  width: 100%;
+  height: 100%;
   background-position: -500px;
   background-size: cover;
   overflow-x: hidden;
@@ -447,7 +543,29 @@ const handleAddWrongQuestion = async (questionData) => {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100vh;
+  min-height: 400px;  /* 设置最小高度 */
+  width: 100%;
+  background-color: #f5f5f5;
+  border-radius: 8px;
+  margin: 20px auto;
+  max-width: 800px;
+}
+
+.generating-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.generating-content .el-icon {
+  font-size: 40px;
+  color: var(--el-color-primary);
+}
+
+.generating-text {
+  font-size: 16px;
+  color: var(--el-text-color-primary);
 }
 
 .fade-enter-active,
@@ -464,7 +582,7 @@ const handleAddWrongQuestion = async (questionData) => {
   resize: none; /* 禁止手动调整文本框大小 */
 }
 
-/* 添加动画相关样式 */
+/* 添加动画相关样 */
 .ai-container.shine-active::after {
   content: '';
   position: absolute;
@@ -493,7 +611,7 @@ const handleAddWrongQuestion = async (questionData) => {
   }
 }
 
-/* 确保markdown内容���会溢出 */
+/* 确保markdown内容会溢出 */
 :deep(.markdown-body) {
   max-width: 100%;
   overflow-wrap: break-word;

@@ -10,6 +10,7 @@ const router = useRouter()
 const route = useRoute()
 const userStore = useUserStore()
 const sessionStore = useSessionStore()
+const loading = ref(true)
 
 // 当前选中的会话ID
 const currentSessionId = ref(route.params.sessionId || null)
@@ -24,11 +25,14 @@ watch(
 
 // 获取会话列表
 const loadSessionList = async () => {
+  loading.value = true
   try {
     await sessionStore.loadSessionList(userStore.id)
   } catch (error) {
     console.error('获取会话列表失败:', error)
     ElMessage.error('获取会话列表失败')
+  } finally {
+    loading.value = false
   }
 }
 
@@ -65,64 +69,96 @@ watch(
     </div>
 
     <div class="chat-history">
-      <!-- 今天 -->
-      <template v-if="sessionStore.groupedSessions.today.length > 0">
-        <div class="time-divider">今天</div>
-        <div
-          v-for="chat in sessionStore.groupedSessions.today"
-          :key="chat.id"
-          class="session-item"
-          :class="{ selected: chat.id == currentSessionId }"
-          @click="handleSessionClick(chat.id)"
-        >
-          <el-icon class="chat-icon"><ChatDotRound /></el-icon>
-          <span class="chat-title">{{ chat.title }}</span>
-        </div>
+      <!-- 骨架屏 -->
+      <template v-if="loading">
+        <el-skeleton :rows="10" animated style="padding: 16px">
+          <template #template>
+            <!-- 今天 -->
+            <div style="margin-bottom: 16px">
+              <el-skeleton-item variant="text" style="width: 50px; margin-bottom: 8px" />
+              <div v-for="i in 3" :key="i" style="margin-bottom: 8px">
+                <el-skeleton-item variant="p" style="width: 90%" />
+              </div>
+            </div>
+            <!-- 昨天 -->
+            <div style="margin-bottom: 16px">
+              <el-skeleton-item variant="text" style="width: 50px; margin-bottom: 8px" />
+              <div v-for="i in 3" :key="i" style="margin-bottom: 8px">
+                <el-skeleton-item variant="p" style="width: 85%" />
+              </div>
+            </div>
+            <!-- 最近7天 -->
+            <div>
+              <el-skeleton-item variant="text" style="width: 70px; margin-bottom: 8px" />
+              <div v-for="i in 4" :key="i" style="margin-bottom: 8px">
+                <el-skeleton-item variant="p" style="width: 80%" />
+              </div>
+            </div>
+          </template>
+        </el-skeleton>
       </template>
 
-      <!-- 昨天 -->
-      <template v-if="sessionStore.groupedSessions.yesterday.length > 0">
-        <div class="time-divider">昨天</div>
-        <div
-          v-for="chat in sessionStore.groupedSessions.yesterday"
-          :key="chat.id"
-          class="session-item"
-          :class="{ selected: chat.id == currentSessionId }"
-          @click="handleSessionClick(chat.id)"
-        >
-          <el-icon class="chat-icon"><ChatDotRound /></el-icon>
-          <span class="chat-title">{{ chat.title }}</span>
-        </div>
-      </template>
+      <!-- 实际内容 -->
+      <template v-else>
+        <!-- 今天 -->
+        <template v-if="sessionStore.groupedSessions.today.length > 0">
+          <div class="time-divider">今天</div>
+          <div
+            v-for="chat in sessionStore.groupedSessions.today"
+            :key="chat.id"
+            class="session-item"
+            :class="{ selected: chat.id == currentSessionId }"
+            @click="handleSessionClick(chat.id)"
+          >
+            <el-icon class="chat-icon"><ChatDotRound /></el-icon>
+            <span class="chat-title">{{ chat.title }}</span>
+          </div>
+        </template>
 
-      <!-- 最近7天 -->
-      <template v-if="sessionStore.groupedSessions.recent.length > 0">
-        <div class="time-divider">最近7天</div>
-        <div
-          v-for="chat in sessionStore.groupedSessions.recent"
-          :key="chat.id"
-          class="session-item"
-          :class="{ selected: chat.id == currentSessionId }"
-          @click="handleSessionClick(chat.id)"
-        >
-          <el-icon class="chat-icon"><ChatDotRound /></el-icon>
-          <span class="chat-title">{{ chat.title }}</span>
-        </div>
-      </template>
+        <!-- 昨天 -->
+        <template v-if="sessionStore.groupedSessions.yesterday.length > 0">
+          <div class="time-divider">昨天</div>
+          <div
+            v-for="chat in sessionStore.groupedSessions.yesterday"
+            :key="chat.id"
+            class="session-item"
+            :class="{ selected: chat.id == currentSessionId }"
+            @click="handleSessionClick(chat.id)"
+          >
+            <el-icon class="chat-icon"><ChatDotRound /></el-icon>
+            <span class="chat-title">{{ chat.title }}</span>
+          </div>
+        </template>
 
-      <!-- 更早 -->
-      <template v-if="sessionStore.groupedSessions.older.length > 0">
-        <div class="time-divider">更早</div>
-        <div
-          v-for="chat in sessionStore.groupedSessions.older"
-          :key="chat.id"
-          class="session-item"
-          :class="{ selected: chat.id == currentSessionId }"
-          @click="handleSessionClick(chat.id)"
-        >
-          <el-icon class="chat-icon"><ChatDotRound /></el-icon>
-          <span class="chat-title">{{ chat.title }}</span>
-        </div>
+        <!-- 最近7天 -->
+        <template v-if="sessionStore.groupedSessions.recent.length > 0">
+          <div class="time-divider">最近7天</div>
+          <div
+            v-for="chat in sessionStore.groupedSessions.recent"
+            :key="chat.id"
+            class="session-item"
+            :class="{ selected: chat.id == currentSessionId }"
+            @click="handleSessionClick(chat.id)"
+          >
+            <el-icon class="chat-icon"><ChatDotRound /></el-icon>
+            <span class="chat-title">{{ chat.title }}</span>
+          </div>
+        </template>
+
+        <!-- 更早 -->
+        <template v-if="sessionStore.groupedSessions.older.length > 0">
+          <div class="time-divider">更早</div>
+          <div
+            v-for="chat in sessionStore.groupedSessions.older"
+            :key="chat.id"
+            class="session-item"
+            :class="{ selected: chat.id == currentSessionId }"
+            @click="handleSessionClick(chat.id)"
+          >
+            <el-icon class="chat-icon"><ChatDotRound /></el-icon>
+            <span class="chat-title">{{ chat.title }}</span>
+          </div>
+        </template>
       </template>
     </div>
   </div>
@@ -211,7 +247,19 @@ watch(
   padding: 8px 16px;
   font-size: 12px;
   color: #999;
-  background-color: #f9f9f9;
+
   margin: 4px 0;
+}
+
+// 添加骨架屏样式
+:deep(.el-skeleton__item) {
+  background: rgba(190, 190, 190, 0.2);
+}
+
+// 暗黑模式适配
+@media (prefers-color-scheme: dark) {
+  :deep(.el-skeleton__item) {
+    background: rgba(255, 255, 255, 0.08);
+  }
 }
 </style>

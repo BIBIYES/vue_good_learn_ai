@@ -59,6 +59,14 @@ const router = createRouter({
           component: () => import('@/views/StudentView/page/WrongQuestionView.vue')
         },
         {
+          path: '/student/practice',
+          component: () => import('@/views/StudentView/page/PracticeView.vue'),
+          meta: {
+            title: '智能练习',
+            requiresAuth: true
+          }
+        },
+        {
           path: '/student/ai-chat',
           name: 'aiChat',
           meta: {

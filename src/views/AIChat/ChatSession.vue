@@ -6,7 +6,8 @@ import { convertToHtml } from '@/utils/ContenFormat'
 import 'github-markdown-css/github-markdown.css'
 import { fastgpt } from '@/utils/FastGptChat';
 import { getSessionHistory, addSessionHistory } from '@/api/AIChatApi'
-
+import { useUserStore } from '@/stores/userStore'
+const userStore = useUserStore()
 const { isLoading, error, results, sendQuestion } = fastgpt();
 // 实例化
 const route = useRoute()
@@ -53,7 +54,7 @@ const handleSendQuestion = () => {
     chatId: route.params.id,
     variables: {
       uid: route.params.id,
-      name: '张三'
+      name: userStore.name
     },
     messages: [
       {
@@ -209,19 +210,24 @@ const scrollToBottom = () => {
 <template>
   <div class="chat-container">
     <div class="chat-messages markdown-body" ref="chatBox">
-      <div v-for="(msg, index) in messages" :key="index" :class="['message', msg.role]">
-       
-        <template v-if="msg.role === 'assistant'">
-          <div v-html="convertToHtml(msg.content)"></div>
-          <div class="text-with-status" v-if="index === messages.length - 1 && showStatusLamp">
-            <span class="status-lamp"></span>
-            <span>知识库搜索中....</span>
+      <el-scrollbar height="100%" width="100%">
+        <div class="messages-wrapper">
+          <div v-for="(msg, index) in messages" 
+               :key="index" 
+               :class="['message', msg.role]">
+            <template v-if="msg.role === 'assistant'">
+              <div v-html="convertToHtml(msg.content)"></div>
+              <div class="text-with-status" v-if="index === messages.length - 1 && showStatusLamp">
+                <span class="status-lamp"></span>
+                <span>知识库搜索中....</span>
+              </div>
+            </template>
+            <template v-else-if="msg.role === 'user'">
+              <p style="margin-bottom: 0">{{ msg.content }}</p>
+            </template>
           </div>
-        </template>
-        <template v-else-if="msg.role === 'user'">
-          <p style="margin-bottom: 0">{{ msg.content }}</p>
-        </template>
-      </div>
+        </div>
+      </el-scrollbar>
     </div>
     <div class="input-container">
       <div class="input-section">
@@ -249,6 +255,7 @@ const scrollToBottom = () => {
   height: 100%;
   max-width: 100%;
   margin: auto;
+  padding-top: 5px;
   padding-left: 5px;
   padding-right: 20px;
   box-sizing: border-box;
@@ -264,14 +271,11 @@ const scrollToBottom = () => {
 
   .chat-messages {
     flex: 1;
-    padding: 20px 40px;
     overflow-y: auto;
     background-color: #fafafa;
     display: flex;
     flex-direction: column;
     border-radius: 10px;
-    padding-right: 300px;
-    padding-left: 300px;
     transition: background-color 0.3s ease;
     /* 添加过渡动画 */
 
@@ -279,9 +283,17 @@ const scrollToBottom = () => {
       background-color: #1e1e1e;
     }
 
+    .messages-wrapper {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      padding: 40px;
+      box-sizing: border-box;
+    }
+
     .message {
       width: auto;
-      max-width: 70%;
+      max-width: 90%;
       height: max-content;
       padding: 10px;
       margin: 5px 0;
@@ -472,5 +484,16 @@ const scrollToBottom = () => {
   /* 深灰色字体，显得更加简洁优雅 */
   font-size: 16px;
   /* 调整字体大小 */
+}
+:deep(.el-scrollbar){
+  padding-right: 100px;
+}
+// 修复el-scrollbar的样式
+:deep(.el-scrollbar__wrap) {
+  overflow-x: hidden;
+}
+
+:deep(.el-scrollbar__view) {
+  height: 100%;
 }
 </style>

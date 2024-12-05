@@ -40,3 +40,9 @@ export function batchAddQuestions(
 ) {
   return request.post(`/courses/${courseId}/questions`, data)
 }
+
+// 获取单个题目
+export function getQuestionById(questionId: number) {
+  return request.get(`/questions/${questionId}`)
+}
+
