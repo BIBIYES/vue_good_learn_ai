@@ -1,9 +1,6 @@
 <script setup>
 
 import { useRoute, useRouter } from 'vue-router'
-
-import { useSessionStore } from '@/stores/sessionStore'
-
 // 消息格式化
 import { convertToHtml } from '@/utils/ContenFormat'
 import 'github-markdown-css/github-markdown.css'
@@ -177,15 +174,6 @@ const terminateSession = () => {
 // 解析url
 const parseUrl = () => {
   if (route.query.question) {
-    if (route.query.imgBase64) {
-      imgBase64.value = route.query.imgBase64
-      question.value = route.query.question
-      sendMessage()
-      nextTick(() => {
-        router.replace({ query: null })
-      })
-      return
-    }
     question.value = route.query.question
     sendMessage()
     nextTick(() => {
@@ -196,7 +184,6 @@ const parseUrl = () => {
 // 生命周期钩子
 onMounted(async () => {
   // 获取历史聊天记录
-  parseUrl()
   getHistoricalMessages()
   parseUrl()
   nextTick(() => {

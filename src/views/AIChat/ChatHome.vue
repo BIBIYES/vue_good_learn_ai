@@ -1,18 +1,18 @@
 <script setup>
 import { useSessionStore } from '@/stores/sessionStore'
+import { useUserStore } from '@/stores/userStore'
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import Typed from 'typed.js'
 import { createSession } from '@/api/AIChatApi'
 import { ElMessage } from 'element-plus'
 
-
 const textareaRef = ref(null)
 const typewriterElement = ref(null)
 let typed = null
 const question = ref(null)
 const router = useRouter()
-let imgBase64 = ref(null)
+const userStore = useUserStore()
 
 const sessionStore = useSessionStore()
 let placeholderText = ref('问"好助学AI"点什么(shift+enter换行)')
@@ -20,16 +20,20 @@ let placeholderText = ref('问"好助学AI"点什么(shift+enter换行)')
 
 // 发送消息的函数
 const sendMessage = async () => {
+  // 添加到sessionStore
+  sessionStore.updateSessionMessages(question.value)
   if (question.value) {
     try {
       // 创建会话
       const response = await createSession({
-        title: "新会话",
-        userId: 12  // 这里应该使用实际的用户ID
+        title: question.value,
+        userId: userStore.id  
       })
+      console.log(response);
+      
 
       if (response.data && response.data.sessionId) {
-        // 跳转到聊天页面，携带会话ID和问题
+     
         router.push({
           name: 'chatSession',
           params: {
@@ -125,9 +129,6 @@ const adjustHeight = () => {
     </div>
     <div class="input-container">
       <div class="input-section">
-        <div class="image-preview" v-show="imgBase64">
-          <el-image style="width: 100px; height: 100%" :src="`data:image/png;base64,${imgBase64}`" fit="cover" />
-        </div>
         <div class="input-controls">
           <textarea ref="textareaRef" id="inputTextarea" rows="1" :placeholder="placeholderText" @input="adjustHeight"
             @keyup="handleKeyUp" v-model="question"></textarea>
