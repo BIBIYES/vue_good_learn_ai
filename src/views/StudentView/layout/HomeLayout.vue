@@ -23,19 +23,25 @@
       <el-menu :default-active="activeIndex" class="menu-container" :router="true">
         <el-menu-item index="/student/home">
           <div class="menu-item-container">
-            <el-icon class="menu-icon"><HomeFilled /></el-icon>
+            <el-icon class="menu-icon"><House /></el-icon>
             <div class="menu-text">首页</div>
+          </div>
+        </el-menu-item>
+        <el-menu-item index="/student/ai-chat">
+          <div class="menu-item-container">
+            <el-icon class="menu-icon"><ChatDotRound /></el-icon>
+            <div class="menu-text">AI聊天</div>
           </div>
         </el-menu-item>
         <el-menu-item index="/student/exam-paper">
           <div class="menu-item-container">
-            <el-icon class="menu-icon"><DocumentCopy /></el-icon>
+            <el-icon class="menu-icon"><Document /></el-icon>
             <div class="menu-text">我的试卷</div>
           </div>
         </el-menu-item>
         <el-menu-item index="/student/wrong-question">
           <div class="menu-item-container">
-            <el-icon class="menu-icon"><Warning /></el-icon>
+            <el-icon class="menu-icon"><CircleCloseFilled /></el-icon>
             <div class="menu-text">错题本</div>
           </div>
         </el-menu-item>
@@ -45,7 +51,7 @@
     </el-aside>
 
     <!-- 主内容区 -->
-    <el-main class="layout-main">
+    <el-main :class="['layout-main', { 'no-padding': isAiChatRoute }]">
       <RouterView></RouterView>
     </el-main>
 
@@ -61,7 +67,14 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-import { HomeFilled, DocumentCopy, School, Menu, Warning } from '@element-plus/icons-vue'
+import { 
+  House, 
+  Document, 
+  School, 
+  Menu, 
+  CircleCloseFilled,
+  ChatDotRound 
+} from '@element-plus/icons-vue'
 import UserProfileFooter from '@/components/UserProfileFooter.vue'
 
 const route = useRoute()
@@ -69,7 +82,18 @@ const isMenuVisible = ref(false)
 const isMobile = ref(false)
 
 // 计算当前激活的菜单项
-const activeIndex = computed(() => route.path)
+const activeIndex = computed(() => {
+  // 如果是AI聊天的子路由，返回父路由路径
+  if (route.path.startsWith('/student/ai-chat/')) {
+    return '/student/ai-chat'
+  }
+  return route.path
+})
+
+// 添加一个计算属性来检查是否是 AI 聊天路由
+const isAiChatRoute = computed(() => {
+  return route.path.startsWith('/student/ai-chat')
+})
 
 // 切换菜单显示状态
 const toggleMenu = () => {
@@ -124,6 +148,10 @@ onUnmounted(() => {
 .layout-main {
   padding: 30px;
   background-color: #f4f4f7;
+}
+
+.layout-main.no-padding {
+  padding: 0;
 }
 
 /* 菜单相关样式 */

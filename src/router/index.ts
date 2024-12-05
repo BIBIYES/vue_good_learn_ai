@@ -57,6 +57,26 @@ const router = createRouter({
             title: '好助学-错题本'
           },
           component: () => import('@/views/StudentView/page/WrongQuestionView.vue')
+        },
+        {
+          path: '/student/ai-chat',
+          name: 'aiChat',
+          meta: {
+            title: '好助学-AI聊天'
+          },
+          component: () => import('@/views/StudentView/page/AIChatView.vue'),
+          children: [
+            {
+              path: '',
+              name: 'chatHome',
+              component: () => import('@/views/AIChat/ChatHome.vue')
+            },
+            {
+              path: ':sessionId',
+              name: 'chatSession',
+              component: () => import('@/views/AIChat/ChatSession.vue')
+            }
+          ]
         }
       ]
     },
@@ -148,7 +168,7 @@ router.beforeEach((to, from, next) => {
   const userStore = useUserStore() // 获取用户存储状态
   document.title = (to.meta.title as string) || '好助学'
 
-  // 检查是否有 token，如果没有且不是去登录页，则重定向到登录页面
+  // 检查是否有 token，如果没且不是去登录页，则重定向到登录页面
   if (!userStore.token && to.path !== '/login') {
     next('/login')
   } else {

@@ -220,7 +220,7 @@ const fetchQuestions = async () => {
   }
 }
 
-// 添加键盘快捷���防护
+
 const preventShortcuts = (event) => {
   // 只防止 Ctrl+V 粘贴
   if (event.ctrlKey && event.key === 'v') {
@@ -299,17 +299,6 @@ const HandelSubmitAnswer = async () => {
     messageTools.errorMessage(res.msg)
   }
 }
-
-// 在 script setup 中以下函数
-const preventCopyPaste = (event) => {
-  event.preventDefault()
-  messageTools.warningMessage('为了学习效果，请勿复制粘贴')
-}
-
-const preventContextMenu = (event) => {
-  event.preventDefault()
-}
-
 // 添加新的防粘贴函数
 const preventPasteInput = (event) => {
   event.preventDefault()
