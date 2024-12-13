@@ -35,7 +35,7 @@ const handelGetAllCompletedExamPapers = async () => {
       }
       return new Date(a.firstJoinDate) - new Date(b.firstJoinDate)
     })
-    .slice(-10) // 取最后10个（最多的10个）
+    .slice(-5) // 只取最后5个（最多的5个）
 
   initChart(sortedData)
 }
@@ -46,7 +46,7 @@ const initChart = (data) => {
   
   const option = {
     title: {
-      text: '学生试卷完成情况统计(Top 10)',
+      text: '学生试卷完成情况统计(Top 5)',
       left: 'center',
       textStyle: {
         fontSize: 16,
@@ -63,7 +63,7 @@ const initChart = (data) => {
     grid: {
       left: '3%',
       right: '4%',
-      bottom: '15%',
+      bottom: '10%',
       top: '15%',
       containLabel: true
     },
@@ -72,8 +72,10 @@ const initChart = (data) => {
       data: data.map(item => item.username),
       axisLabel: {
         interval: 0,
-        rotate: 30,
-        color: '#666'
+        rotate: 0,
+        color: '#666',
+        overflow: 'truncate',
+        width: 80
       },
       axisTick: {
         alignWithLabel: true
@@ -99,29 +101,19 @@ const initChart = (data) => {
       {
         name: '完成试卷数',
         type: 'bar',
-        barWidth: '40%',
-        data: data.map(item => ({
-          value: item.count,
-          itemStyle: {
-            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-              { offset: 0, color: '#83bff6' },
-              { offset: 0.5, color: '#188df0' },
-              { offset: 1, color: '#188df0' }
-            ])
-          }
-        })),
-        label: {
-          show: true,
-          position: 'top',
-          fontSize: 12,
-          color: '#666'
+        data: data.map(item => item.count),
+        barWidth: '30%',
+        itemStyle: {
+          color: new echarts.graphic.LinearGradient(0, 1, 0, 0, [
+            { offset: 0, color: '#36cfc9' },
+            { offset: 1, color: '#409EFF' }
+          ])
         },
         emphasis: {
           itemStyle: {
-            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-              { offset: 0, color: '#2378f7' },
-              { offset: 0.7, color: '#2378f7' },
-              { offset: 1, color: '#83bff6' }
+            color: new echarts.graphic.LinearGradient(0, 1, 0, 0, [
+              { offset: 0, color: '#40e0d0' },
+              { offset: 1, color: '#60a9ff' }
             ])
           }
         }
@@ -143,7 +135,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div id="examPaperChart" style="width: 100%; height: 400px; background: #fff; padding: 20px; border-radius: 4px; box-shadow: 0 2px 12px 0 rgba(0,0,0,0.1);"></div>
+  <div id="examPaperChart" style="width: 100%; height: 320px; "></div>
 </template>
 
 <style scoped>

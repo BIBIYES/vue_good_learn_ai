@@ -185,11 +185,10 @@ const parseUrl = () => {
 // 生命周期钩子
 onMounted(async () => {
   // 获取历史聊天记录
-  getHistoricalMessages()
+  await getHistoricalMessages()
   parseUrl()
-  nextTick(() => {
-    scrollToBottom()
-  })
+  // 确保在获取历史记录后滚动到底部
+  scrollToBottom()
 })
 
 // 监听路由变化
@@ -201,10 +200,24 @@ watch(route, (newRoute) => {
 const scrollToBottom = () => {
   nextTick(() => {
     if (chatBox.value) {
-      chatBox.value.scrollTop = chatBox.value.scrollHeight
+      const scrollbarEl = chatBox.value.querySelector('.el-scrollbar__wrap');
+      if (scrollbarEl) {
+        // 使用平滑滚动
+        scrollbarEl.style.scrollBehavior = 'smooth';
+        scrollbarEl.scrollTop = scrollbarEl.scrollHeight;
+        // 滚动完成后重置滚动行为，避免影响用户手动滚动
+        setTimeout(() => {
+          scrollbarEl.style.scrollBehavior = 'auto';
+        }, 500);
+      }
     }
   })
 }
+
+// 添加对消息列表的监听，当消息更新时自动滚动到底部
+watch(messages, () => {
+  scrollToBottom()
+}, { deep: true })
 </script>
 
 <template>
@@ -336,6 +349,11 @@ const scrollToBottom = () => {
         border-radius: 10px;
       }
     }
+
+    :deep(.el-scrollbar__wrap) {
+      overflow-x: hidden;
+      scroll-behavior: smooth;
+    }
   }
 
   //输入框
@@ -451,7 +469,7 @@ const scrollToBottom = () => {
 @keyframes breathing {
   0% {
     opacity: 1;
-    box-shadow: 0 0 5px 2px rgba(0, 128, 0, 0.9); // 更深的绿色阴影
+    box-shadow: 0 0 5px 2px rgba(0, 128, 0, 0.9); // 更深的绿色阴���
   }
 
   50% {
@@ -461,7 +479,7 @@ const scrollToBottom = () => {
 
   100% {
     opacity: 1;
-    box-shadow: 0 0 5px 2px rgba(0, 128, 0, 0.9); // 返回到初始状态
+    box-shadow: 0 0 5px 2px rgba(0, 128, 0, 0.9); // 返回到初始态
   }
 }
 

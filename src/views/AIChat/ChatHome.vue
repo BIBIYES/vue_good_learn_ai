@@ -250,12 +250,17 @@ const adjustHeight = () => {
 
       .item-box {
         display: flex;
-        width: 1000px;
+        width: 100%;
+        max-width: 1000px;
+        padding: 0 20px;
         justify-content: space-around;
         align-items: center;
+        flex-wrap: wrap;
+        gap: 20px;
 
         .item {
-          width: 200px;
+          width: calc(25% - 20px);
+          min-width: 200px;
           height: 100px;
           padding: 10px;
           border-radius: 10px;
@@ -263,6 +268,15 @@ const adjustHeight = () => {
           background-color: #fff;
           box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
           transition: box-shadow 0.3s ease, background-color 0.3s ease, color 0.3s ease;
+          margin-bottom: 20px;
+
+          @media screen and (max-width: 768px) {
+            width: calc(50% - 20px);
+          }
+
+          @media screen and (max-width: 480px) {
+            width: 100%;
+          }
 
           @media (prefers-color-scheme: dark) {
             background-color: #2c2c2c;

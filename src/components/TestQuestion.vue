@@ -2,7 +2,7 @@
 import { ref, computed } from 'vue';
 import { ElCard, ElButton, ElInput, ElAlert } from 'element-plus';
 import { marked } from 'marked';
-import { fastgpt } from '@/utils/FastGpt';
+import { FastGPT } from '@/utils/FastGpt';
 import { messageTools } from '@/utils/messageTools';
 import 'github-markdown-css/github-markdown.css';
 
@@ -26,7 +26,7 @@ const isFetching = ref(false);
 // 存储原始回答，包含验证标记
 const rawAiAnswer = ref('');
 
-const { sendQuestion } = fastgpt();
+const fastGPT = new FastGPT("你的API密钥");
 
 // 添加一个状态来控制动画
 const showShineEffect = ref(true)
@@ -107,7 +107,7 @@ const getAIAnswer = async () => {
   };
 
   try {
-    sendQuestion(params);
+    fastGPT.sendQuestion(params);
   } catch (error) {
     console.error('发送问题时出错:', error);
     messageTools.errorMessage('请求AI助手失败，请稍后重试');

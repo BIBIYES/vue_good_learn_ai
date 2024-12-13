@@ -17,13 +17,12 @@
 
       <div class="input-container">
         <el-input v-model="answers[currentQuestionIndex]" type="textarea" placeholder="请输入你的答案"
-          :autosize="{ minRows: 4, maxRows: 10 }" @paste="preventPasteInput" @drop.prevent="preventDrop"
-          @dragover.prevent onpaste="return false"></el-input>
+          :autosize="{ minRows: 4, maxRows: 10 }"></el-input>
       </div>
       <div class="ai-container markdown-body" v-if="aiAnswers[currentQuestionIndex]" :class="{ 'shine-active': showShineEffect }">
         <div class="ai-header">
           <img src="../../../assets/bot.svg" alt="AI Logo" class="ai-logo">
-          <span class="ai-title">龙梦GPT回应</span>
+          <span class="ai-title">好助学GPT回应</span>
         </div>
         <div class="ai-content">
           <div v-html="marked(filteredAiAnswer)"></div>
@@ -136,18 +135,16 @@ const handleSendQuestion = async () => {
   rawAiAnswer.value = ''
   aiAnswers.value[currentQuestionIndex.value] = ''
 
-  const prompt = questions.value[currentQuestionIndex.value].questionContent + '\n' +
-    '我的答案是' + '\n' +
+  const prompt = 
+  '<question>' +
+  questions.value[currentQuestionIndex.value].questionContent + '\n' +
+  '</question>' + '\n' +  
+  '<answer>' + '\n' +
     answers.value[currentQuestionIndex.value] + '\n' +
-    '参考答案是' + '\n' +
-    questions.value[currentQuestionIndex.value].answer
+  '</answer>'
+
 
   const params = {
-    chatId: userStore.id,
-    variables: {
-      uid: route.params.id,
-      name: userStore.name
-    },
     messages: [
       {
         role: 'user',
@@ -219,27 +216,18 @@ const fetchQuestions = async () => {
   }
 }
 
-
-const preventShortcuts = (event) => {
-  // 只防止 Ctrl+V 粘贴
-  if (event.ctrlKey && event.key === 'v') {
-    event.preventDefault()
-    messageTools.warningMessage('为了学习效果，请勿使用快捷键粘贴')
-  }
-}
-
-// 修改 onMounted
+// 在 onMounted 中注释掉相关代码
 onMounted(() => {
   fetchQuestions()
   
-  // 只保留输入框的粘贴防护
-  document.addEventListener('keydown', preventShortcuts)
+  // 注释掉这行
+  // document.addEventListener('keydown', preventShortcuts)
 })
 
-// 修改 onUnmounted
+// 在 onUnmounted 中注释掉相关代码
 onUnmounted(() => {
-  // 只需要移除键盘事件监听
-  document.removeEventListener('keydown', preventShortcuts)
+  // 注释掉这行
+  // document.removeEventListener('keydown', preventShortcuts)
 })
 
 const nextQuestion = () => {
@@ -297,17 +285,6 @@ const HandelSubmitAnswer = async () => {
   } else {
     messageTools.errorMessage(res.msg)
   }
-}
-// 添加新的防粘贴函数
-const preventPasteInput = (event) => {
-  event.preventDefault()
-  messageTools.warningMessage('为了学习效果，请勿粘贴答案')
-}
-
-// 在 script setup 中添加新的防拖拽函数
-const preventDrop = (event) => {
-  event.preventDefault()
-  messageTools.warningMessage('为了学习效果，请勿拖拽输入答案')
 }
 
 // 添加错题记录
@@ -493,7 +470,7 @@ const handleAddWrongQuestion = async (questionData) => {
   }
 }
 
-/* 确保markdown内容���会溢出 */
+/* 确保markdown内容会溢出 */
 :deep(.markdown-body) {
   max-width: 100%;
   overflow-wrap: break-word;

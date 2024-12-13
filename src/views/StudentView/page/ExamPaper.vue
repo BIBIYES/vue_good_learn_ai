@@ -241,7 +241,7 @@ const getSummary = async () => {
           <div class="ai-content">
             <div v-if="summaryContent" v-html="marked(summaryContent)"></div>
             <div v-else class="summary-empty">
-              <el-empty description="暂无总结内容" />
+              <p>正在阅读试卷...</p>
             </div>
           </div>
         </div>
@@ -250,7 +250,7 @@ const getSummary = async () => {
   </div>
 </template>
 
-<style lang="less">
+<style lang="less" scoped>
 .app {
   background-color: #f4f4f7;
   min-height: 100%;

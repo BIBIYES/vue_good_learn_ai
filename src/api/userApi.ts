@@ -123,3 +123,8 @@ export const uploadAvatar = (formData: FormData) => {
 export function getAllStudents(name: string) {
   return request.get('/user/get-all-student', { params: { name } })
 }
+
+// 获取学生错误课程试卷数量
+export function getStudentWrongQuestion(userId: number) {
+  return request.get(`/user/${userId}/student_wrong_question_view`)
+}
