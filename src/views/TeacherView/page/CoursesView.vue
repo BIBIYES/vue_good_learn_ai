@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div v-loading="loading">
     <div class="header">
       <h2>我的课程</h2>
       <div class="header-right">
@@ -67,8 +67,6 @@
       </el-col>
     </el-row>
 
-
-
     <!-- 添加课程的弹窗 -->
     <el-dialog title="添加课程" v-model="isAddCourseDialogVisible">
       <el-input v-model="newCourseName" placeholder="输入课程名称" />
@@ -107,6 +105,7 @@ const editingCourseId = ref<number | null>(null)
 const router = useRouter()
 const userStore = useUserStore()
 const searchKeyword = ref('')
+const loading = ref(false)
 
 const filteredCourses = computed(() => {
   if (!searchKeyword.value) {
@@ -122,21 +121,33 @@ const handleSearchClear = () => {
 }
 
 const fetchCourses = async () => {
+  loading.value = true
   try {
-
     const res = await selectCoursesByUserId(userStore.id)
-    courses.value = res.data || []
+    if (res && res.data) {
+      courses.value = res.data
+    } else {
+      courses.value = []
+      ElMessage({
+        type: 'warning',
+        message: '暂无课程数据'
+      })
+    }
   } catch (error) {
     console.error('获取课程失败:', error)
+    ElMessage({
+      type: 'error',
+      message: '获取课程失败，请稍后重试'
+    })
+    courses.value = []
   } finally {
-
+    loading.value = false
   }
 }
 
 const addCourse = async () => {
   if (!newCourseName.value) return
   try {
-
     await insertCourse(userStore.id, {
       courseName: newCourseName.value
     })
@@ -154,7 +165,6 @@ const addCourse = async () => {
       message: '添加课程失败'
     })
   } finally {
-
   }
 }
 
@@ -170,7 +180,6 @@ const deleteCourse = async (courseId: number) => {
   })
     .then(async () => {
       try {
-
         await deleteCourseById(courseId)
         ElMessage({
           type: 'success',
@@ -206,7 +215,6 @@ const editCourse = (courseId: number) => {
 const confirmEditCourse = async () => {
   if (!editingCourseName.value || editingCourseId.value === null) return
   try {
-
     await updateCourse(editingCourseId.value, {
       courseName: editingCourseName.value
     })
@@ -223,7 +231,6 @@ const confirmEditCourse = async () => {
       message: '更新课程失败'
     })
   } finally {
-
   }
 }
 

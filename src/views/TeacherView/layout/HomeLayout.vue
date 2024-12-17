@@ -3,10 +3,14 @@
     <!-- 添加一个汉堡菜单按钮，在移动端显示 -->
     <div class="mobile-header" v-show="isMobile">
       <el-button @click="toggleMenu" text>
-        <el-icon size="24"><Menu /></el-icon>
+        <el-icon size="24">
+          <Menu />
+        </el-icon>
       </el-button>
       <div class="logo-container">
-        <el-icon class="logo-icon"><School /></el-icon>
+        <el-icon class="logo-icon">
+          <School />
+        </el-icon>
         <h1 class="logo-text">好助学</h1>
       </div>
     </div>
@@ -15,28 +19,42 @@
     <el-aside :class="['layout-aside', { 'mobile-aside': isMobile, 'aside-visible': isMenuVisible }]">
       <!-- Logo区域在非移动端显示 -->
       <div class="logo-container" v-show="!isMobile">
-        <el-icon class="logo-icon"><School /></el-icon>
+        <el-icon class="logo-icon">
+          <School />
+        </el-icon>
         <h1 class="logo-text">好助学</h1>
       </div>
-
-      <!-- 菜单部分保持不变 -->
       <el-menu :default-active="activeIndex" class="menu-container" :router="true">
+        <el-menu-item index="/teacher/home">
+          <div class="menu-item-container">
+            <el-icon class="menu-icon">
+              <House />
+            </el-icon>
+            <div class="menu-text">首页</div>
+          </div>
+        </el-menu-item>
         <el-menu-item index="/teacher/course">
           <div class="menu-item-container">
-            <el-icon class="menu-icon"><DataAnalysis /></el-icon>
+            <el-icon class="menu-icon">
+              <DataAnalysis />
+            </el-icon>
             <div class="menu-text">我的课程</div>
           </div>
         </el-menu-item>
 
         <el-menu-item index="/teacher/exam-papers">
           <div class="menu-item-container">
-            <el-icon class="menu-icon"><Notebook /></el-icon>
+            <el-icon class="menu-icon">
+              <Notebook />
+            </el-icon>
             <div class="menu-text">我的试卷</div>
           </div>
         </el-menu-item>
         <el-menu-item index="/teacher/student-terminal">
           <div class="menu-item-container">
-            <el-icon class="menu-icon"><Notebook /></el-icon>
+            <el-icon class="menu-icon">
+              <School />
+            </el-icon>
             <div class="menu-text">学生终端</div>
           </div>
         </el-menu-item>
@@ -51,18 +69,14 @@
     </el-main>
 
     <!-- 添加遮罩层 -->
-    <div 
-      v-show="isMobile && isMenuVisible" 
-      class="menu-overlay"
-      @click="closeMenu"
-    ></div>
+    <div v-show="isMobile && isMenuVisible" class="menu-overlay" @click="closeMenu"></div>
   </el-container>
 </template>
 
 <script setup lang="ts">
 import { computed, ref, onMounted, onUnmounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-import { DataAnalysis, Notebook, School, Menu } from '@element-plus/icons-vue'
+import { DataAnalysis, Notebook, School, Menu, House } from '@element-plus/icons-vue'
 import UserProfileFooter from '@/components/UserProfileFooter.vue'
 
 const route = useRoute()
@@ -212,17 +226,17 @@ onUnmounted(() => {
   border-radius: 10px;
 }
 
-.el-menu-item.is-active  {
+.el-menu-item.is-active {
   background-color: #ecf5ff !important;
   color: #409eff !important;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-.el-menu-item  {
+.el-menu-item {
   color: #667085 !important;
 }
 
-.el-menu-item:hover  {
+.el-menu-item:hover {
   background-color: #f5f7fa !important;
   color: #409eff !important;
 }
