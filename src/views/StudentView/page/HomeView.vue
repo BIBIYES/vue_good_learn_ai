@@ -3,6 +3,7 @@
     <div class="header">
       <div class="welcome-section">
         <h2>欢迎回来，{{ userStore.name }}</h2>
+        <el-button @click="showCareerReport">推荐职业匹配</el-button>
         <div class="time-info">
           <p><el-icon><Calendar /></el-icon> {{ currentDate }}</p>
           <p><el-icon><Timer /></el-icon> {{ currentTime }}</p>
@@ -65,6 +66,43 @@
         </el-col>
       </el-row>
     </div>
+    <!-- 职业生涯报告抽屉 -->
+    <el-drawer v-model="careerDrawerVisible" title="职业生涯报告" size="50%">
+      <transition name="fade" mode="out-in">
+        <div class="career-loading" v-if="isLoading">
+          <div class="loading-spinner">
+            <div class="loading-spinner">
+              <span class="emoji-animation">⭐</span>
+            </div>
+          </div>
+          <div class="loading-text-wrapper">
+            <span class="loading-text">{{ loadingText }}</span>
+          </div>
+        </div>
+        <div v-else class="career-report">
+          <div class="career-section">
+            <h3>职业匹配分析</h3>
+            <div class="suitable-jobs">
+              <h4>适合从事的职业</h4>
+              <div class="job-item" v-for="(job, index) in jobRecommendations" :key="index">
+                <div class="job-header">
+                  <div>
+                    <div class="job-title">职位名称: {{ job.title }}</div>
+                    <div class="job-link">
+                      招聘链接: <el-link type="primary" @click="viewJobDetails(job)">查看详情</el-link>
+                    </div>
+                  </div>
+                </div>
+                <div class="matching-bar">
+                  <div class="progress-bar" :style="{ width: animatedPercentages[index] + '%' }"></div>
+                  <span class="percentage">匹配度: {{ Math.round(animatedPercentages[index]) }}%</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </transition>
+    </el-drawer>
   </div>
 </template>
 
@@ -76,7 +114,8 @@ import {
   User,
   Document,
   Timer,
-  Calendar
+  Calendar,
+  Loading
 } from '@element-plus/icons-vue'
 import * as echarts from 'echarts'
 
@@ -101,9 +140,82 @@ const fetchPapersStats = async () => {
     console.error('获取试卷统计失败:', error)
   }
 }
+// 职业报告相关
+const careerDrawerVisible = ref(false)
+const isLoading = ref(false)
+const loadingText = ref('')
+const jobRecommendations = ref([
+  {
+    title: '高级java全栈工程师',
+    matchPercentage: 75.0,
+    link: '#'
+  },
+  {
+    title: '前端开发工程师',
+    matchPercentage: 72.5,
+    link: '#'
+  },
+  {
+    title: '高级前端研发工程师',
+    matchPercentage: 70.0,
+    link: '#'
+  }
+])
 
+const animatedPercentages = ref(jobRecommendations.value.map(() => 0))
 
-// 获取学生错题的计数
+const viewJobDetails = (job) => {
+  // 实现查看职位详情的逻辑
+  console.log('查看职位详情:', job)
+}
+
+const startProgressAnimation = () => {
+  jobRecommendations.value.forEach((job, index) => {
+    setTimeout(() => {
+      const targetPercentage = job.matchPercentage
+      const duration = 1000 // 1秒动画
+      const startTime = Date.now()
+      
+      const animate = () => {
+        const currentTime = Date.now()
+        const elapsed = currentTime - startTime
+        const progress = Math.min(elapsed / duration, 1)
+        
+        animatedPercentages.value[index] = progress * targetPercentage
+        
+        if (progress < 1) {
+          requestAnimationFrame(animate)
+        }
+      }
+      
+      requestAnimationFrame(animate)
+    }, index * 200) // 每个进度条错开200ms开始动画
+  })
+}
+
+const showCareerReport = () => {
+  careerDrawerVisible.value = true
+  isLoading.value = true
+  
+  // 模拟加载过程
+  setTimeout(() => {
+    loadingText.value = '正在读取学生学习数据...'
+    setTimeout(() => {
+      loadingText.value = '正在总结...'
+      setTimeout(() => {
+        loadingText.value = '正在生成职业推荐报告...'
+        setTimeout(() => {
+          isLoading.value = false
+          // 开始进度条动画
+          nextTick(() => {
+            startProgressAnimation()
+          })
+        }, 2000)
+      }, 3000)
+    }, 3000)
+  }, 0)
+}
+
 const handelGetStudentWrongQuestion = async () => {
   try {
     const res = await getStudentWrongQuestion(userStore.id)
@@ -117,7 +229,6 @@ const handelGetStudentWrongQuestion = async () => {
     console.error('获取错题统计失败:', error)
   }
 }
-
 const initChart = () => {
   const chart = echarts.init(chartRef.value)
   const option = {
@@ -145,7 +256,7 @@ const initChart = () => {
     series: [{
       type: 'radar',
       data: [{
-        value: [0.55, 0.22, 0.48, 0.65],
+        value: [0.55, 0.22, 0.92, 0.65],
         name: '掌握度',
         areaStyle: {
           color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
@@ -336,6 +447,7 @@ const updateTime = () => {
   })
 }
 
+
 onMounted(() => {
   fetchPapersStats()
   nextTick(() => {
@@ -410,6 +522,81 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
 }
+.career-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 300px;
+  position: relative;
+}
+
+.loading-spinner {
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 60px;
+  height: 60px;
+}
+
+.emoji-animation {
+  font-size: 48px;
+  animation: spin 2s infinite linear;
+  display: inline-block;
+  transform-origin: center center;
+  line-height: 1;
+}
+
+.loading-text-wrapper {
+  text-align: center;
+}
+
+.loading-text {
+  font-size: 20px;
+  font-weight: 500;
+  background-image: linear-gradient(
+    to right,
+    #666 20%,
+    #409EFF 40%,
+    #409EFF 60%,
+    #666 80%
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-fill-color: transparent;
+  display: inline-block;
+  animation: shine 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(0.8);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(0.8);
+  }
+}
+
+@keyframes shine {
+  to {
+    background-position: -200% center;
+  }
+}
 
 .stat-label {
   color: #909399;
@@ -440,5 +627,132 @@ onMounted(() => {
 .chart {
   width: 100%;
   height: 100%;
+}
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(100vh - 60px);
+}
+
+.loading-icon {
+  font-size: 48px;
+  animation: rotate 2s linear infinite;
+}
+
+.loading-text {
+  margin-top: 20px;
+  font-size: 16px;
+  color: #666;
+}
+
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.career-section {
+  padding: 20px;
+}
+
+.career-section h3 {
+  margin-bottom: 20px;
+  font-size: 1.5em;
+  color: #333;
+}
+
+.suitable-jobs h4 {
+  margin-bottom: 15px;
+  color: #666;
+}
+
+.job-item {
+  background: #f5f7fa;
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 15px;
+}
+
+.job-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.job-title {
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.matching-bar {
+  position: relative;
+  height: 20px;
+  background: #e4e7ed;
+  border-radius: 10px;
+  overflow: hidden;
+  margin-top: 10px;
+}
+
+.progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #409eff, #67c23a);
+  border-radius: 10px;
+  transition: width 0.05s linear;
+}
+
+.percentage {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #606266;
+  font-size: 12px;
+}
+
+.career-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+
+.loading-spinner {
+  margin-bottom: 20px;
+}
+
+.emoji-animation {
+  font-size: 48px;
+  animation: spin 2s infinite linear;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.5s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
+.career-report {
+  opacity: 1;
+  transition: opacity 0.5s ease;
 }
 </style>
