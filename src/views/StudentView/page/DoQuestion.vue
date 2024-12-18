@@ -21,7 +21,7 @@
       </div>
       <div class="ai-container markdown-body" v-if="aiAnswers[currentQuestionIndex]" :class="{ 'shine-active': showShineEffect }">
         <div class="ai-header">
-          <img src="../../../assets/bot.svg" alt="AI Logo" class="ai-logo">
+          <img src="../../../assets/img/bot.svg" alt="AI Logo" class="ai-logo">
           <span class="ai-title">好助学GPT回应</span>
         </div>
         <div class="ai-content">

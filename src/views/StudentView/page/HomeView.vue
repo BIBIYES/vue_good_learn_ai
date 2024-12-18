@@ -5,15 +5,21 @@
         <h2>欢迎回来，{{ userStore.name }}</h2>
         <el-button @click="showCareerReport">推荐职业匹配</el-button>
         <div class="time-info">
-          <p><el-icon><Calendar /></el-icon> {{ currentDate }}</p>
-          <p><el-icon><Timer /></el-icon> {{ currentTime }}</p>
+          <p><el-icon>
+              <Calendar />
+            </el-icon> {{ currentDate }}</p>
+          <p><el-icon>
+              <Timer />
+            </el-icon> {{ currentTime }}</p>
         </div>
       </div>
       <div class="stats-cards">
         <el-row :gutter="20">
           <el-col :span="8">
             <div class="stat-card">
-              <el-icon><Document /></el-icon>
+              <el-icon>
+                <Document />
+              </el-icon>
               <div class="stat-info">
                 <span class="stat-label">已完成试卷</span>
                 <span class="stat-value">{{ completedPapers }}</span>
@@ -22,7 +28,9 @@
           </el-col>
           <el-col :span="8">
             <div class="stat-card">
-              <el-icon><Document /></el-icon>
+              <el-icon>
+                <Document />
+              </el-icon>
               <div class="stat-info">
                 <span class="stat-label">未完成试卷</span>
                 <span class="stat-value">{{ pendingPapers }}</span>
@@ -31,7 +39,9 @@
           </el-col>
           <el-col :span="8">
             <div class="stat-card">
-              <el-icon><User /></el-icon>
+              <el-icon>
+                <User />
+              </el-icon>
               <div class="stat-info">
                 <span class="stat-label">总试卷数</span>
                 <span class="stat-value">{{ completedPapers + pendingPapers }}</span>
@@ -61,7 +71,7 @@
         </el-col>
         <el-col :xs="24" :sm="12" :md="12">
           <div class="chart-card">
-            <AllExamPaperStatus/>
+            <AllExamPaperStatus />
           </div>
         </el-col>
       </el-row>
@@ -106,7 +116,7 @@
   </div>
 </template>
 
-<script setup >
+<script setup>
 import { ref, onMounted, nextTick } from 'vue'
 import { useUserStore } from '@/stores/userStore'
 import { getStudentJoinExamPaper, getStudentWrongQuestion } from '@/api/userApi'
@@ -175,19 +185,19 @@ const startProgressAnimation = () => {
       const targetPercentage = job.matchPercentage
       const duration = 1000 // 1秒动画
       const startTime = Date.now()
-      
+
       const animate = () => {
         const currentTime = Date.now()
         const elapsed = currentTime - startTime
         const progress = Math.min(elapsed / duration, 1)
-        
+
         animatedPercentages.value[index] = progress * targetPercentage
-        
+
         if (progress < 1) {
           requestAnimationFrame(animate)
         }
       }
-      
+
       requestAnimationFrame(animate)
     }, index * 200) // 每个进度条错开200ms开始动画
   })
@@ -196,7 +206,7 @@ const startProgressAnimation = () => {
 const showCareerReport = () => {
   careerDrawerVisible.value = true
   isLoading.value = true
-  
+
   // 模拟加载过程
   setTimeout(() => {
     loadingText.value = '正在读取学生学习数据...'
@@ -298,7 +308,7 @@ const initWrongQuestionChart = (data) => {
       axisPointer: {
         type: 'shadow'
       },
-      formatter: function(params) {
+      formatter: function (params) {
         const data = params[0]
         const wrongData = wrongQuestionCount.value[data.dataIndex]
         return `${wrongData.examPaperName}<br/>
@@ -355,7 +365,7 @@ const initWrongQuestionChart = (data) => {
     }]
   }
   chart.setOption(option)
-  
+
   window.addEventListener('resize', () => {
     chart.resize()
   })
@@ -433,17 +443,17 @@ const initUsageChart = () => {
 
 const updateTime = () => {
   const now = new Date()
-  currentTime.value = now.toLocaleTimeString('zh-CN', { 
+  currentTime.value = now.toLocaleTimeString('zh-CN', {
     hour12: true,
     hour: '2-digit',
     minute: '2-digit',
     second: '2-digit'
   })
-  currentDate.value = now.toLocaleDateString('zh-CN', { 
-    weekday: 'long', 
-    year: 'numeric', 
-    month: 'long', 
-    day: 'numeric' 
+  currentDate.value = now.toLocaleDateString('zh-CN', {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
   })
 }
 
@@ -466,7 +476,7 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
-  background-color: #F4F4F7;  
+  background-color: #F4F4F7;
 }
 
 .header {
@@ -522,6 +532,7 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
 }
+
 .career-loading {
   display: flex;
   flex-direction: column;
@@ -555,13 +566,11 @@ onMounted(() => {
 .loading-text {
   font-size: 20px;
   font-weight: 500;
-  background-image: linear-gradient(
-    to right,
-    #666 20%,
-    #409EFF 40%,
-    #409EFF 60%,
-    #666 80%
-  );
+  background-image: linear-gradient(to right,
+      #666 20%,
+      #409EFF 40%,
+      #409EFF 60%,
+      #666 80%);
   background-size: 200% auto;
   -webkit-background-clip: text;
   background-clip: text;
@@ -575,6 +584,7 @@ onMounted(() => {
   from {
     transform: rotate(0deg);
   }
+
   to {
     transform: rotate(360deg);
   }
@@ -584,9 +594,11 @@ onMounted(() => {
   0% {
     transform: scale(0.8);
   }
+
   50% {
     transform: scale(1.1);
   }
+
   100% {
     transform: scale(0.8);
   }
@@ -652,6 +664,7 @@ onMounted(() => {
   from {
     transform: rotate(0deg);
   }
+
   to {
     transform: rotate(360deg);
   }
@@ -736,6 +749,7 @@ onMounted(() => {
   from {
     transform: rotate(0deg);
   }
+
   to {
     transform: rotate(360deg);
   }

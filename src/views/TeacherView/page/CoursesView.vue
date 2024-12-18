@@ -1,5 +1,5 @@
 <template>
-  <div v-loading="loading">
+  <div>
     <div class="header">
       <h2>我的课程</h2>
       <div class="header-right">
@@ -105,7 +105,7 @@ const editingCourseId = ref<number | null>(null)
 const router = useRouter()
 const userStore = useUserStore()
 const searchKeyword = ref('')
-const loading = ref(false)
+
 
 const filteredCourses = computed(() => {
   if (!searchKeyword.value) {
@@ -121,7 +121,7 @@ const handleSearchClear = () => {
 }
 
 const fetchCourses = async () => {
-  loading.value = true
+
   try {
     const res = await selectCoursesByUserId(userStore.id)
     if (res && res.data) {
@@ -141,7 +141,7 @@ const fetchCourses = async () => {
     })
     courses.value = []
   } finally {
-    loading.value = false
+
   }
 }
 

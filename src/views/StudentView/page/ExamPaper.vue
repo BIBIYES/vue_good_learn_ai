@@ -98,16 +98,16 @@ const getSummary = async () => {
   try {
     isSummarizing.value = true
     summaryContent.value = ''
-    
+
     // 获取试卷的错题记录
     const res = await getExamPaperWrongQuestions(userId.value, currentPaperId.value)
     const wrongQuestions = res.data
     console.log(res.data);
-    
+
 
     // 构建提示信息
     const prompt = `这是一份试卷的错题记录，请对学生的错题情况进行分析和总结：\n\n` +
-      wrongQuestions.map(q => 
+      wrongQuestions.map(q =>
         `题目：${q.questionContent}\n` +
         `学生答案：${q.wrongAnswer}\n` +
         `正确答案：${q.answer}\n` +
@@ -161,7 +161,9 @@ const getSummary = async () => {
       <div class="controller-addpapers">
         <el-input v-model="examPaperId" placeholder="输入试卷id来添加试卷">
           <template #prefix>
-            <el-icon><Document /></el-icon>
+            <el-icon>
+              <Document />
+            </el-icon>
           </template>
         </el-input>
         <el-button type="primary" :icon="Plus" @click="handleAddPaper">
@@ -171,37 +173,14 @@ const getSummary = async () => {
     </div>
 
     <el-row :gutter="20">
-      <el-col 
-        :xs="24"
-        :sm="12"
-        :md="8"
-        :lg="6"
-        :xl="4"
-        v-for="paper in myPapers"
-        :key="paper.examPaperId"
-      >
-        <el-card
-          class="paper-card"
-          shadow="hover"
-          @click="() => handleGoToPaper(paper.examPaperId)"
-        >
+      <el-col :xs="24" :sm="12" :md="8" :lg="6" :xl="4" v-for="paper in myPapers" :key="paper.examPaperId">
+        <el-card class="paper-card" shadow="hover" @click="() => handleGoToPaper(paper.examPaperId)">
           <div class="paper-header">
             <h3>{{ paper.examPaperName }}</h3>
             <div class="paper-actions">
-              <el-tooltip
-                v-if="paper.status === '已完成'"
-                content="总结试卷"
-                placement="top"
-                :hide-after="0"
-              >
-                <el-button
-                  class="summary-button"
-                  :icon="ChatDotRound"
-                  circle
-                  size="small"
-                  type="primary"
-                  @click.stop="handleSummary(paper.examPaperId)"
-                />
+              <el-tooltip v-if="paper.status === '已完成'" content="总结试卷" placement="top" :hide-after="0">
+                <el-button class="summary-button" :icon="ChatDotRound" circle size="small" type="primary"
+                  @click.stop="handleSummary(paper.examPaperId)" />
               </el-tooltip>
               <el-tag :style="getStatusStyle(paper.status)" effect="dark">
                 {{ paper.status }}
@@ -210,15 +189,21 @@ const getSummary = async () => {
           </div>
           <div class="paper-content">
             <div class="paper-info">
-              <el-icon><Document /></el-icon>
+              <el-icon>
+                <Document />
+              </el-icon>
               <span>试卷ID: {{ paper.examPaperId }}</span>
             </div>
             <div class="paper-info">
-              <el-icon><User /></el-icon>
+              <el-icon>
+                <User />
+              </el-icon>
               <span>作者: {{ paper.username }}</span>
             </div>
             <div class="paper-info">
-              <el-icon><Calendar /></el-icon>
+              <el-icon>
+                <Calendar />
+              </el-icon>
               <span>创建时间: {{ new Date(paper.joinDate).toLocaleString() }}</span>
             </div>
           </div>
@@ -226,16 +211,11 @@ const getSummary = async () => {
       </el-col>
     </el-row>
 
-    <el-drawer
-      v-model="drawerVisible"
-      title="好助学AI试卷总结"
-      direction="rtl"
-      size="50%"
-    >
+    <el-drawer v-model="drawerVisible" title="好助学AI试卷总结" direction="rtl" size="50%">
       <div class="drawer-content">
         <div class="ai-container markdown-body" :class="{ 'shine-active': isSummarizing }">
           <div class="ai-header">
-            <img src="../../../assets/bot.svg" alt="AI Logo" class="ai-logo">
+            <img src="../../../assets/img/bot.svg" alt="AI Logo" class="ai-logo">
             <span class="ai-title">好助学AI总结</span>
           </div>
           <div class="ai-content">
@@ -254,7 +234,7 @@ const getSummary = async () => {
 .app {
   background-color: #f4f4f7;
   min-height: 100%;
-  
+
 }
 
 .header {
@@ -316,7 +296,7 @@ const getSummary = async () => {
     .summary-button {
       padding: 6px;
       font-size: 14px;
-      
+
       &:hover {
         transform: scale(1.1);
         transition: transform 0.2s ease;
@@ -389,7 +369,7 @@ const getSummary = async () => {
 .drawer-content {
   padding: 20px;
   height: 100%;
-  
+
   .ai-container {
     width: 100%;
     background-color: #fff;
@@ -444,12 +424,10 @@ const getSummary = async () => {
   left: -100%;
   width: 50%;
   height: 100%;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 255, 255, 0.8) 50%,
-    transparent
-  );
+  background: linear-gradient(90deg,
+      transparent,
+      rgba(255, 255, 255, 0.8) 50%,
+      transparent);
   animation: shine 0.8s ease-in-out infinite;
   z-index: 1;
 }
@@ -459,6 +437,7 @@ const getSummary = async () => {
     left: -50%;
     opacity: 0.5;
   }
+
   100% {
     left: 100%;
     opacity: 0.8;
@@ -476,7 +455,7 @@ const getSummary = async () => {
 .summary-button {
   padding: 6px;
   font-size: 14px;
-  
+
   &:hover {
     transform: scale(1.1);
     transition: transform 0.2s ease;

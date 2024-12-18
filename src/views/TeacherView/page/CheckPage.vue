@@ -63,7 +63,7 @@ onMounted(() => {
 
                         <div class="content-section" v-if="examPaperStudentAnswerList[index - 1].aiAnswer">
                             <div class="ai-header">
-                                <img src="@/assets/bot.svg" alt="AI" class="ai-avatar">
+                                <img src="@/assets/img/bot.svg" alt="AI" class="ai-avatar">
                                 <span>好助学 AI</span>
                             </div>
                             <div class="ai-content">

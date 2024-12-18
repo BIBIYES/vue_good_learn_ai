@@ -10,6 +10,7 @@ declare module 'vue' {
     AllExamPaperStatus: typeof import('./../components/charts/AllExamPaperStatus.vue')['default']
     BatchUploadQuestions: typeof import('./../components/BatchUploadQuestions.vue')['default']
     ChatSkeleton: typeof import('./../components/ChatSkeleton.vue')['default']
+    CourseDifficultyChart: typeof import('./../components/charts/CourseDifficultyChart.vue')['default']
     ElAlert: typeof import('element-plus/es')['ElAlert']
     ElAside: typeof import('element-plus/es')['ElAside']
     ElAvatar: typeof import('element-plus/es')['ElAvatar']

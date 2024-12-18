@@ -168,7 +168,7 @@ const getAIAnswer = async () => {
         <!-- AI回答区域 -->
         <div v-if="filteredAiAnswer" class="ai-answer-section" :class="{ 'shine-active': showShineEffect }">
           <div class="ai-header">
-            <img src="../assets/bot.svg" alt="AI Logo" class="ai-logo">
+            <img src="../assets/img/bot.svg" alt="AI Logo" class="ai-logo">
             <span class="ai-title">
               重工AI好助学响应
             </span>
