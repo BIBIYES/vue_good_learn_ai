@@ -79,7 +79,7 @@
     </el-dialog>
 
     <!-- 编辑试卷的弹窗 -->
-    <el-dialog title="编辑试卷" v-model="isEditExamPaperDialogVisible">
+    <el-dialog title="重命名试卷" v-model="isEditExamPaperDialogVisible">
       <el-input v-model="editingExamPaperName" placeholder="输入新的试卷名称" />
       <template #footer>
         <el-button @click="isEditExamPaperDialogVisible = false"
