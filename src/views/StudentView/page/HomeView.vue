@@ -158,17 +158,17 @@ const jobRecommendations = ref([
   {
     title: '高级java全栈工程师',
     matchPercentage: 75.0,
-    link: '#'
+    link: 'https://www.zhipin.com/job_detail/d478a10b641976e31Xx42N20GFBT.html?lid=9FmtJsvOIgf.search.1&securityId=pSjkySxvivEDF-B1c56rC_p2b4IqmC5K6Xfv8Wg6tji_yinaubDqo3We_0_RDS0Vo-3jMvG60PWfBGHadXJgRbXJY1oPN91hwbim4FlDGeKdzqc341o~&sessionId='
   },
   {
     title: '前端开发工程师',
     matchPercentage: 72.5,
-    link: '#'
+    link: 'https://www.zhipin.com/job_detail/2546b008b323edf91Hx43tW4FlRR.html?lid=9FnwkhFS6uY.search.1&securityId=y8xJKytv5V2ls-M12F-aKyLKuQ3GORBUDATh_npYl3qAIDwpju8S2G-hHdzoggZbtDrFGfpKTzDInLVFzlPFEf5YWTJv6Cfkhu-QL67GvS7MrkO9UafJ4GfJNhsdfkElM89b7YqVZbegLYyNWCBOF5bW&sessionId='
   },
   {
     title: '高级前端研发工程师',
     matchPercentage: 70.0,
-    link: '#'
+    link: 'https://www.zhipin.com/job_detail/4d957f0913a7a0f71H172tm9F1pW.html?lid=9FnUIB6Vkdi.search.1&securityId=CYNAEIwZsKFZX-M19723Vsl7PbEloLrN50cxe5WeETLTa3WBCoqZgJ-k04sL1mgqsk73iqtKwvOBKPt4x95C63YXNDc4dQMFebEL_wFAxSlwSVwyaxhO&sessionId='
   }
 ])
 

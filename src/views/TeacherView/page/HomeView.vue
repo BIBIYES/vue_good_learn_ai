@@ -458,7 +458,7 @@ const initCharts = () => {
   const examErrorRateInstance = echarts.init(examErrorRateChart.value)
   const examErrorRateOption = {
     title: {
-      text: '试卷错题率分析',
+      text: '章节难度',
       textStyle: {
         color: '#333',
         fontSize: 16,
@@ -469,7 +469,7 @@ const initCharts = () => {
     },
     tooltip: {
       trigger: 'axis',
-      formatter: '{b}<br/>错题率: {c}%'
+      formatter: '{b}<br/>难度比: {c}%'
     },
     grid: {
       left: '3%',
@@ -514,7 +514,7 @@ const initCharts = () => {
 
     yAxis: {
       type: 'value',
-      name: '错题率',
+      name: '难度比',
       axisLabel: {
         formatter: '{value}%'
       },
@@ -527,7 +527,7 @@ const initCharts = () => {
       }
     },
     series: [{
-      name: '错题率',
+      name: '难度比',
       type: 'line',
       smooth: true,
       symbol: 'circle',
