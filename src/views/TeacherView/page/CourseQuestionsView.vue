@@ -82,6 +82,7 @@
 
     <!-- 添加题目的弹窗 -->
     <el-dialog title="添加题目" v-model="addDialogVisible">
+      <BatchUploadQuestions :courseId="courseId" :userId="userStore.id"></BatchUploadQuestions>
       <el-form :model="newQuestion">
         <el-form-item label="题目标题">
           <el-input v-model="newQuestion.questionTitle" />
@@ -99,7 +100,7 @@
         <el-button @click="addDialogVisible = false">取消</el-button>
         <el-button type="primary" @click="addQuestion">添加</el-button>
       </template>
-      <BatchUploadQuestions :courseId="courseId" :userId="userStore.id"></BatchUploadQuestions>
+      
     </el-dialog>
 
     <!-- 编辑题目的弹窗 -->
