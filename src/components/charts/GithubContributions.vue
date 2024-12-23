@@ -1,0 +1,304 @@
+/**
+ * @说明: GitHub贡献热力图组件
+ * @作者: Aoki
+ * @组件功能: 展示类似GitHub贡献热力图的活跃度统计，按日期显示活跃程度
+ * @特点: 
+ * - 使用ECharts实现热力图展示
+ * - 支持全年数据展示
+ * - 采用GitHub风格的配色方案
+ * - 响应式设计，支持窗口大小变化
+ */
+<script setup>
+/**
+ * @说明: 获取组件实例，用于访问全局属性
+ */
+import { getCurrentInstance, onMounted, ref, onUnmounted } from 'vue'
+
+const { proxy } = getCurrentInstance()
+/**
+ * @说明: 热力图DOM引用
+ */
+let heatMap = ref(null)
+/**
+ * @说明: 图表标题
+ */
+let name = ref('活跃度')
+/**
+ * @说明: ECharts实例引用
+ */
+const chart = ref(null)
+
+/**
+ * @说明: 生成全年的活跃度数据
+ * @returns {Array} 返回格式化的日期-活跃度数组
+ * @description 
+ * - 1-8月数据默认为0
+ * - 9-12月使用预设的活跃度数据
+ * - 数据格式: [['YYYY-MM-DD', value], ...]
+ */
+function generateFullYearData() {
+    const data = []
+    const year = 2023
+
+    // 1-8月数据全部为0
+    for (let month = 1; month <= 8; month++) {
+        const daysInMonth = new Date(year, month, 0).getDate()
+        for (let day = 1; day <= daysInMonth; day++) {
+            data.push([
+                `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`,
+                0
+            ])
+        }
+    }
+
+    // 9-12月的实际数据
+    const activeData = [
+        // 9月数据
+        ['2023-09-01', 2], ['2023-09-02', 1], ['2023-09-03', 3], ['2023-09-04', 2],
+        ['2023-09-05', 4], ['2023-09-06', 3], ['2023-09-07', 2], ['2023-09-08', 1],
+        ['2023-09-09', 2], ['2023-09-10', 3], ['2023-09-11', 4], ['2023-09-12', 2],
+        ['2023-09-13', 1], ['2023-09-14', 3], ['2023-09-15', 4], ['2023-09-16', 2],
+        ['2023-09-17', 1], ['2023-09-18', 3], ['2023-09-19', 2], ['2023-09-20', 4],
+        ['2023-09-21', 3], ['2023-09-22', 2], ['2023-09-23', 1], ['2023-09-24', 2],
+        ['2023-09-25', 3], ['2023-09-26', 4], ['2023-09-27', 2], ['2023-09-28', 1],
+        ['2023-09-29', 3], ['2023-09-30', 4],
+
+        // 10月数据
+        ['2023-10-01', 3], ['2023-10-02', 4], ['2023-10-03', 4], ['2023-10-04', 3],
+        ['2023-10-05', 4], ['2023-10-06', 3], ['2023-10-07', 4], ['2023-10-08', 4],
+        ['2023-10-09', 3], ['2023-10-10', 4], ['2023-10-11', 4], ['2023-10-12', 3],
+        ['2023-10-13', 4], ['2023-10-14', 3], ['2023-10-15', 4], ['2023-10-16', 4],
+        ['2023-10-17', 3], ['2023-10-18', 4], ['2023-10-19', 3], ['2023-10-20', 4],
+        ['2023-10-21', 4], ['2023-10-22', 3], ['2023-10-23', 4], ['2023-10-24', 3],
+        ['2023-10-25', 4], ['2023-10-26', 4], ['2023-10-27', 3], ['2023-10-28', 4],
+        ['2023-10-29', 3], ['2023-10-30', 4], ['2023-10-31', 4],
+
+        // 11月数据
+        ['2023-11-01', 2], ['2023-11-02', 3], ['2023-11-03', 2], ['2023-11-04', 1],
+        ['2023-11-05', 2], ['2023-11-06', 3], ['2023-11-07', 2], ['2023-11-08', 1],
+        ['2023-11-09', 2], ['2023-11-10', 3], ['2023-11-11', 2], ['2023-11-12', 1],
+        ['2023-11-13', 2], ['2023-11-14', 3], ['2023-11-15', 2], ['2023-11-16', 1],
+        ['2023-11-17', 2], ['2023-11-18', 3], ['2023-11-19', 2], ['2023-11-20', 1],
+        ['2023-11-21', 2], ['2023-11-22', 3], ['2023-11-23', 2], ['2023-11-24', 1],
+        ['2023-11-25', 2], ['2023-11-26', 3], ['2023-11-27', 2], ['2023-11-28', 1],
+        ['2023-11-29', 2], ['2023-11-30', 3],
+
+        // 12月数据
+        ['2023-12-01', 1], ['2023-12-02', 2], ['2023-12-03', 1], ['2023-12-04', 0],
+        ['2023-12-05', 1], ['2023-12-06', 2], ['2023-12-07', 1], ['2023-12-08', 0],
+        ['2023-12-09', 1], ['2023-12-10', 2], ['2023-12-11', 1], ['2023-12-12', 0],
+        ['2023-12-13', 1], ['2023-12-14', 2], ['2023-12-15', 1], ['2023-12-16', 0],
+        ['2023-12-17', 1], ['2023-12-18', 2], ['2023-12-19', 1], ['2023-12-20', 0],
+        ['2023-12-21', 1], ['2023-12-22', 2], ['2023-12-23', 1], ['2023-12-24', 0],
+        ['2023-12-25', 1], ['2023-12-26', 2], ['2023-12-27', 1], ['2023-12-28', 0],
+        ['2023-12-29', 1], ['2023-12-30', 2], ['2023-12-31', 1]
+    ]
+
+    return [...data, ...activeData]
+}
+
+/**
+ * @说明: 初始化ECharts图表
+ * @description
+ * - 配置GitHub风格的热力图
+ * - 设置提示框、视觉映射、日历坐标系等
+ * - 使用自定义的颜色方案
+ * - 配置中文月份和星期显示
+ */
+function initChart() {
+    if (!heatMap.value) return
+
+    chart.value = proxy.$echarts.init(heatMap.value)
+
+    const option = {
+        tooltip: {
+            position: 'top',
+            formatter: function (params) {
+                return `${params.value[0]}: ${params.value[1]} 次提交`
+            }
+        },
+        visualMap: {
+            show: false,
+            min: 0,
+            max: 4,
+            calculable: true,
+            orient: 'horizontal',
+            left: 'center',
+            top: 'top',
+            inRange: {
+                // GitHub风格的颜色
+                color: ['#ebedf0', '#9be9a8', '#40c463', '#30a14e', '#216e39']
+            }
+        },
+        calendar: {
+            top: 40,
+            left: 30,
+            right: 5,
+            cellSize: [10, 10], // GitHub风格的格子大小
+            range: '2023',
+            itemStyle: {
+                borderWidth: 1,
+                borderColor: '#fff'
+            },
+            yearLabel: { show: true },
+            monthLabel: {
+                nameMap: [
+                    '1月', '2月', '3月', '4月', '5月', '6月',
+                    '7月', '8月', '9月', '10月', '11月', '12月'
+                ]
+            },
+            dayLabel: {
+                firstDay: 1, // 从周一开始
+                nameMap: ['日', '一', '二', '三', '四', '五', '六'],
+                color: '#999'
+            },
+            splitLine: {
+                show: true,
+                lineStyle: {
+                    color: '#ebedf0',
+                    width: 2
+                }
+            }
+        },
+        series: [{
+            type: 'heatmap',
+            coordinateSystem: 'calendar',
+            calendarIndex: 0,
+            data: generateFullYearData(),
+            label: {
+                show: false
+            },
+            emphasis: {
+                itemStyle: {
+                    borderColor: '#fff',
+                    borderWidth: 1
+                }
+            }
+        }]
+    }
+
+    chart.value.setOption(option)
+}
+
+/**
+ * @说明: 处理窗口大小变化事件
+ * @description 当窗口大小改变时，重新调整图表大小以适应容器
+ */
+function handleResize() {
+    chart.value?.resize()
+}
+
+/**
+ * @说明: 组件挂载时的生命周期钩子
+ * @description
+ * - 初始化图表
+ * - 添加窗口resize事件监听
+ * - 包含错误处理机制
+ */
+onMounted(() => {
+    try {
+        initChart()
+        window.addEventListener('resize', handleResize)
+    } catch (error) {
+        console.error('图表初始化失败:', error)
+    }
+})
+
+/**
+ * @说明: 组件卸载时的生命周期钩子
+ * @description
+ * - 移除窗口resize事件监听
+ * - 释放图表实例，防止内存泄漏
+ */
+onUnmounted(() => {
+    window.removeEventListener('resize', handleResize)
+    chart.value?.dispose()
+})
+</script>
+
+<template>
+    <!-- 热力图主容器 -->
+    <div class="contribution-chart">
+        <!-- 图表标题 -->
+        <h3 class="chart-title">{{ name }}</h3>
+        <!-- 热力图容器 -->
+        <div ref="heatMap" class="chart-container"></div>
+        <!-- 活跃度图例说明 -->
+        <div class="chart-legend">
+            <span class="legend-text">更少</span>
+            <!-- 活跃度颜色等级展示 -->
+            <ul class="legend-boxes">
+                <li class="legend-box" style="background-color: #ebedf0"></li>
+                <li class="legend-box" style="background-color: #9be9a8"></li>
+                <li class="legend-box" style="background-color: #40c463"></li>
+                <li class="legend-box" style="background-color: #30a14e"></li>
+                <li class="legend-box" style="background-color: #216e39"></li>
+            </ul>
+            <span class="legend-text">更多</span>
+        </div>
+    </div>
+</template>
+
+<style lang="less" scoped>
+/* 热力图组件样式 */
+.contribution-chart {
+    width: 100%;
+    height: 100%;
+    background: #ffffff;
+    border-radius: 6px;
+    /* 添加阴影效果增加层次感 */
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+
+    /* 标题样式 */
+    .chart-title {
+        font-size: 14px;
+        color: #24292e;
+        margin-bottom: 8px;
+        font-weight: 600;
+    }
+
+    /* 图表容器样式 */
+    .chart-container {
+        width: 100%;
+        height: 80%;
+
+        /* 确保ECharts实例填充整个容器 */
+        :deep(.echarts) {
+            width: 100%;
+            height: 100%;
+        }
+    }
+
+    /* 图例样式 */
+    .chart-legend {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        margin-top: 4px;
+        padding-right: 10px;
+
+        /* 图例文字样式 */
+        .legend-text {
+            font-size: 12px;
+            color: #586069;
+            margin: 0 4px;
+        }
+
+        /* 图例颜色块容器 */
+        .legend-boxes {
+            display: flex;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+
+            /* 单个颜色块样式 */
+            .legend-box {
+                width: 10px;
+                height: 10px;
+                margin: 0 1px;
+                border: 1px solid rgba(27, 31, 35, 0.06);
+            }
+        }
+    }
+}
+</style>

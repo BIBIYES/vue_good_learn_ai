@@ -8,9 +8,12 @@ import piniaPersistedState from 'pinia-plugin-persistedstate'
 import ElementPlus from 'element-plus'
 import zhCn from 'element-plus/es/locale/lang/zh-cn'
 import JsonExcel from "vue-json-excel3";
+import * as echarts from 'echarts'
+
+
 const app = createApp(App)
 app.component("downloadExcel", JsonExcel)
-
+app.config.globalProperties.$echarts = echarts
 app.use(ElementPlus, {
   locale: zhCn
 })

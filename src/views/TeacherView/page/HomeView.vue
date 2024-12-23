@@ -74,7 +74,6 @@ import { useUserStore } from '@/stores/userStore'
 import { selectCoursesByUserId, selectExamPapersByUserId } from '@/api/userApi'
 import * as echarts from 'echarts'
 import {
-
   Timer,
   Calendar,
   DataAnalysis
@@ -82,7 +81,6 @@ import {
 
 // 获取老师图表数据的接口
 import { getWrongQuestionsOverview, getCourseDifficultyAnalysis, getExamPaperPerformance, getStudentLearningProgress } from '@/api/teacherDataApi'
-
 
 const userStore = useUserStore()
 const coursesCount = ref(0)
@@ -101,7 +99,6 @@ const courseDifficultyChart = ref(null)
 const wrongQuestionsChart = ref(null)
 const learningTrendChart = ref(null)
 const examErrorRateChart = ref(null)
-
 
 const zoomStart = ref(0)
 const zoomEnd = ref(100)
@@ -130,7 +127,6 @@ const pieColors = [
 ]
 
 const fetchStats = async () => {
-
   // 获取课程数量
   const coursesRes = await selectCoursesByUserId(userStore.id)
   if (coursesRes && coursesRes.data) {
@@ -168,7 +164,6 @@ const fetchChartData = async () => {
   }
 }
 
-
 const updateTime = () => {
   const now = new Date()
   currentTime.value = now.toLocaleTimeString('zh-CN', {
@@ -197,55 +192,62 @@ const initCharts = () => {
         fontWeight: 'normal'
       },
       left: 'center',
-      top: 10
+      top: '5%'
     },
     tooltip: {
-      trigger: 'axis',
-      axisPointer: { type: 'shadow' }
+      trigger: 'item'
     },
-    grid: {
-      left: '3%',
-      right: '4%',
-      bottom: '15%',
-      top: '15%',
-      containLabel: true
-    },
-    xAxis: {
-      type: 'category',
-      data: courseDifficultyAnalysisRes.value.map(item => item.courseName),
-      axisLabel: {
-        interval: 0,
-        rotate: 30,
-        color: '#666'
-      }
-    },
-    yAxis: {
-      type: 'value',
-      name: '平均错题数',
+    radar: {
+      indicator: courseDifficultyAnalysisRes.value.map(item => ({
+        name: item.courseName,
+        max: Math.max(...courseDifficultyAnalysisRes.value.map(item => item.avgWrongQuestionsPerStudent || 0)) * 1.2
+      })),
+      radius: '45%',
+      center: ['50%', '55%'],
       splitLine: {
         lineStyle: {
-          type: 'dashed'
+          color: 'rgba(255, 99, 71, 0.1)'
+        }
+      },
+      splitArea: {
+        show: true,
+        areaStyle: {
+          color: ['rgba(255,255,255,0.1)', 'rgba(255, 99, 71, 0.05)']
+        }
+      },
+      axisLine: {
+        lineStyle: {
+          color: 'rgba(255, 99, 71, 0.5)'
+        }
+      },
+      name: {
+        textStyle: {
+          color: '#666',
+          fontSize: 12
         }
       }
     },
     series: [{
-      type: 'bar',
-      data: courseDifficultyAnalysisRes.value.map(item => item.avgWrongQuestionsPerStudent || 0),
-      barWidth: '40%',
-      itemStyle: {
-        color: new echarts.graphic.LinearGradient(0, 1, 0, 0, [
-          { offset: 0, color: '#ff9a9e' },
-          { offset: 1, color: '#fad0c4' }
-        ])
-      },
-      emphasis: {
+      name: '课程难度',
+      type: 'radar',
+      data: [{
+        value: courseDifficultyAnalysisRes.value.map(item => item.avgWrongQuestionsPerStudent || 0),
+        name: '平均错题数',
         itemStyle: {
-          color: new echarts.graphic.LinearGradient(0, 1, 0, 0, [
-            { offset: 0, color: '#ff8a8e' },
-            { offset: 1, color: '#fac0b4' }
+          color: '#ff6347'
+        },
+        areaStyle: {
+          color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+            { offset: 0, color: 'rgba(255, 99, 71, 0.7)' },
+            { offset: 1, color: 'rgba(255, 160, 122, 0.7)' }
           ])
-        }
-      }
+        },
+        lineStyle: {
+          color: '#ff6347',
+          width: 2
+        },
+        symbolSize: 4
+      }]
     }]
   }
   courseDifficultyInstance.setOption(courseDifficultyOption)
@@ -379,8 +381,8 @@ const initCharts = () => {
         end: 10, // 初始视图范围的终点（100%）
         height: 30, // 滚动条高度
         bottom: 0, // 滚动条位置
-        borderColor: 'transparent', // 滑动条边框颜色
-        backgroundColor: '#f5f5f5', // 滑动条背景颜色
+        borderColor: 'transparent', // 滚动条边框颜色
+        backgroundColor: '#f5f5f5', // 滚动条背景颜色
         fillerColor: 'rgba(64, 158, 255, 0.2)', // 选中区域颜色
         handleStyle: {
           color: '#409EFF', // 滑块颜色

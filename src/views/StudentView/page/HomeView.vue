@@ -66,7 +66,9 @@
         </el-col>
         <el-col :span="12">
           <div class="chart-card">
-            <div ref="usageChartRef" class="chart"></div>
+            <!-- <div ref="usageChartRef" class="chart"></div> -->
+            <GithubContributions startDate="2023-01-01" endDate="2023-12-31"
+              :colorScheme="['#ebedf0', '#9be9a8', '#40c463', '#30a14e', '#216e39']" title="代码贡献热力图" />
           </div>
         </el-col>
         <el-col :xs="24" :sm="12" :md="12">
@@ -128,6 +130,7 @@ import {
   Loading
 } from '@element-plus/icons-vue'
 import * as echarts from 'echarts'
+import { it } from 'element-plus/es/locales.mjs'
 
 const userStore = useUserStore()
 const completedPapers = ref(0)
@@ -294,7 +297,7 @@ const initWrongQuestionChart = (data) => {
   const chart = echarts.init(wrongQuestionChart.value)
   const option = {
     title: {
-      text: '试卷错题统计',
+      text: '我的错题统计',
       textStyle: {
         color: '#333',
         fontSize: 16,
@@ -304,63 +307,42 @@ const initWrongQuestionChart = (data) => {
       top: 10
     },
     tooltip: {
-      trigger: 'axis',
-      axisPointer: {
-        type: 'shadow'
-      },
+      trigger: 'item',
       formatter: function (params) {
-        const data = params[0]
-        const wrongData = wrongQuestionCount.value[data.dataIndex]
+        const wrongData = data[params.dataIndex]
         return `${wrongData.examPaperName}<br/>
                 错题数量: ${wrongData.wrongQuestionsCount}<br/>
                 错题详情: ${wrongData.wrongQuestionTitles.split(';')[0]}...`
       }
     },
-    grid: {
-      left: '3%',
-      right: '4%',
-      bottom: '15%',
-      top: '15%',
-      containLabel: true
-    },
-    xAxis: {
-      type: 'category',
-      data: data.map(item => item.examPaperName),
-      axisLabel: {
-        interval: 0,
-        rotate: 0,
-        width: 80,
-        overflow: 'truncate',
-        color: '#666'
-      }
-    },
-    yAxis: {
-      type: 'value',
-      name: '错题数量',
-      minInterval: 1,
-      splitLine: {
-        lineStyle: {
-          type: 'dashed'
-        }
-      }
+    legend: {
+      orient: 'vertical',
+      left: 'left',
+      top: 'middle'
     },
     series: [{
-      type: 'bar',
-      data: data.map(item => item.wrongQuestionsCount),
-      barWidth: '40%',
-      itemStyle: {
-        color: new echarts.graphic.LinearGradient(0, 1, 0, 0, [
-          { offset: 0, color: '#ff9a9e' },
-          { offset: 1, color: '#fad0c4' }
-        ])
-      },
+      type: 'pie',
+      radius: '60%',
+      data: data.map(item => ({
+        // 只显示前4个字符，后面加...
+        name: item.examPaperName.substring(0, 20) + '...',
+        value: item.wrongQuestionsCount
+      })),
       emphasis: {
         itemStyle: {
-          color: new echarts.graphic.LinearGradient(0, 1, 0, 0, [
-            { offset: 0, color: '#ff8a8e' },
-            { offset: 1, color: '#fac0b4' }
-          ])
+          shadowBlur: 10,
+          shadowOffsetX: 0,
+          shadowColor: 'rgba(0, 0, 0, 0.5)'
         }
+      },
+      itemStyle: {
+        borderRadius: 10,
+        borderColor: '#fff',
+        borderWidth: 2
+      },
+      label: {
+        show: false,
+        formatter: '{b}: {c}题'
       }
     }]
   }
@@ -373,54 +355,108 @@ const initWrongQuestionChart = (data) => {
 
 const initUsageChart = () => {
   const chart = echarts.init(usageChartRef.value)
+
+  // Generate last 30 days dates
+  const dates = Array.from({ length: 30 }, (_, i) => {
+    const date = new Date()
+    date.setDate(date.getDate() - (29 - i))
+    return `${date.getMonth() + 1}/${date.getDate()}`
+  })
+
+  // Generate random usage data between 0.6 and 0.95
+  const data = Array.from({ length: 30 }, () =>
+    Number((Math.random() * (0.95 - 0.6) + 0.6).toFixed(2))
+  )
+
   const option = {
     title: {
       text: '好助学使用评率',
+      subtext: '最近30天',
       textStyle: {
         color: '#333',
         fontSize: 16,
         fontWeight: 'normal'
       },
+      subtextStyle: {
+        color: '#909399',
+        fontSize: 12
+      },
       left: 'center',
       top: 10
     },
     tooltip: {
-      trigger: 'axis'
+      trigger: 'axis',
+      backgroundColor: 'rgba(255, 255, 255, 0.9)',
+      borderColor: '#409EFF',
+      borderWidth: 1,
+      textStyle: {
+        color: '#606266'
+      },
+      formatter: (params) => {
+        const value = params[0].value
+        return `${params[0].name}<br/>
+                <span style="display:inline-block;margin-right:4px;border-radius:50%;width:10px;height:10px;background-color:#409EFF"></span>
+                使用率: ${(value * 100).toFixed(1)}%`
+      }
     },
     grid: {
       left: '3%',
       right: '4%',
-      bottom: '3%',
+      bottom: '8%',
+      top: '15%',
       containLabel: true
     },
     xAxis: {
       type: 'category',
-      data: ['张闯博', '陈婉雯', '李明阳', '金典', '王诗琪'],
+      data: dates,
+      boundaryGap: false,
       axisLabel: {
-        interval: 0,
-        rotate: 0
+        interval: 'auto',
+        rotate: 45,
+        color: '#909399',
+        fontSize: 11
+      },
+      axisLine: {
+        lineStyle: {
+          color: '#DCDFE6'
+        }
       }
     },
     yAxis: {
       type: 'value',
-      min: 0,
+      min: 0.5,
       max: 1,
       splitLine: {
         lineStyle: {
-          type: 'dashed'
+          type: 'dashed',
+          color: '#E4E7ED'
         }
+      },
+      axisLabel: {
+        formatter: (value) => `${(value * 100).toFixed(0)}%`,
+        color: '#909399'
       }
     },
     series: [{
       name: '使用频率',
       type: 'line',
-      data: [0.85, 0.92, 0.78, 0.95, 0.88],
+      data: data,
       smooth: true,
       symbol: 'circle',
       symbolSize: 8,
+      showSymbol: false,
+      emphasis: {
+        scale: true,
+        focus: 'series',
+        itemStyle: {
+          color: '#409EFF'
+        }
+      },
       lineStyle: {
         color: '#409EFF',
-        width: 3
+        width: 3,
+        shadowColor: 'rgba(64, 158, 255, 0.3)',
+        shadowBlur: 10
       },
       itemStyle: {
         color: '#409EFF',
@@ -430,7 +466,7 @@ const initUsageChart = () => {
       areaStyle: {
         color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
           { offset: 0, color: 'rgba(64, 158, 255, 0.3)' },
-          { offset: 1, color: 'rgba(64, 158, 255, 0.1)' }
+          { offset: 1, color: 'rgba(64, 158, 255, 0.05)' }
         ])
       }
     }]
