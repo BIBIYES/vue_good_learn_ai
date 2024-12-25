@@ -45,7 +45,6 @@ declare module 'vue' {
     ElTag: typeof import('element-plus/es')['ElTag']
     ElTooltip: typeof import('element-plus/es')['ElTooltip']
     ElUpload: typeof import('element-plus/es')['ElUpload']
-    GetHeatMap: typeof import('./../components/getHeatMap.vue')['default']
     GithubContributions: typeof import('./../components/charts/GithubContributions.vue')['default']
     MarkdownContext: typeof import('./../components/common/MarkdownContext.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']

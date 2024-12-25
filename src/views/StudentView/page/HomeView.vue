@@ -12,6 +12,7 @@
               <Timer />
             </el-icon> {{ currentTime }}</p>
         </div>
+        
       </div>
       <div class="stats-cards">
         <el-row :gutter="20">
@@ -111,6 +112,9 @@
                 </div>
               </div>
             </div>
+          </div>
+          <div class="career-note">
+            <p>匹配的结果仅供参考，你的人生由你自己主导！</p>
           </div>
         </div>
       </transition>
@@ -804,5 +808,14 @@ onMounted(() => {
 .career-report {
   opacity: 1;
   transition: opacity 0.5s ease;
+}
+
+.career-note {
+  text-align: center;
+  margin-top: 20px;
+  padding: 15px;
+  color: #666;
+  font-style: italic;
+  border-top: 1px solid #eee;
 }
 </style>
