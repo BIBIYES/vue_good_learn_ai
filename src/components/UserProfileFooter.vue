@@ -8,7 +8,7 @@
         ></el-avatar>
         <div class="user-details">
           <span class="user-name">{{ userStore.name }}</span>
-          <span class="user-email">{{ userStore.email }}</span>
+          <span class="user-email">{{ maskedEmail }}</span>
         </div>
       </div>
       <el-button @click.stop="handleLogout">退出登录</el-button>
@@ -48,6 +48,15 @@ const avatarUrl = computed(() => {
     return '/api/' + userStore.avatar
   }
   return `https://q2.qlogo.cn/headimg_dl?dst_uin=${userStore.email}&spec=640`
+})
+
+// 添加邮箱脱敏计算属性
+const maskedEmail = computed(() => {
+  const email = userStore.email;
+  if (!email) return '';
+  const [username, domain] = email.split('@');
+  const maskedUsername = username.slice(0, 3) + '*'.repeat(username.length - 3);
+  return `${maskedUsername}@${domain}`;
 })
 </script>
 
@@ -116,4 +125,4 @@ const avatarUrl = computed(() => {
 }
 
 
-</style> 
+</style>

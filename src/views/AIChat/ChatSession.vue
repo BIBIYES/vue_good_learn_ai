@@ -49,7 +49,8 @@ const getHistoricalMessages = async () => {
 
 
 const handleSendQuestion = () => {
-  
+  // 流式响应
+  let temp = ""
   const params = {
     chatId: route.params.id,
     variables: {
@@ -69,10 +70,12 @@ const handleSendQuestion = () => {
       // 判断消息状态
       if (json.choices[0].finish_reason == null) {
         messages.value[messages.value.length - 1].content += json.choices[0].delta.content
+        // temp  += json.choices[0].delta.content
         // console.log(json.choices[0].delta.content);
         scrollToBottom()
       } else {
         isSendLoading.value = false
+        // messages.value[messages.value.length - 1].content = temp
         // 切换状态灯
         addSessionHistory({
           sessionId: sessionId.value,

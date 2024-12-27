@@ -24,7 +24,7 @@
           </el-form-item>
 
           <el-form-item label="邮箱">
-            <el-input v-model="profileForm.email" disabled />
+            <el-input v-model="maskedEmail" disabled />
           </el-form-item>
 
           <el-form-item label="学校ID" prop="cqipcId">
@@ -51,7 +51,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { useUserStore } from '@/stores/userStore'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
@@ -88,6 +88,15 @@ const avatarUrl = computed(() => {
   }
   return `https://q2.qlogo.cn/headimg_dl?dst_uin=${userStore.email}&spec=640`
 })
+
+const maskedEmail = computed(() => {
+  const email = userStore.email;
+  if (!email) return '';
+  const [username, domain] = email.split('@');
+  const maskedUsername = username.slice(0, 3) + '*'.repeat(username.length - 3);
+  return `${maskedUsername}@${domain}`;
+})
+
 const handleAvatarChange = async (uploadFile) => {
   if (!uploadFile.raw) return
 

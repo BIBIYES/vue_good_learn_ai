@@ -30,7 +30,7 @@
         <el-menu-item index="/student/ai-chat">
           <div class="menu-item-container">
             <el-icon class="menu-icon"><ChatDotRound /></el-icon>
-            <div class="menu-text">AI聊天</div>
+            <div class="menu-text">智识顾问</div>
           </div>
         </el-menu-item>
         <el-menu-item index="/student/exam-paper">

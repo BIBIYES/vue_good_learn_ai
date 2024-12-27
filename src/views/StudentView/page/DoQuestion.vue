@@ -22,7 +22,7 @@
       <div class="ai-container markdown-body" v-if="aiAnswers[currentQuestionIndex]" :class="{ 'shine-active': showShineEffect }">
         <div class="ai-header">
           <img src="../../../assets/img/bot.svg" alt="AI Logo" class="ai-logo">
-          <span class="ai-title">好助学GPT回应</span>
+          <span class="ai-title">智汇学伴</span>
         </div>
         <div class="ai-content">
           <div v-html="marked(filteredAiAnswer)"></div>

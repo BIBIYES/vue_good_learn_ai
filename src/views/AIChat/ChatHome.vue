@@ -16,7 +16,7 @@ const router = useRouter()
 const userStore = useUserStore()
 
 const sessionStore = useSessionStore()
-let placeholderText = ref('问"好助学AI"点什么(shift+enter换行)')
+let placeholderText = ref('问"智识顾问"点什么(shift+enter换行)')
 
 
 // 发送消息的函数
@@ -64,7 +64,7 @@ const handleKeyUp = (event) => {
 const fontAnimation = () => {
   typed = new Typed(typewriterElement.value, {
     strings: [
-      'Hi，我是好助学AI',
+      'Hi，我是智识顾问',
       '一个基于知识库问答的多元化AI应用',
       '今天有什么可以帮到您？'
     ],
@@ -94,11 +94,11 @@ const adjustHeight = () => {
     <div class="chat-messages-box">
       <div class="chat-messages-box-content">
         <div class="logo-box flowing-text">
-          <h3>AI好助学</h3>
+          <h3>智识顾问</h3>
         </div>
         <div class="content" ref="typewriterElement">
           <!-- 这里需要typed-->
-          你好我是好助学AI
+          
         </div>
         <div class="item-box">
           <div class="item">
@@ -206,7 +206,7 @@ const adjustHeight = () => {
         justify-content: center;
         align-items: center;
         width: max-content;
-        height: 100px;
+        height: 50px;
         font-size: 33px;
         color: #333;
         z-index: 0;
@@ -219,16 +219,16 @@ const adjustHeight = () => {
         }
       }
 
-      .logo-box::before {
-        content: '';
-        width: 100px;
-        height: 10px;
-        position: absolute;
-        background: linear-gradient(to right, #ee7752, #e73c7e);
-        border-radius: 15px;
-        bottom: 0;
-        left: 0;
-      }
+      // .logo-box::before {
+      //   content: '';
+      //   width: 100px;
+      //   height: 10px;
+      //   position: absolute;
+      //   background: linear-gradient(to right, #ee7752, #e73c7e);
+      //   border-radius: 15px;
+      //   bottom: 0;
+      //   left: 0;
+      // }
 
       .content {
         display: flex;
