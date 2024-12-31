@@ -265,7 +265,9 @@ const initChart = () => {
         { name: 'MySQL', max: 1 },
         { name: '计算机网络技术', max: 1 },
         { name: 'JavaEE企业级应用开发', max: 1 },
-        { name: 'Linux', max: 1 }
+        { name: 'Linux', max: 1 },
+        { name: 'Vue.js', max: 1 }, // 新增课程
+        { name: '网页设计', max: 1 } // 新增课程
       ],
       radius: '65%',
       center: ['50%', '55%']
@@ -273,7 +275,7 @@ const initChart = () => {
     series: [{
       type: 'radar',
       data: [{
-        value: [0.55, 0.22, 0.92, 0.65],
+        value: [0.55, 0.22, 0.92, 0.65, 0.75, 0.80], // 新增课程的掌握度
         name: '掌握度',
         areaStyle: {
           color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [

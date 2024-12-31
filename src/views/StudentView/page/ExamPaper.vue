@@ -24,7 +24,7 @@ const currentPaperId = ref(null)
 const summaryContent = ref('')
 const isSummarizing = ref(false)
 
-const fastGPT = new FastGPT("fastgpt-sw5swebtIUyUCmolJNRSoRctihOs2seMGBXOyyxlTEyFnYQXKYSqjqA2")
+const fastGPT = new FastGPT("fastgpt-jCC97hSHjV6nN3ELpvtfKAbJlbHmkMxcamoEvuT7CS58HhvRJw9gJRD")
 
 const handleAddPaper = () => {
   if (examPaperId.value === '') {
@@ -114,13 +114,7 @@ const getSummary = async () => {
         `AI反馈：${q.aiAnswer}\n`
       ).join('\n---\n')
 
-    // 发送到 AI 进行总结
     const params = {
-      chatId: userStore.id,
-      variables: {
-        uid: userId.value,
-        name: userStore.name
-      },
       messages: [
         {
           role: 'user',
@@ -211,12 +205,12 @@ const getSummary = async () => {
       </el-col>
     </el-row>
 
-    <el-drawer v-model="drawerVisible" title="好助学AI试卷总结" direction="rtl" size="50%">
+    <el-drawer v-model="drawerVisible" title="智识顾问试卷总结" direction="rtl" size="50%">
       <div class="drawer-content">
         <div class="ai-container markdown-body" :class="{ 'shine-active': isSummarizing }">
           <div class="ai-header">
             <img src="../../../assets/img/bot.svg" alt="AI Logo" class="ai-logo">
-            <span class="ai-title">好助学AI总结</span>
+            <span class="ai-title">智识顾问AI</span>
           </div>
           <div class="ai-content">
             <div v-if="summaryContent" v-html="marked(summaryContent)"></div>
