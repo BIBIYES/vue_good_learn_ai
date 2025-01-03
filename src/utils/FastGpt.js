@@ -38,7 +38,8 @@ export class FastGPT {
       variables: variables || {}, // 变量对象
       messages: messages || [] // 消息数组
     };
-
+    // https://cloud.fastgpt.cn/api/v1/chat/completions
+    // fastgpt-ufVDN83n4QafImX04ARiWL1frTqy2eWRraaOtsr7MRhQwkqwsWrkXbCHrQzlqTNl
     try {
       const response = await fetch('https://cloud.fastgpt.cn/api/v1/chat/completions', {
         method: 'POST',

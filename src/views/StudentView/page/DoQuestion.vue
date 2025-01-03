@@ -19,39 +19,55 @@
         <el-input v-model="answers[currentQuestionIndex]" type="textarea" placeholder="请输入你的答案"
           :autosize="{ minRows: 4, maxRows: 10 }"></el-input>
       </div>
-      <div class="ai-container markdown-body" v-if="aiAnswers[currentQuestionIndex]" :class="{ 'shine-active': showShineEffect }">
+      <div class="ai-container markdown-body" v-if="aiAnswers[currentQuestionIndex]"
+        :class="{ 'shine-active': showShineEffect }">
         <div class="ai-header">
           <img src="../../../assets/img/bot.svg" alt="AI Logo" class="ai-logo">
           <span class="ai-title">智汇学伴</span>
         </div>
         <div class="ai-content">
           <div v-html="marked(filteredAiAnswer)"></div>
-          
-          <el-alert
-            v-if="currentAnswerValidity !== null"
-            :title="currentAnswerValidity ? '回答正确！' : '回答错误，请查看反馈并修改。'"
+
+          <el-alert v-if="currentAnswerValidity !== null" :title="currentAnswerValidity ? '回答正确！' : '回答错误，请查看反馈并修改。'"
             :type="currentAnswerValidity ? 'success' : 'error'"
-            :description="currentAnswerValidity ? '你的答案符合要求，可以继续下一题。' : '请根据上方的反馈修改你的答案。'"
-            show-icon
-            :closable="false"
-            style="margin-top: 15px;"
-          />
+            :description="currentAnswerValidity ? '你的答案符合要求，可以继续下一题。' : '请根据上方的反馈修改你的答案。'" show-icon :closable="false"
+            style="margin-top: 15px;" />
+
+          <!-- 添加反馈组件 -->
+          <div class="feedback-container">
+            <span class="feedback-text">我的回答对你有帮助吗？</span>
+            <div class="feedback-buttons">
+              <el-button :type="feedback[currentQuestionIndex] === 'like' ? 'success' : 'default'" circle
+                @click="handleFeedback('like')">👍</el-button>
+
+              <el-button :type="feedback[currentQuestionIndex] === 'dislike' ? 'danger' : 'default'" circle
+                @click="handleFeedback('dislike')">👎</el-button>
+            </div>
+          </div>
         </div>
       </div>
+
+      <!-- 添加反馈对话框 -->
+      <el-dialog v-model="showFeedbackDialog" title="请告诉我们原因" width="30%" :show-close="true"
+        :close-on-click-modal="false">
+        <el-input v-model="feedbackContent" type="textarea" :rows="4" placeholder="请输入您的反馈意见" />
+        <template #footer>
+          <span class="dialog-footer">
+            <el-button @click="showFeedbackDialog = false">取消</el-button>
+            <el-button type="primary" @click="submitFeedback">提交</el-button>
+          </span>
+        </template>
+      </el-dialog>
 
       <div class="button-group">
         <el-button type="primary" :icon="ArrowLeft" v-if="currentQuestionIndex > 0" @click="previousQuestion">
           上一题
         </el-button>
-        
-        <el-button 
-          type="warning" 
-          @click="handleSendQuestion()" 
-          :loading="isFetching"
-          :disabled="isFetching">
+
+        <el-button type="warning" @click="handleSendQuestion()" :loading="isFetching" :disabled="isFetching">
           {{ isFetching ? '正在检验' : '检验答案' }}
         </el-button>
-        
+
         <template v-if="currentAnswerValidity">
           <el-button type="primary" :icon="ArrowRight" v-if="currentQuestionIndex < questions.length - 1"
             @click="nextQuestion">
@@ -71,7 +87,7 @@ import { ref, onMounted, computed, watch, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { marked } from 'marked'
-import { ArrowLeft, ArrowRight, Check } from '@element-plus/icons-vue'
+import { ArrowLeft, ArrowRight, Check, CaretTop, CaretBottom } from '@element-plus/icons-vue'
 import { selectExamPaperQuestionsByExamPaperId } from '@/api/examPaperQuestionApi'
 import { submitAnswer } from '@/api/studentAnswerApi'
 import { useUserStore } from '@/stores/userStore'
@@ -106,7 +122,7 @@ const filteredAiAnswer = computed(() => {
 // 修改答案验证的计算属性
 const currentAnswerValidity = computed(() => {
   if (!rawAiAnswer.value) return null;
-  
+
   if (/#invalid#/i.test(rawAiAnswer.value)) {
     return false;
   }
@@ -135,13 +151,13 @@ const handleSendQuestion = async () => {
   rawAiAnswer.value = ''
   aiAnswers.value[currentQuestionIndex.value] = ''
 
-  const prompt = 
-  '<question>' +
-  questions.value[currentQuestionIndex.value].questionContent + '\n' +
-  '</question>' + '\n' +  
-  '<answer>' + '\n' +
+  const prompt =
+    '<question>' +
+    questions.value[currentQuestionIndex.value].questionContent + '\n' +
+    '</question>' + '\n' +
+    '<answer>' + '\n' +
     answers.value[currentQuestionIndex.value] + '\n' +
-  '</answer>'
+    '</answer>'
 
 
   const params = {
@@ -163,7 +179,7 @@ const handleSendQuestion = async () => {
             setTimeout(() => {
               showShineEffect.value = false
             }, 500)
-            
+
             if (/#invalid#/i.test(rawAiAnswer.value)) {
               const wrongQuestionData = {
                 userId: userId,
@@ -219,7 +235,7 @@ const fetchQuestions = async () => {
 // 在 onMounted 中注释掉相关代码
 onMounted(() => {
   fetchQuestions()
-  
+  feedback.value = Array(questions.value.length).fill(null)
   // 注释掉这行
   // document.addEventListener('keydown', preventShortcuts)
 })
@@ -288,7 +304,7 @@ const HandelSubmitAnswer = async () => {
 }
 
 // 添加错题记录
-const handleAddWrongQuestion = async (questionData) => {    
+const handleAddWrongQuestion = async (questionData) => {
   try {
     await addWrongQuestion(questionData)
     console.log('错题添加成功')
@@ -298,6 +314,48 @@ const handleAddWrongQuestion = async (questionData) => {
   }
 }
 
+// 添加反馈相关的状态
+const feedback = ref([])
+const showFeedbackDialog = ref(false)
+const feedbackContent = ref('')
+const currentFeedbackType = ref('')
+
+// 处理反馈
+const handleFeedback = (type) => {
+  if (type === 'dislike' && feedback.value[currentQuestionIndex.value] !== 'dislike') {
+    showFeedbackDialog.value = true
+    currentFeedbackType.value = type
+  } else if (type === 'like') {
+    feedback.value[currentQuestionIndex.value] = type
+    // 这里可以添加发送点赞请求到后端的逻辑
+    messageTools.successMessage('感谢您的反馈！')
+  }
+}
+
+// 提交反馈内容
+const submitFeedback = async () => {
+  if (!feedbackContent.value.trim()) {
+    messageTools.warningMessage('请输入反馈内容')
+    return
+  }
+
+  try {
+    // 这里添加向后端发送反馈的逻辑
+    // const response = await submitFeedbackToServer({
+    //   questionId: questions.value[currentQuestionIndex.value].questionId,
+    //   type: currentFeedbackType.value,
+    //   content: feedbackContent.value,
+    //   userId: userId
+    // })
+
+    feedback.value[currentQuestionIndex.value] = currentFeedbackType.value
+    messageTools.successMessage('感谢您的反馈！')
+    showFeedbackDialog.value = false
+    feedbackContent.value = ''
+  } catch (error) {
+    messageTools.errorMessage('提交反馈失败')
+  }
+}
 </script>
 
 <style scoped>
@@ -438,7 +496,8 @@ const handleAddWrongQuestion = async (questionData) => {
 }
 
 .input-container :deep(.el-textarea__inner) {
-  resize: none; /* 禁止手动调整文本框大小 */
+  resize: none;
+  /* 禁止手动调整文本框大小 */
 }
 
 /* 添加动画相关样式 */
@@ -449,12 +508,10 @@ const handleAddWrongQuestion = async (questionData) => {
   left: -100%;
   width: 50%;
   height: 100%;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 255, 255, 0.8) 50%,
-    transparent
-  );
+  background: linear-gradient(90deg,
+      transparent,
+      rgba(255, 255, 255, 0.8) 50%,
+      transparent);
   animation: shine 0.8s ease-in-out infinite;
   z-index: 1;
 }
@@ -464,6 +521,7 @@ const handleAddWrongQuestion = async (questionData) => {
     left: -50%;
     opacity: 0.5;
   }
+
   100% {
     left: 100%;
     opacity: 0.8;
@@ -477,5 +535,31 @@ const handleAddWrongQuestion = async (questionData) => {
   word-wrap: break-word;
   word-break: break-word;
 }
-</style>
 
+.feedback-container {
+  margin-top: 20px;
+  padding-top: 15px;
+  border-top: 1px solid #eaeaea;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.feedback-text {
+  color: #606266;
+  font-size: 14px;
+}
+
+.feedback-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.feedback-buttons .el-button {
+  padding: 8px;
+}
+
+:deep(.el-dialog__body) {
+  padding: 20px;
+}
+</style>

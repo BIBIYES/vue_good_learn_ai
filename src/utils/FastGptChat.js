@@ -15,7 +15,11 @@ export function fastgpt() {
       variables: variables || {},
       messages: messages || []
     };
-
+// 云端
+// https://cloud.fastgpt.cn/api/v1/chat/completions
+// fastgpt-sw5swebtIUyUCmolJNRSoRctihOs2seMGBXOyyxlTEyFnYQXKYSqjqA2
+// http://192.168.8.12:3000/api
+// fastgpt-ufVDN83n4QafImX04ARiWL1frTqy2eWRraaOtsr7MRhQwkqwsWrkXbCHrQzlqTNl
     try {
       const response = await fetch('https://cloud.fastgpt.cn/api/v1/chat/completions', {
         method: 'POST',

@@ -182,8 +182,7 @@ const jobRecommendations = ref([
 const animatedPercentages = ref(jobRecommendations.value.map(() => 0))
 
 const viewJobDetails = (job) => {
-  // 实现查看职位详情的逻辑
-  console.log('查看职位详情:', job)
+  window.open(job.link, '_blank')
 }
 
 const startProgressAnimation = () => {

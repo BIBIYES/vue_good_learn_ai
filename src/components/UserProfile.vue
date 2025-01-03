@@ -18,7 +18,7 @@
       </div>
 
       <div class="career-goal">
-        <h3>职业目标</h3>
+        <h3>人才培养目标</h3>
         <div class="goal-tag">Java后端工程师</div>
       </div>
 
