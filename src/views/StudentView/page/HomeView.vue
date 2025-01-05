@@ -4,6 +4,24 @@
       <div class="welcome-section">
         <h2>欢迎回来，{{ userStore.name }}</h2>
         <el-button @click="showCareerReport">推荐职业匹配</el-button>
+        <el-dropdown>
+          <el-button type="primary">
+            我的课程<el-icon class="el-icon--right"><arrow-down /></el-icon>
+          </el-button>
+          <template #dropdown>
+            <el-dropdown-menu>
+              <!-- 点击之后打开一个侧边栏 -->
+              <el-dropdown-item @click="drawer = true">数据库系统概论</el-dropdown-item>
+            </el-dropdown-menu>
+          </template>
+        </el-dropdown>
+        <el-drawer v-model="drawer" title="数据库系统概论" :size="1000" :direction="direction" >
+          <div class="esc">
+            <iframe src="http://127.0.0.1:5500/public/data.html" frameborder="0"
+              style="width:100% ;height: 100%;"></iframe>
+          </div>
+        </el-drawer>
+        
         <div class="time-info">
           <p><el-icon>
               <Calendar />
@@ -12,7 +30,6 @@
               <Timer />
             </el-icon> {{ currentTime }}</p>
         </div>
-        
       </div>
       <div class="stats-cards">
         <el-row :gutter="20">
@@ -131,10 +148,11 @@ import {
   Document,
   Timer,
   Calendar,
-  Loading
+  Loading,
+  ArrowDown // 添加 ArrowDown 组件
 } from '@element-plus/icons-vue'
 import * as echarts from 'echarts'
-import { it } from 'element-plus/es/locales.mjs'
+
 
 const userStore = useUserStore()
 const completedPapers = ref(0)
@@ -145,7 +163,7 @@ const usageChartRef = ref(null)
 const currentTime = ref('')
 const currentDate = ref('')
 const wrongQuestionCount = ref()
-
+const drawer = ref(false)
 const fetchPapersStats = async () => {
   try {
     const res = await getStudentJoinExamPaper(userStore.id)
@@ -261,7 +279,7 @@ const initChart = () => {
     tooltip: {},
     radar: {
       indicator: [
-        { name: 'MySQL', max: 1 },
+        { name: '数据库系统概论', max: 1 },
         { name: '计算机网络技术', max: 1 },
         { name: 'JavaEE企业级应用开发', max: 1 },
         { name: 'Linux', max: 1 },
@@ -359,6 +377,8 @@ const initWrongQuestionChart = (data) => {
 }
 
 const initUsageChart = () => {
+  if (!usageChartRef.value) return // 检查 DOM 引用是否存在
+
   const chart = echarts.init(usageChartRef.value)
 
   // Generate last 30 days dates
@@ -508,6 +528,7 @@ onMounted(() => {
   handelGetStudentWrongQuestion()
   updateTime()
   setInterval(updateTime, 1000)
+  const src = "../../../../public/database_course_graph_final.html"
 })
 </script>
 
@@ -518,6 +539,12 @@ onMounted(() => {
   flex-direction: column;
   box-sizing: border-box;
   background-color: #F4F4F7;
+}
+
+
+.esc {
+  width: 100%;
+  height: 100%;
 }
 
 .header {
