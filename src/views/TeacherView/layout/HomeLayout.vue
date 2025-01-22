@@ -22,7 +22,7 @@
         <el-icon class="logo-icon">
           <School />
         </el-icon>
-        <h1 class="logo-text">智汇学途</h1>
+        <h1 class="logo-text">AI</h1>
       </div>
       <el-menu :default-active="activeIndex" class="menu-container" :router="true">
         <el-menu-item index="/teacher/home">

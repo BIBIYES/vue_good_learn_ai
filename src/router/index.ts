@@ -1,8 +1,14 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { useUserStore } from '@/stores/userStore'
+import { ElNotification } from 'element-plus'
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
+    {
+      path: '/404',
+      name: '404',
+      component: () => import('../views/404View.vue')
+    },
     {
       path: '/',
       name: 'index',
@@ -13,7 +19,7 @@ const router = createRouter({
       path: '/login',
       name: 'login',
       meta: {
-        title: '智汇学途-登录页'
+        title: 'AI好助学-登录页'
       },
       component: () => import('../views/LoginView.vue')
     },
@@ -22,7 +28,7 @@ const router = createRouter({
       name: 'student',
       redirect: '/student/home',
       meta: {
-        title: '智汇学途-学生端'
+        title: 'AI好助学-学生端'
       },
       component: () => import('@/views/StudentView/layout/HomeLayout.vue'),
       children: [
@@ -30,7 +36,7 @@ const router = createRouter({
           path: 'home',
           name: 'studentHome',
           meta: {
-            title: '智汇学途-首页'
+            title: 'AI好助学-首页'
           },
           component: () => import('@/views/StudentView/page/HomeView.vue')
         },
@@ -38,7 +44,7 @@ const router = createRouter({
           path: 'exam-paper',
           name: 'exam-paper',
           meta: {
-            title: '智汇学途-试卷列表'
+            title: 'AI好助学-试卷列表'
           },
           component: () => import('@/views/StudentView/page/ExamPaper.vue')
         },
@@ -46,7 +52,7 @@ const router = createRouter({
           path: 'profile',
           name: 'studentProfile',
           meta: {
-            title: '智汇学途-个人信息'
+            title: 'AI好助学-个人信息'
           },
           component: () => import('@/views/StudentView/page/UserProfileView.vue')
         },
@@ -54,7 +60,7 @@ const router = createRouter({
           path: 'wrong-question',
           name: 'wrongQuestion',
           meta: {
-            title: '智汇学途-错题本'
+            title: 'AI好助学-错题本'
           },
           component: () => import('@/views/StudentView/page/WrongQuestionView.vue')
         },
@@ -70,7 +76,7 @@ const router = createRouter({
           path: '/student/ai-chat',
           name: 'aiChat',
           meta: {
-            title: '智汇学途-AI聊天'
+            title: 'AI好助学-AI聊天'
           },
           component: () => import('@/views/StudentView/page/AIChatView.vue'),
           children: [
@@ -92,7 +98,7 @@ const router = createRouter({
       path: '/student/do-question/:examPaperId',
       name: 'DoQuestion',
       meta: {
-        title: '智汇学途-做题'
+        title: 'AI好助学-做题'
       },
       component: () => import('@/views/StudentView/page/DoQuestion.vue')
     },
@@ -101,7 +107,7 @@ const router = createRouter({
       name: 'teacher',
       redirect: '/teacher/course',
       meta: {
-        title: '智汇学途-教师端'
+        title: 'AI好助学-教师端'
       },
       component: () => import('../views/TeacherView/layout/HomeLayout.vue'),
       children: [
@@ -109,7 +115,7 @@ const router = createRouter({
           path: '/teacher/home',
           name: 'teacherHome',
           meta: {
-            title: '智汇学途-首页'
+            title: 'AI好助学-首页'
           },
           component: () => import('../views/TeacherView/page/HomeView.vue')
         },
@@ -117,7 +123,7 @@ const router = createRouter({
           path: '/teacher/course',
           name: 'myCourses',
           meta: {
-            title: '智汇学途-我的课程'
+            title: 'AI好助学-我的课程'
           },
           component: () => import('../views/TeacherView/page/CoursesView.vue')
         },
@@ -125,7 +131,7 @@ const router = createRouter({
           path: '/teacher/course/:courseId',
           name: 'courseDetail',
           meta: {
-            title: '智汇学途-课程详情'
+            title: 'AI好助学-课程详情'
           },
           component: () =>
             import('../views/TeacherView/page/CourseQuestionsView.vue')
@@ -134,7 +140,7 @@ const router = createRouter({
           path: '/teacher/exam-papers',
           name: 'examPapers',
           meta: {
-            title: '智汇学途-试卷列表'
+            title: 'AI好助学-试卷列表'
           },
           component: () => import('@/views/TeacherView/page/ExamPapers.vue')
         },
@@ -142,7 +148,7 @@ const router = createRouter({
           path: '/teacher/exam-papers/:examPaperId',
           name: 'examDetail',
           meta: {
-            title: '智汇学途-试卷详情'
+            title: 'AI好助学-试卷详情'
           },
           component: () =>
             import('@/views/TeacherView/page/ExamPaperQuestionsView.vue'),
@@ -152,7 +158,7 @@ const router = createRouter({
           path: "/check-page/:userId/:examPaperId",
           name: "check-page",
           meta: {
-            title: "智汇学途-试卷检查"
+            title: "AI好助学-试卷检查"
           },
           component: () => import("@/views/TeacherView/page/CheckPage.vue")
         },
@@ -160,7 +166,7 @@ const router = createRouter({
           path: '/teacher/profile',
           name: 'teacherProfile',
           meta: {
-            title: '智汇学途-个人信息'
+            title: 'AI好助学-个人信息'
           },
           component: () => import('@/views/TeacherView/page/UserProfileView.vue')
         },
@@ -168,7 +174,7 @@ const router = createRouter({
           path: '/teacher/student-terminal',
           name: 'studentTerminal',
           meta: {
-            title: '智汇学途-学生终端'
+            title: 'AI好助学-学生终端'
           },
           component: () => import('@/views/TeacherView/page/StudentTerminal.vue')
         }
@@ -182,14 +188,38 @@ const router = createRouter({
 // 全局前置守卫
 router.beforeEach((to, from, next) => {
   const userStore = useUserStore() // 获取用户存储状态
-  document.title = (to.meta.title as string) || '智汇学途'
+  document.title = (to.meta.title as string) || 'AI好助学'
 
-  // 检查是否有 token，如果没且不是去登录页，则重定向到登录页面
+  // 检查是否有 token
   if (!userStore.token && to.path !== '/login') {
-    next('/login')
-  } else {
-    next()
+    return next('/login')
   }
+
+  // 检查角色权限
+  if (to.path.startsWith('/student') && userStore.role !== 'student') {
+    return next('/404')
+  }
+  if (to.path.startsWith('/teacher') && userStore.role !== 'teacher') {
+    return next('/404')
+  }
+
+  // 检查姓名中是否包含******
+  if (!['/student/profile', '/teacher/profile'].includes(to.path) && /\*{6}/.test(userStore.name)) {
+    ElNotification({
+      title: '提示',
+      message: '请修改真实姓名后才能使用系统',
+      type: 'warning',
+      duration: 5000
+    })
+    
+    if (userStore.role === 'student') {
+      return next('/student/profile')
+    } else if (userStore.role === 'teacher') {
+      return next('/teacher/profile')
+    }
+  }
+
+  next()
 })
 
 export default router

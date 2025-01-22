@@ -63,103 +63,95 @@ watch(
   <div class="chat-sidebar">
     <div class="chat-sidebar-header">
       <el-button class="create-btn" type="primary" @click="createNewChat">
-        <el-icon><Plus /></el-icon>
+        <el-icon>
+          <Plus />
+        </el-icon>
         <span>新建会话</span>
       </el-button>
     </div>
 
     <div class="chat-history">
       <!-- 骨架屏 -->
-      <template v-if="loading">
-        <el-skeleton :rows="10" animated style="padding: 16px">
-          <template #template>
-            <!-- 今天 -->
-            <div style="margin-bottom: 16px">
-              <el-skeleton-item variant="text" style="width: 50px; margin-bottom: 8px" />
-              <div v-for="i in 3" :key="i" style="margin-bottom: 8px">
-                <el-skeleton-item variant="p" style="width: 90%" />
+      <el-scrollbar>
+        <template v-if="loading">
+          <el-skeleton :rows="10" animated style="padding: 16px">
+            <template #template>
+              <!-- 今天 -->
+              <div style="margin-bottom: 16px">
+                <el-skeleton-item variant="text" style="width: 50px; margin-bottom: 8px" />
+                <div v-for="i in 3" :key="i" style="margin-bottom: 8px">
+                  <el-skeleton-item variant="p" style="width: 90%" />
+                </div>
               </div>
-            </div>
-            <!-- 昨天 -->
-            <div style="margin-bottom: 16px">
-              <el-skeleton-item variant="text" style="width: 50px; margin-bottom: 8px" />
-              <div v-for="i in 3" :key="i" style="margin-bottom: 8px">
-                <el-skeleton-item variant="p" style="width: 85%" />
+              <!-- 昨天 -->
+              <div style="margin-bottom: 16px">
+                <el-skeleton-item variant="text" style="width: 50px; margin-bottom: 8px" />
+                <div v-for="i in 3" :key="i" style="margin-bottom: 8px">
+                  <el-skeleton-item variant="p" style="width: 85%" />
+                </div>
               </div>
-            </div>
-            <!-- 最近7天 -->
-            <div>
-              <el-skeleton-item variant="text" style="width: 70px; margin-bottom: 8px" />
-              <div v-for="i in 4" :key="i" style="margin-bottom: 8px">
-                <el-skeleton-item variant="p" style="width: 80%" />
+              <!-- 最近7天 -->
+              <div>
+                <el-skeleton-item variant="text" style="width: 70px; margin-bottom: 8px" />
+                <div v-for="i in 4" :key="i" style="margin-bottom: 8px">
+                  <el-skeleton-item variant="p" style="width: 80%" />
+                </div>
               </div>
+            </template>
+          </el-skeleton>
+        </template>
+
+        <!-- 实际内容 -->
+        <template v-else>
+          <!-- 今天 -->
+          <template v-if="sessionStore.groupedSessions.today.length > 0">
+            <div class="time-divider">今天</div>
+            <div v-for="chat in sessionStore.groupedSessions.today" :key="chat.id" class="session-item"
+              :class="{ selected: chat.id == currentSessionId }" @click="handleSessionClick(chat.id)">
+              <el-icon class="chat-icon">
+                <ChatDotRound />
+              </el-icon>
+              <span class="chat-title">{{ chat.title }}</span>
             </div>
           </template>
-        </el-skeleton>
-      </template>
 
-      <!-- 实际内容 -->
-      <template v-else>
-        <!-- 今天 -->
-        <template v-if="sessionStore.groupedSessions.today.length > 0">
-          <div class="time-divider">今天</div>
-          <div
-            v-for="chat in sessionStore.groupedSessions.today"
-            :key="chat.id"
-            class="session-item"
-            :class="{ selected: chat.id == currentSessionId }"
-            @click="handleSessionClick(chat.id)"
-          >
-            <el-icon class="chat-icon"><ChatDotRound /></el-icon>
-            <span class="chat-title">{{ chat.title }}</span>
-          </div>
-        </template>
+          <!-- 昨天 -->
+          <template v-if="sessionStore.groupedSessions.yesterday.length > 0">
+            <div class="time-divider">昨天</div>
+            <div v-for="chat in sessionStore.groupedSessions.yesterday" :key="chat.id" class="session-item"
+              :class="{ selected: chat.id == currentSessionId }" @click="handleSessionClick(chat.id)">
+              <el-icon class="chat-icon">
+                <ChatDotRound />
+              </el-icon>
+              <span class="chat-title">{{ chat.title }}</span>
+            </div>
+          </template>
 
-        <!-- 昨天 -->
-        <template v-if="sessionStore.groupedSessions.yesterday.length > 0">
-          <div class="time-divider">昨天</div>
-          <div
-            v-for="chat in sessionStore.groupedSessions.yesterday"
-            :key="chat.id"
-            class="session-item"
-            :class="{ selected: chat.id == currentSessionId }"
-            @click="handleSessionClick(chat.id)"
-          >
-            <el-icon class="chat-icon"><ChatDotRound /></el-icon>
-            <span class="chat-title">{{ chat.title }}</span>
-          </div>
-        </template>
+          <!-- 最近7天 -->
+          <template v-if="sessionStore.groupedSessions.recent.length > 0">
+            <div class="time-divider">最近7天</div>
+            <div v-for="chat in sessionStore.groupedSessions.recent" :key="chat.id" class="session-item"
+              :class="{ selected: chat.id == currentSessionId }" @click="handleSessionClick(chat.id)">
+              <el-icon class="chat-icon">
+                <ChatDotRound />
+              </el-icon>
+              <span class="chat-title">{{ chat.title }}</span>
+            </div>
+          </template>
 
-        <!-- 最近7天 -->
-        <template v-if="sessionStore.groupedSessions.recent.length > 0">
-          <div class="time-divider">最近7天</div>
-          <div
-            v-for="chat in sessionStore.groupedSessions.recent"
-            :key="chat.id"
-            class="session-item"
-            :class="{ selected: chat.id == currentSessionId }"
-            @click="handleSessionClick(chat.id)"
-          >
-            <el-icon class="chat-icon"><ChatDotRound /></el-icon>
-            <span class="chat-title">{{ chat.title }}</span>
-          </div>
+          <!-- 更早 -->
+          <template v-if="sessionStore.groupedSessions.older.length > 0">
+            <div class="time-divider">更早</div>
+            <div v-for="chat in sessionStore.groupedSessions.older" :key="chat.id" class="session-item"
+              :class="{ selected: chat.id == currentSessionId }" @click="handleSessionClick(chat.id)">
+              <el-icon class="chat-icon">
+                <ChatDotRound />
+              </el-icon>
+              <span class="chat-title">{{ chat.title }}</span>
+            </div>
+          </template>
         </template>
-
-        <!-- 更早 -->
-        <template v-if="sessionStore.groupedSessions.older.length > 0">
-          <div class="time-divider">更早</div>
-          <div
-            v-for="chat in sessionStore.groupedSessions.older"
-            :key="chat.id"
-            class="session-item"
-            :class="{ selected: chat.id == currentSessionId }"
-            @click="handleSessionClick(chat.id)"
-          >
-            <el-icon class="chat-icon"><ChatDotRound /></el-icon>
-            <span class="chat-title">{{ chat.title }}</span>
-          </div>
-        </template>
-      </template>
+      </el-scrollbar>
     </div>
   </div>
 </template>
@@ -167,26 +159,15 @@ watch(
 <style lang="less" scoped>
 .chat-sidebar {
   width: 260px;
-  height: 100%;
+  overflow: hidden;
   background-color: #ffffff;
   border-right: 1px solid #e0e0e0;
+  display: flex;
+  flex-direction: column;
 
   .chat-sidebar-header {
     padding: 16px;
     border-bottom: 1px solid #e0e0e0;
-
-    .header-content {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 16px;
-
-      h2 {
-        margin: 0;
-        font-size: 18px;
-        color: #333;
-      }
-    }
 
     .create-btn {
       width: 100%;
@@ -200,10 +181,18 @@ watch(
       }
     }
   }
-}
 
-.chat-history {
-  padding: 8px;
+  .chat-history {
+    flex: 1; /* 使聊天历史区域占据剩余空间 */
+    overflow: hidden; /* 防止内容溢出 */
+    padding: 8px;
+    height: 100%;
+
+    .el-scrollbar {
+      height: 100%; /* 确保滚动条区域高度正确 */
+      padding-right: 10px;
+    }
+  }
 }
 
 .session-item {
@@ -239,15 +228,10 @@ watch(
   background-color: #e6f7ff;
 }
 
-:deep(.el-button.is-circle) {
-  padding: 6px;
-}
-
 .time-divider {
   padding: 8px 16px;
   font-size: 12px;
   color: #999;
-
   margin: 4px 0;
 }
 

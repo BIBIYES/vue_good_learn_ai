@@ -16,7 +16,7 @@
       <!-- Logo区域在非移动端显示 -->
       <div class="logo-container" v-show="!isMobile">
         <el-icon class="logo-icon"><School /></el-icon>
-        <h1 class="logo-text">智汇学途</h1>
+        <h1 class="logo-text">AI好助学</h1>
       </div>
 
       <!-- 菜单 -->
@@ -119,6 +119,7 @@ const checkWindowSize = () => {
 onMounted(() => {
   checkWindowSize()
   window.addEventListener('resize', checkWindowSize)
+  
 })
 
 onUnmounted(() => {
