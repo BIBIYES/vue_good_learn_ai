@@ -21,25 +21,6 @@
         <h3>人才培养目标</h3>
         <div class="goal-tag">Java后端工程师</div>
       </div>
-
-      <div class="skills-section">
-        <h3>技能掌握度</h3>
-        <div class="skills-grid">
-          <div class="skill-item" v-for="skill in skills" :key="skill.name">
-            <div class="skill-header">
-              <span class="skill-name">{{ skill.name }}</span>
-              <span class="skill-percentage">{{ skill.percentage }}%</span>
-            </div>
-            <el-progress 
-              :percentage="skill.percentage"
-              :color="skill.color"
-              :stroke-width="15"
-              :show-text="false"
-            />
-          </div>
-        </div>
-      </div>
-
       <div class="profile-info">
         <el-form ref="formRef" :model="profileForm" :rules="rules" label-width="100px">
           <el-form-item label="用户名" prop="name">
@@ -70,7 +51,7 @@
         <el-button @click="handleCancel">取消</el-button>
       </div>
     </div>
-    
+
   </div>
 </template>
 
@@ -167,13 +148,6 @@ const handleCancel = () => {
   router.back()
 }
 
-const skills = ref([
-  { name: 'Vue.js', percentage: 60, color: '#42b883' },
-  { name: 'Java基础', percentage: 80, color: '#f89820' },
-  { name: 'javaEE企业级应用开发', percentage: 75, color: '#6db33f' },
-  { name: 'MySQL数据库', percentage: 75, color: '#00758f' },
-  { name: '网页设计', percentage: 82, color: '#f7df1e' }
-])
 </script>
 
 <style scoped>
@@ -249,10 +223,11 @@ const skills = ref([
   border-radius: 8px;
   transition: all 0.3s;
 }
-.skills-section:hover{
+
+.skills-section:hover {
   /* 悬浮阴影效果 */
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
-  
+
 }
 
 

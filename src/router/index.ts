@@ -204,7 +204,7 @@ router.beforeEach((to, from, next) => {
   }
 
   // 检查姓名中是否包含******
-  if (!['/student/profile', '/teacher/profile'].includes(to.path) && /\*{6}/.test(userStore.name)) {
+  if (!['/student/profile', '/teacher/profile'].includes(to.path) && /\*/.test(userStore.name)) {
     ElNotification({
       title: '提示',
       message: '请修改真实姓名后才能使用系统',
