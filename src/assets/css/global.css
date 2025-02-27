@@ -1,27 +1,2 @@
-*{
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: 'Helvetica'
-  }
-  /* 按钮默认样式 */
-  .el-button--primary {
-    background-color: rgba(51, 112, 255) !important;
-  }
-  
-  .el-button {
-    border-radius: 8px !important;
-  }
-  @media (prefers-color-scheme: dark) {
-    h2{
-      color: black;
-    }
-     p{
-      color: black;
-    }
-    .article-content{
-      background-color: white !important;
-    }
-
-  
-  }
+@import "tailwindcss";
+@plugin "daisyui";

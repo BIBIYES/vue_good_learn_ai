@@ -2,10 +2,7 @@
   <div>
     <!-- 课程信息 -->
     <div class="course-info">
-      <h2>
-
-        编辑课程题目
-      </h2>
+      <h2>编辑课程题目</h2>
       <div class="course-details">
         <div class="detail-item">
           <el-icon class="info-icon">
@@ -40,59 +37,137 @@
 
     <!-- 表格头部，右上角放置添加按钮 -->
     <div class="table-header">
-
-      <download-excel class="el-button" :data="questions.list" type="xlsx" name="filename.xlsx">
+      <el-button type="primary" @click="AIDialogVisible = true">
+        <svg
+          width="24"
+          height="24"
+          viewBox="0 0 48 48"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M19 4H37L26 18H41L17 44L22 25H8L19 4Z"
+            fill="#ffdd00"
+            stroke="#ffffff"
+            stroke-width="4"
+            stroke-linejoin="round"
+          />
+        </svg>
+        AI出题目
+      </el-button>
+      <download-excel
+        class="el-button"
+        :data="questions.list"
+        type="xlsx"
+        name="filename.xlsx"
+      >
         <i class="el-icon">
-          <img src="../../../assets/img/Excel.svg" style="height: 20px; margin-right: 10px;">
+          <img
+            src="../../../assets/img/Excel.svg"
+            style="height: 20px; margin-right: 10px"
+          />
         </i>
         导出数据
       </download-excel>
-      <el-button type="primary" :icon="Plus" @click="showAddDialog">添加新题目</el-button>
+      <el-button type="primary" :icon="Plus" @click="showAddDialog"
+        >添加新题目</el-button
+      >
     </div>
-    <el-drawer v-model="testQuestionView" title="测试该题目" size="40%" :destroy-on-close="true" @close="() => questionRow = {}">
-      <TestQuestion :questionsData="questionRow" ></TestQuestion>
+    <el-drawer
+      v-model="testQuestionView"
+      title="测试该题目"
+      size="40%"
+      :destroy-on-close="true"
+      @close="() => (questionRow = {})"
+    >
+      <TestQuestion :questionsData="questionRow"></TestQuestion>
     </el-drawer>
     <!-- 表格显示题目列表 -->
-    <el-table 
-      stripe 
-      :data="questions.list" 
+    <el-table
+      stripe
+      :data="questions.list"
       style="width: 100%"
       :cell-style="{ padding: '5px 0' }"
       :row-style="{ height: '50px' }"
     >
-      <el-table-column prop="questionId" label="题目ID" width="120" show-overflow-tooltip />
-      <el-table-column prop="questionTitle" label="题目标题" width="180" show-overflow-tooltip />
-      <el-table-column prop="questionContent" label="题目内容" show-overflow-tooltip />
+      <el-table-column
+        prop="questionId"
+        label="题目ID"
+        width="120"
+        show-overflow-tooltip
+      />
+      <el-table-column
+        prop="questionTitle"
+        label="题目标题"
+        width="180"
+        show-overflow-tooltip
+      />
+      <el-table-column
+        prop="questionContent"
+        label="题目内容"
+        show-overflow-tooltip
+      />
       <el-table-column prop="answer" label="参考答案" show-overflow-tooltip />
       <el-table-column label="操作" width="350">
         <template #default="scope">
-          <el-button size="small" @click="handelTestQuestions(scope.row)">测该题目</el-button>
-          <el-button size="small" @click="handleCopyQuestion(scope.row)">复制该题目</el-button>
-          <el-button size="small" @click="editDialog(scope.row)">编辑</el-button>
-          <el-button size="small" type="danger" @click="confirmDelete(scope.row.questionId)">删除</el-button>
+          <el-button size="small" @click="handelTestQuestions(scope.row)"
+            >测该题目</el-button
+          >
+          <el-button size="small" @click="handleCopyQuestion(scope.row)"
+            >复制该题目</el-button
+          >
+          <el-button size="small" @click="editDialog(scope.row)"
+            >编辑</el-button
+          >
+          <el-button
+            size="small"
+            type="danger"
+            @click="confirmDelete(scope.row.questionId)"
+            >删除</el-button
+          >
         </template>
       </el-table-column>
     </el-table>
 
     <!-- 分页组件 -->
-    <el-pagination background layout="total, prev, pager, next, sizes" :total="questions.total" :page-size="pageSize"
-      :current-page="currentPage" :page-sizes="[10, 20, 30, 50]" @size-change="handleSizeChange"
-      @current-change="handlePageChange">
+    <el-pagination
+      background
+      layout="total, prev, pager, next, sizes"
+      :total="questions.total"
+      :page-size="pageSize"
+      :current-page="currentPage"
+      :page-sizes="[10, 20, 30, 50]"
+      @size-change="handleSizeChange"
+      @current-change="handlePageChange"
+    >
     </el-pagination>
 
     <!-- 添加题目的弹窗 -->
     <el-dialog title="添加题目" v-model="addDialogVisible">
-      <BatchUploadQuestions :courseId="courseId" :userId="userStore.id"></BatchUploadQuestions>
+      <BatchUploadQuestions
+        :courseId="courseId"
+        :userId="userStore.id"
+      ></BatchUploadQuestions>
       <el-form :model="newQuestion">
         <el-form-item label="题目标题">
           <el-input v-model="newQuestion.questionTitle" />
         </el-form-item>
         <el-form-item label="题目内容">
-          <VMarkdownEditor v-model="newQuestion.questionContent" locale="zh" content="在这里输入题干，可以选用markdown语法"
-            mode="dark" style="min-height: 500px;" />
+          <VMarkdownEditor
+            v-model="newQuestion.questionContent"
+            locale="zh"
+            content="在这里输入题干，可以选用markdown语法"
+            mode="dark"
+            style="min-height: 500px"
+          />
         </el-form-item>
         <el-form-item label="参考答案">
-          <el-input type="textarea" autosize placeholder="请输入内容" v-model="newQuestion.answer" />
+          <el-input
+            type="textarea"
+            autosize
+            placeholder="请输入内容"
+            v-model="newQuestion.answer"
+          />
         </el-form-item>
       </el-form>
 
@@ -100,7 +175,6 @@
         <el-button @click="addDialogVisible = false">取消</el-button>
         <el-button type="primary" @click="addQuestion">添加</el-button>
       </template>
-      
     </el-dialog>
 
     <!-- 编辑题目的弹窗 -->
@@ -110,11 +184,21 @@
           <el-input v-model="editingQuestion.questionTitle" />
         </el-form-item>
         <el-form-item label="题目内容">
-          <VMarkdownEditor v-model="editingQuestion.questionContent" locale="zh" content="在这里输入题干，可以选用markdown语法"
-            mode="dark" style="min-height: 500px;" />
+          <VMarkdownEditor
+            v-model="editingQuestion.questionContent"
+            locale="zh"
+            content="在这里输入题干，可以选用markdown语法"
+            mode="dark"
+            style="min-height: 500px"
+          />
         </el-form-item>
         <el-form-item label="参考答案">
-          <el-input type="textarea" autosize placeholder="请输入内容" v-model="editingQuestion.answer" />
+          <el-input
+            type="textarea"
+            autosize
+            placeholder="请输入内容"
+            v-model="editingQuestion.answer"
+          />
         </el-form-item>
       </el-form>
       <template #footer>
@@ -123,190 +207,212 @@
       </template>
     </el-dialog>
   </div>
+  <!-- ai出题弹窗 -->
+  <el-drawer
+    v-model="AIDialogVisible"
+    title="I am the title"
+    :with-header="false"
+    :size="'50%'"
+  >
+    <AIGeneratedTopic></AIGeneratedTopic>
+  </el-drawer>
 </template>
 
-
-
 <script setup lang="ts">
-import { Plus, Memo, Document, Calendar, Refresh } from '@element-plus/icons-vue'
-import { ref, onMounted, watch } from 'vue'
-import { useRoute } from 'vue-router'
-import { ElMessageBox, ElMessage } from 'element-plus'
-import { createQuestion, deleteQuestionById, updateQuestion } from '@/api/questionApi'
-import { selectQuestionsByCourseId, selectCourseById } from '@/api/courseApi'
-import { useUserStore } from '@/stores/userStore'
-import type { Course } from '@/models/CourseModel'
-import { VMarkdownEditor } from 'vue3-markdown'
-import 'vue3-markdown/dist/style.css'
-import { da } from 'element-plus/es/locales.mjs'
+import {
+  Plus,
+  Memo,
+  Document,
+  Calendar,
+  Refresh,
+} from "@element-plus/icons-vue";
+import { ref, onMounted, watch } from "vue";
+import { useRoute } from "vue-router";
+import { ElMessageBox, ElMessage } from "element-plus";
+import {
+  createQuestion,
+  deleteQuestionById,
+  updateQuestion,
+} from "@/api/questionApi";
+import { selectQuestionsByCourseId, selectCourseById } from "@/api/courseApi";
+import { useUserStore } from "@/stores/userStore";
+import type { Course } from "@/models/CourseModel";
+import { VMarkdownEditor } from "vue3-markdown";
+import "vue3-markdown/dist/style.css";
+import { da } from "element-plus/es/locales.mjs";
+
+// ai状态框的样式
+const AIDialogVisible = ref(false);
 
 // 获取路由参数中的课程ID
-const route = useRoute()
-const courseId = Number(route.params.courseId)
+const route = useRoute();
+const courseId = Number(route.params.courseId);
 
 // 存储题目列表、总条数、当前页、每页条数
 const questions = ref({
   list: [],
-  total: 0
-})
-const currentPage = ref(1)  // 当前页
-const pageSize = ref(10)    // 每页条数
+  total: 0,
+});
+const currentPage = ref(1); // 当前页
+const pageSize = ref(10); // 每页条数
 
 // 获取用户状态
-const userStore = useUserStore()
+const userStore = useUserStore();
 
 // 获取题目列表
 const HandelSelectQuestionsByCourseId = async () => {
-    const res = await selectQuestionsByCourseId(courseId, currentPage.value, pageSize.value)
-    questions.value = {
-      list: res.data.list || [],
-      total: res.data.total || 0
-    }
-}
+  const res = await selectQuestionsByCourseId(
+    courseId,
+    currentPage.value,
+    pageSize.value
+  );
+  questions.value = {
+    list: res.data.list || [],
+    total: res.data.total || 0,
+  };
+};
 
 // 修改每页条数时的处理
 const handleSizeChange = (newSize: number) => {
-  pageSize.value = newSize
-  currentPage.value = 1  // 切换每页条数时，重置为第一页
-  HandelSelectQuestionsByCourseId()
-}
+  pageSize.value = newSize;
+  currentPage.value = 1; // 切换每页条数时，重置为第一页
+  HandelSelectQuestionsByCourseId();
+};
 
 // 修改当前页时的处理
 const handlePageChange = (newPage: number) => {
-  currentPage.value = newPage
-  HandelSelectQuestionsByCourseId()
-}
+  currentPage.value = newPage;
+  HandelSelectQuestionsByCourseId();
+};
 
 // 课程信息
 const courseInfo = ref<Course>({
-  courseCreatedDate: '',
+  courseCreatedDate: "",
   courseId: 0,
-  courseName: '',
-  courseUpdatedDate: '',
-  userId: 0
-})
+  courseName: "",
+  courseUpdatedDate: "",
+  userId: 0,
+});
 
 // 获取课程信息
 const HandelselectCourseById = async () => {
   try {
-    const res = await selectCourseById(courseId)
-    courseInfo.value = res.data
+    const res = await selectCourseById(courseId);
+    courseInfo.value = res.data;
   } catch (error) {
-    console.error('获取课程信息失败:', error)
+    console.error("获取课程信息失败:", error);
   }
-}
+};
 
 // 页面加载时获取课程和题目列表
 onMounted(() => {
-  HandelselectCourseById()
-  HandelSelectQuestionsByCourseId()
-})
+  HandelselectCourseById();
+  HandelSelectQuestionsByCourseId();
+});
 
 // 添加题目
-const addDialogVisible = ref(false)
+const addDialogVisible = ref(false);
 const newQuestion = ref({
-  questionTitle: '',
-  questionContent: '',
+  questionTitle: "",
+  questionContent: "",
   courseId,
   userId: userStore.id,
-  answer: ''
-})
+  answer: "",
+});
 const showAddDialog = () => {
-  newQuestion.value = { 
-    questionTitle: '', 
-    questionContent: '', 
-    courseId, 
-    userId: userStore.id, 
-    answer: '' 
-  }
-  document.body.style.overflow = 'hidden' // 禁用背景滚动
-  addDialogVisible.value = true
-}
+  newQuestion.value = {
+    questionTitle: "",
+    questionContent: "",
+    courseId,
+    userId: userStore.id,
+    answer: "",
+  };
+  document.body.style.overflow = "hidden"; // 禁用背景滚动
+  addDialogVisible.value = true;
+};
 const addQuestion = async () => {
   if (!newQuestion.value.questionTitle || !newQuestion.value.questionContent) {
-    ElMessage({ type: 'warning', message: '请填写完整的题目信息' })
-    return
+    ElMessage({ type: "warning", message: "请填写完整的题目信息" });
+    return;
   }
 
   try {
-    await createQuestion(courseId, newQuestion.value)
-    ElMessage({ type: 'success', message: '题目添加成功' })
-    await HandelSelectQuestionsByCourseId()
-    addDialogVisible.value = false
+    await createQuestion(courseId, newQuestion.value);
+    ElMessage({ type: "success", message: "题目添加成功" });
+    await HandelSelectQuestionsByCourseId();
+    addDialogVisible.value = false;
   } catch (error) {
-    ElMessage({ type: 'error', message: '题目添加失败' })
+    ElMessage({ type: "error", message: "题目添加失败" });
   }
-}
+};
 
 // 添加关闭对话框时的处理
 watch(addDialogVisible, (newVal) => {
   if (!newVal) {
-    document.body.style.overflow = 'auto' // 恢复背景滚动
+    document.body.style.overflow = "auto"; // 恢复背景滚动
   }
-})
+});
 
 // 编辑题目
-const editDialogVisible = ref(false)
+const editDialogVisible = ref(false);
 const editingQuestion = ref<any>({
   questionId: null,
-  questionTitle: '',
-  questionContent: '',
-  answer: ''
-})
+  questionTitle: "",
+  questionContent: "",
+  answer: "",
+});
 const editDialog = (question: any) => {
-  editingQuestion.value = { ...question }
-  editDialogVisible.value = true
-}
+  editingQuestion.value = { ...question };
+  editDialogVisible.value = true;
+};
 const handleUpdateQuestion = async () => {
   try {
-    await updateQuestion(editingQuestion.value)
-    ElMessage({ type: 'success', message: '题目更新成功' })
-    await HandelSelectQuestionsByCourseId()
-    editDialogVisible.value = false
+    await updateQuestion(editingQuestion.value);
+    ElMessage({ type: "success", message: "题目更新成功" });
+    await HandelSelectQuestionsByCourseId();
+    editDialogVisible.value = false;
   } catch (error) {
-    ElMessage({ type: 'error', message: '题目更新失败' })
+    ElMessage({ type: "error", message: "题目更新失败" });
   }
-}
+};
 
 // 删除题目
 const confirmDelete = (questionId: number) => {
-  ElMessageBox.confirm('你确定要删除这道题目吗？', '确认删除', {
-    confirmButtonText: '确定',
-    cancelButtonText: '取消',
-    type: 'warning'
+  ElMessageBox.confirm("你确定要删除这道题目吗？", "确认删除", {
+    confirmButtonText: "确定",
+    cancelButtonText: "取消",
+    type: "warning",
   })
     .then(async () => {
       try {
-        await deleteQuestionById(questionId)
-        ElMessage({ type: 'success', message: '题目删除成功' })
-        await HandelSelectQuestionsByCourseId()
+        await deleteQuestionById(questionId);
+        ElMessage({ type: "success", message: "题目删除成功" });
+        await HandelSelectQuestionsByCourseId();
       } catch (error) {
-        ElMessage({ type: 'error', message: '题目删除失败' })
+        ElMessage({ type: "error", message: "题目删除失败" });
       }
     })
-    .catch(() => { })
-}
+    .catch(() => {});
+};
 
-const testQuestionView = ref(false)
-const questionRow = ref({})
-const handelTestQuestions = (data:object) => {
-  questionRow.value = data
-  testQuestionView.value = true
-}
+const testQuestionView = ref(false);
+const questionRow = ref({});
+const handelTestQuestions = (data: object) => {
+  questionRow.value = data;
+  testQuestionView.value = true;
+};
 // 复制添加题目
 const handleCopyQuestion = async (question: any) => {
   console.log(question);
   try {
-    await createQuestion(courseId, question)
-    ElMessage({ type: 'success', message: '复制添加成功' })
-    await HandelSelectQuestionsByCourseId()
-    addDialogVisible.value = false
+    await createQuestion(courseId, question);
+    ElMessage({ type: "success", message: "复制添加成功" });
+    await HandelSelectQuestionsByCourseId();
+    addDialogVisible.value = false;
   } catch (error) {
-    ElMessage({ type: 'error', message: '复制添加失败' })
+    ElMessage({ type: "error", message: "复制添加失败" });
   }
-  
-}
-
+};
 </script>
 
 <style lang="less" scoped>
@@ -396,7 +502,7 @@ const handleCopyQuestion = async (question: any) => {
     height: 50px !important;
     line-height: 50px;
   }
-  
+
   .cell {
     line-height: 40px;
     white-space: nowrap;
@@ -417,7 +523,8 @@ const handleCopyQuestion = async (question: any) => {
 
 /* 添加表格基础样式 */
 .el-table {
-  th, td {
+  th,
+  td {
     text-align: center;
   }
 
