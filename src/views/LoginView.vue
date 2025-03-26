@@ -12,19 +12,43 @@
       <!-- 登录表单 -->
       <div class="login-form">
         <div class="tabs">
-          <span class="tab" :class="{ active: isLogin }" @click="isLogin = true">账户登录</span>
-          <span class="tab" :class="{ active: !isLogin }" @click="isLogin = false">注册账户</span>
+          <span class="tab" :class="{ active: isLogin }" @click="isLogin = true"
+            >账户登录</span
+          >
+          <span
+            class="tab"
+            :class="{ active: !isLogin }"
+            @click="isLogin = false"
+            >注册账户</span
+          >
         </div>
 
         <!-- 登录表单 -->
-        <el-form v-if="isLogin" :model="loginForm" :rules="loginRules" ref="loginFormRef" label-width="0px">
+        <el-form
+          v-if="isLogin"
+          :model="loginForm"
+          :rules="loginRules"
+          ref="loginFormRef"
+          label-width="0px"
+        >
           <el-form-item prop="userEmail">
-            <el-input v-model="loginForm.userEmail" style="width: 350px" size="large" placeholder="请输入你的电子邮件"
-              :suffix-icon="User" />
+            <el-input
+              v-model="loginForm.userEmail"
+              style="width: 350px"
+              size="large"
+              placeholder="请输入你的电子邮件"
+              :suffix-icon="User"
+            />
           </el-form-item>
           <el-form-item prop="userPassword">
-            <el-input v-model="loginForm.userPassword" type="password" show-password style="width: 350px" size="large"
-              placeholder="请输入你的密码" />
+            <el-input
+              v-model="loginForm.userPassword"
+              type="password"
+              show-password
+              style="width: 350px"
+              size="large"
+              placeholder="请输入你的密码"
+            />
           </el-form-item>
           <el-form-item>
             <el-button type="primary" class="login-button" @click="handleLogin">
@@ -35,8 +59,20 @@
 
         <!-- 注册表单 -->
 
-        <el-form v-if="!isLogin" :model="registerForm" :rules="registerRules" ref="registerFormRef" label-width="0px">
-          <el-popover placement="left" title="小贴士" :width="100" trigger="hover" content="你想以什么身份注册？">
+        <el-form
+          v-if="!isLogin"
+          :model="registerForm"
+          :rules="registerRules"
+          ref="registerFormRef"
+          label-width="0px"
+        >
+          <el-popover
+            placement="left"
+            title="小贴士"
+            :width="100"
+            trigger="hover"
+            content="你想以什么身份注册？"
+          >
             <template #reference>
               <!-- 身份选择 -->
               <el-form-item prop="userRole">
@@ -50,78 +86,100 @@
 
           <!-- 用户名 -->
           <el-form-item prop="username">
-            <el-input v-model="registerForm.username" style="width: 350px" size="large" placeholder="请输入你的姓名"
-              :suffix-icon="User" />
+            <el-input
+              v-model="registerForm.username"
+              style="width: 350px"
+              size="large"
+              placeholder="请输入你的姓名"
+              :suffix-icon="User"
+            />
           </el-form-item>
           <!-- 邮箱 -->
           <el-form-item prop="userEmail">
-            <el-input v-model="registerForm.userEmail" style="width: 350px" size="large" placeholder="请输入你的电子邮件"
-              :suffix-icon="Message" />
+            <el-input
+              v-model="registerForm.userEmail"
+              style="width: 350px"
+              size="large"
+              placeholder="请输入你的电子邮件"
+              :suffix-icon="Message"
+            />
           </el-form-item>
           <!-- 验证码 -->
           <el-form-item>
             <div class="verification-code">
-              <el-input v-model="registerForm.verificationCode" style="width: 230px" size="large"
-                placeholder="请输入验证码" />
-              <el-button size="large" style="margin-left: 10px;" @click="getAVerificationCode" :disabled="isCounting">{{
-                captchaCountdown }}</el-button>
+              <el-input
+                v-model="registerForm.verificationCode"
+                style="width: 230px"
+                size="large"
+                placeholder="请输入验证码"
+              />
+              <el-button
+                size="large"
+                style="margin-left: 10px"
+                @click="getAVerificationCode"
+                :disabled="isCounting"
+                >{{ captchaCountdown }}</el-button
+              >
             </div>
           </el-form-item>
           <!-- 密码 -->
           <el-form-item prop="userPassword">
-            <el-input v-model="registerForm.userPassword" type="password" show-password style="width: 350px"
-              size="large" placeholder="请输入你的密码" />
+            <el-input
+              v-model="registerForm.userPassword"
+              type="password"
+              show-password
+              style="width: 350px"
+              size="large"
+              placeholder="请输入你的密码"
+            />
           </el-form-item>
 
           <!-- 确认密码 -->
           <el-form-item prop="confirmPassword">
-            <el-input v-model="registerForm.confirmPassword" type="password" show-password style="width: 350px"
-              size="large" placeholder="再次输入你的密码" />
+            <el-input
+              v-model="registerForm.confirmPassword"
+              type="password"
+              show-password
+              style="width: 350px"
+              size="large"
+              placeholder="再次输入你的密码"
+            />
           </el-form-item>
 
-          <!-- 老师加入码提示 -->
-          <el-popover v-if="registerForm.userRole === 'teacher'" placement="right" title="小贴士" :width="100"
-            trigger="hover" content="你真的是老师吗？来输入老师加入码">
-            <template #reference>
-              <el-form-item>
-                <el-input v-model="registerForm.authenticator" type="password" show-password style="width: 350px"
-                  size="large" placeholder="老师加入码" />
-              </el-form-item>
-            </template>
-          </el-popover>
-
           <el-form-item>
-            <el-button type="primary" class="login-button" @click="handleRegister">
+            <el-button
+              type="primary"
+              class="login-button"
+              @click="handleRegister"
+            >
               注册
             </el-button>
           </el-form-item>
         </el-form>
-
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue'
-import { User, Message } from '@element-plus/icons-vue'
-import { login, register, getVerificationCode } from '@/api/userApi'
-import { ElMessage } from 'element-plus'
-import { useRouter } from 'vue-router'
-import { useUserStore } from '@/stores/userStore'
-import { messageTools } from '@/utils/messageTools'
+import { onMounted, ref } from "vue";
+import { User, Message } from "@element-plus/icons-vue";
+import { login, register, getVerificationCode } from "@/api/userApi";
+import { ElMessage } from "element-plus";
+import { useRouter } from "vue-router";
+import { useUserStore } from "@/stores/userStore";
+import { messageTools } from "@/utils/messageTools";
 
-
-const router = useRouter()
-const userStore = useUserStore()
+const router = useRouter();
+const userStore = useUserStore();
 // 登录注册切换器
-const isLogin = ref(true)
+const isLogin = ref(true);
 
 // 登录表单数据
 const loginForm = ref({
-  userEmail: '',
-  userPassword: ''
-})
+  userEmail: "",
+  userPassword: "",
+});
 
 // 验证码倒计时
 let captchaCountdown = ref("获取验证码"); // 绑定到 UI 的验证码倒计时显示
@@ -135,15 +193,15 @@ const getAVerificationCode = () => {
   const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // 简单的邮箱正则表达式
   if (!emailPattern.test(registerForm.value.userEmail)) {
     ElMessage({
-      message: '请输入有效的电子邮件地址',
-      type: 'error',
-      plain: true
+      message: "请输入有效的电子邮件地址",
+      type: "error",
+      plain: true,
     });
     return;
   }
 
   // 获取验证码并处理结果
-  handelGetAVerificationCode().then(success => {
+  handelGetAVerificationCode().then((success) => {
     if (success) {
       let time = 60; // 倒计时的初始值，单位为秒
       captchaCountdown.value = `${time}秒后重新获取`;
@@ -161,171 +219,176 @@ const getAVerificationCode = () => {
       }, 1000); // 每秒更新一次
     }
   });
-}
-
+};
 
 // 注册表单数据
 const registerForm = ref({
-  username: '',
-  userEmail: '',
-  userPassword: '',
-  verificationCode: '',
-  confirmPassword: '',
-  userRole: 'student', // 默认学生身份
-  authenticator: '' // 加入码（仅当角色为老师时可见）
-})
+  username: "",
+  userEmail: "",
+  userPassword: "",
+  verificationCode: "",
+  confirmPassword: "",
+  userRole: "student", // 默认学生身份
+});
 
 // 登录表单校验规则
 const loginRules = ref({
   userEmail: [
-    { required: true, message: '请输入电子邮件', trigger: 'blur' },
+    { required: true, message: "请输入电子邮件", trigger: "blur" },
     {
-      type: 'email',
-      message: '请输入正确的电子邮件地址',
-      trigger: ['blur', 'change']
-    }
+      type: "email",
+      message: "请输入正确的电子邮件地址",
+      trigger: ["blur", "change"],
+    },
   ],
   userPassword: [
-    { required: true, message: '请输入密码', trigger: 'blur' },
-    { min: 6, max: 12, message: '密码长度应在6到12个字符之间', trigger: 'blur' }
-  ]
-})
+    { required: true, message: "请输入密码", trigger: "blur" },
+    {
+      min: 6,
+      max: 12,
+      message: "密码长度应在6到12个字符之间",
+      trigger: "blur",
+    },
+  ],
+});
 
 // 注册表单校验规则
 const registerRules = ref({
-  username: [{ required: true, message: '请输入姓名', trigger: 'blur' }],
+  username: [{ required: true, message: "请输入姓名", trigger: "blur" }],
   userEmail: [
-    { required: true, message: '请输入电子邮件', trigger: 'blur' },
+    { required: true, message: "请输入电子邮件", trigger: "blur" },
     {
-      type: 'email',
-      message: '请输入正确的电子邮件地址',
-      trigger: ['blur', 'change']
-    }
+      type: "email",
+      message: "请输入正确的电子邮件地址",
+      trigger: ["blur", "change"],
+    },
   ],
   userPassword: [
-    { required: true, message: '请输入密码', trigger: 'blur' },
-    { min: 6, max: 12, message: '密码长度应在6到12个字符之间', trigger: 'blur' }
+    { required: true, message: "请输入密码", trigger: "blur" },
+    {
+      min: 6,
+      max: 12,
+      message: "密码长度应在6到12个字符之间",
+      trigger: "blur",
+    },
   ],
   confirmPassword: [
-    { required: true, message: '请再次输入密码', trigger: 'blur' },
+    { required: true, message: "请再次输入密码", trigger: "blur" },
     {
-      trigger: 'blur'
-    }
-  ]
-})
+      trigger: "blur",
+    },
+  ],
+});
 
 // 处理登录操作
 const handleLogin = async () => {
-  console.log(loginForm.value)
-  const res = await login(loginForm.value)
+  console.log(loginForm.value);
+  const res = await login(loginForm.value);
   if (res.code === 200) {
     ElMessage({
-      message: '登录成功',
-      type: 'success',
-      plain: true
-    })
+      message: "登录成功",
+      type: "success",
+      plain: true,
+    });
     // 将API返回的数据存储到store中
-    userStore.setUser(res.data)
+    userStore.setUser(res.data);
     // 修改跳转逻辑
-    if (res.data.role === 'student') {
-      await router.push('/student/home')  // 改为跳转到home页面
+    if (res.data.role === "student") {
+      await router.push("/student/home"); // 改为跳转到home页面
     } else {
-      await router.push('/teacher/course')
+      await router.push("/teacher/course");
     }
   } else {
     ElMessage({
-      message: '用户名或密码错误',
-      type: 'error',
-      plain: true
-    })
+      message: "用户名或密码错误",
+      type: "error",
+      plain: true,
+    });
   }
-}
+};
 
 // 处理注册操作
 const handleRegister = () => {
   // 判空
   if (
-    registerForm.value.username === '' ||
-    registerForm.value.userEmail === ''
+    registerForm.value.username === "" ||
+    registerForm.value.userEmail === ""
   ) {
     ElMessage({
-      message: '请输入姓名和电子邮件',
-      type: 'error',
-      plain: true
-    })
-    return
+      message: "请输入姓名和电子邮件",
+      type: "error",
+      plain: true,
+    });
+    return;
   }
   // 判断密码
   if (registerForm.value.userPassword !== registerForm.value.confirmPassword) {
     ElMessage({
-      message: '两次密码不一致',
-      type: 'error',
-      plain: true
-    })
-    return
+      message: "两次密码不一致",
+      type: "error",
+      plain: true,
+    });
+    return;
   }
   // 判断密码位数
   if (registerForm.value.userPassword.length < 6) {
     ElMessage({
-      message: '密码长度应大于6',
-      type: 'error',
-      plain: true
-    })
-    return
+      message: "密码长度应大于6",
+      type: "error",
+      plain: true,
+    });
+    return;
   }
   register(registerForm.value).then((res) => {
-    console.log(res)
+    console.log(res);
     if (res.code === 200) {
       ElMessage({
-        message: '注册成功',
-        type: 'success',
-        plain: true
-      })
+        message: "注册成功",
+        type: "success",
+        plain: true,
+      });
 
-      isLogin.value = true
+      isLogin.value = true;
     } else {
       ElMessage({
-        message: '该账号已经注册或格式不正确',
-        type: 'error',
-        plain: true
-      })
+        message: "该账号已经注册或格式不正确",
+        type: "error",
+        plain: true,
+      });
     }
-  })
-}
+  });
+};
 
 // 令牌校验
 const isToken = () => {
-  const role = userStore.role
+  const role = userStore.role;
   if (role === "student") {
-    router.push('/student')
-    messageTools.successMessage(`自动登录成功,欢迎您${userStore.name}同学`)
-  }
-  else if (role === 'teacher') {
-    router.push('/teacher')
-    messageTools.successMessage(`自动登录成功,欢迎您${userStore.name}老师`)
+    router.push("/student");
+    messageTools.successMessage(`自动登录成功,欢迎您${userStore.name}同学`);
+  } else if (role === "teacher") {
+    router.push("/teacher");
+    messageTools.successMessage(`自动登录成功,欢迎您${userStore.name}老师`);
   } else {
-    return
+    return;
   }
-
-}
+};
 
 // 获取验证码
 const handelGetAVerificationCode = async () => {
-  const e = await getVerificationCode(registerForm.value.userEmail)
+  const e = await getVerificationCode(registerForm.value.userEmail);
   console.log(registerForm.value.userEmail);
   console.log(e);
   if (e.code === 200) {
-    messageTools.successMessage(e.msg)
-    return true
+    messageTools.successMessage(e.msg);
+    return true;
   } else {
-    messageTools.errorMessage(e.msg)
-    return false
+    messageTools.errorMessage(e.msg);
+    return false;
   }
-
-}
+};
 onMounted(() => {
-  isToken()
-})
+  isToken();
+});
 </script>
 
 <style lang="less" scoped>
