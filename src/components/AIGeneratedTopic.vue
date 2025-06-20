@@ -119,7 +119,7 @@ const addToCourse = async () => {
   <div class="container mx-auto p-4 max-w-3xl">
     <div class="card bg-base-100 shadow-sm">
       <div class="card-body">
-        <h2 class="card-title text-2xl font-bold text-gray-700">题目生成器</h2>
+        <h2 class="card-title text-2xl font-bold text-gray-700">题目生成器<span class="text-red-300">（需内网环境）</span></h2>
 
         <div class="form-control w-full">
           <label class="label">
@@ -129,7 +129,7 @@ const addToCourse = async () => {
             v-model="prompt"
             class="textarea textarea-bordered h-32 w-full"
             :class="{ 'skeleton bg-gray-50': loading }"
-            placeholder="请输入你的出题要求，例如：我需要一些考察学生有关于MySQL数据库查询语句的题目"
+            placeholder="请输入你的出题要求，例如：给我出3道简答题，考察学生数据库查询的SQL语句"
           ></textarea>
         </div>
 

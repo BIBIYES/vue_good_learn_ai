@@ -244,9 +244,9 @@ const loginRules = ref({
   userPassword: [
     { required: true, message: "请输入密码", trigger: "blur" },
     {
-      min: 6,
+      min: 8,
       max: 12,
-      message: "密码长度应在6到12个字符之间",
+      message: "密码长度应在8到12个字符之间",
       trigger: "blur",
     },
   ],
@@ -266,9 +266,14 @@ const registerRules = ref({
   userPassword: [
     { required: true, message: "请输入密码", trigger: "blur" },
     {
-      min: 6,
+      min: 8,
       max: 12,
-      message: "密码长度应在6到12个字符之间",
+      message: "密码长度应在8到12个字符之间",
+      trigger: "blur",
+    },
+    {
+      pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,12}$/,
+      message: "密码必须包含大小写字母和数字且没有特殊字符",
       trigger: "blur",
     },
   ],
@@ -331,9 +336,9 @@ const handleRegister = () => {
     return;
   }
   // 判断密码位数
-  if (registerForm.value.userPassword.length < 6) {
+  if (registerForm.value.userPassword.length < 8) {
     ElMessage({
-      message: "密码长度应大于6",
+      message: "密码长度应大于8",
       type: "error",
       plain: true,
     });
