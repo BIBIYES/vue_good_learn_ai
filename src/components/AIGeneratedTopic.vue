@@ -119,7 +119,7 @@ const addToCourse = async () => {
   <div class="container mx-auto p-4 max-w-3xl">
     <div class="card bg-base-100 shadow-sm">
       <div class="card-body">
-        <h2 class="card-title text-2xl font-bold text-gray-700">题目生成器</h2>
+        <h2 class="card-title text-2xl font-bold text-gray-700">题目生成器 (需要内网环境下使用)</h2>
 
         <div class="form-control w-full">
           <label class="label">

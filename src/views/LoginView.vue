@@ -231,6 +231,9 @@ const registerForm = ref({
   userRole: "student", // 默认学生身份
 });
 
+// 密码强度校验：必须包含大写、小写字母，且不少于 8 位
+const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z]).{8,}$/;
+
 // 登录表单校验规则
 const loginRules = ref({
   userEmail: [
@@ -244,9 +247,8 @@ const loginRules = ref({
   userPassword: [
     { required: true, message: "请输入密码", trigger: "blur" },
     {
-      min: 6,
-      max: 12,
-      message: "密码长度应在6到12个字符之间",
+      pattern: passwordPattern,
+      message: "密码需包含大小写字母且不少于8位",
       trigger: "blur",
     },
   ],
@@ -266,9 +268,8 @@ const registerRules = ref({
   userPassword: [
     { required: true, message: "请输入密码", trigger: "blur" },
     {
-      min: 6,
-      max: 12,
-      message: "密码长度应在6到12个字符之间",
+      pattern: passwordPattern,
+      message: "密码需包含大小写字母且不少于8位",
       trigger: "blur",
     },
   ],
@@ -282,6 +283,16 @@ const registerRules = ref({
 
 // 处理登录操作
 const handleLogin = async () => {
+  // 前端校验：密码需包含大小写字母且不少于 8 位
+  if (!passwordPattern.test(loginForm.value.userPassword)) {
+    ElMessage({
+      message: "密码需包含大小写字母且不少于8位",
+      type: "error",
+      plain: true,
+    });
+    return;
+  }
+
   console.log(loginForm.value);
   const res = await login(loginForm.value);
   if (res.code === 200) {
@@ -330,10 +341,10 @@ const handleRegister = () => {
     });
     return;
   }
-  // 判断密码位数
-  if (registerForm.value.userPassword.length < 6) {
+  // 前端校验：密码强度
+  if (!passwordPattern.test(registerForm.value.userPassword)) {
     ElMessage({
-      message: "密码长度应大于6",
+      message: "密码需包含大小写字母且不少于8位",
       type: "error",
       plain: true,
     });
@@ -386,6 +397,7 @@ const handelGetAVerificationCode = async () => {
     return false;
   }
 };
+
 onMounted(() => {
   isToken();
 });
