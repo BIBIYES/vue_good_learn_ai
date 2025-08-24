@@ -6,7 +6,16 @@ import { FastGPT } from "@/utils/fastGPT";
 import { batchAddQuestions } from "@/api/questionApi.ts";
 import { ElMessage } from "element-plus";
 import mammoth from "mammoth";
-import { UploadFilled, Document, Delete } from "@element-plus/icons-vue";
+import {
+  UploadFilled,
+  Document,
+  Delete,
+  MagicStick,
+  Plus,
+  CircleClose,
+  Check,
+  EditPen,
+} from "@element-plus/icons-vue";
 
 const mode = ref("input"); // "input" or "upload"
 const prompt = ref("");
@@ -282,10 +291,11 @@ const addToCourse = async () => {
 </script>
 
 <template>
-  <div class="container mx-auto p-4 max-w-3xl">
-    <div class="card bg-base-100 shadow-sm">
+  <div class="container w-full max-h-[80vh] overflow-auto">
+    <div class="bg-base-100">
       <div class="card-body">
         <h2 class="card-title text-2xl font-bold text-gray-700 mb-2">
+          <el-icon class="mr-1"><MagicStick /></el-icon>
           题目生成器
           <span class="text-xs text-gray-400">(需要内网环境下使用)</span>
         </h2>
@@ -337,6 +347,7 @@ const addToCourse = async () => {
                 @click="clearAllFiles"
                 :disabled="loading"
               >
+                <el-icon class="mr-1"><CircleClose /></el-icon>
                 清空所有
               </el-button>
             </div>
@@ -392,6 +403,7 @@ const addToCourse = async () => {
                   :disabled="loading"
                   class="ml-2 flex-shrink-0"
                 >
+                  <el-icon class="mr-1"><Delete /></el-icon>
                   删除
                 </el-button>
               </div>
@@ -419,8 +431,8 @@ const addToCourse = async () => {
             @click="generateQuestions"
             :loading="loading"
             :disabled="!prompt.trim()"
-            size="large"
           >
+            <el-icon class="mr-1"><MagicStick /></el-icon>
             {{ loading ? "生成中..." : "生成题目" }}
           </el-button>
         </div>
@@ -429,10 +441,14 @@ const addToCourse = async () => {
         <div v-if="aiStreamingContent" class="mt-6">
           <div class="text-sm text-gray-500 mb-2">AI正在生成中...</div>
           <div
-            class="font-mono text-base font-semibold animate-gradient-text streaming-gradient"
+            class="font-mono text-base font-semibold streaming-blue-gradient"
           >
             {{ aiStreamingContent
             }}<span v-if="loading" class="animate-pulse">▋</span>
+          </div>
+          <!-- 新增：蓝色渐变进度条 -->
+          <div v-if="loading" class="progress-bar-gradient mt-2">
+            <div class="progress-bar-gradient-inner"></div>
           </div>
         </div>
 
@@ -481,6 +497,7 @@ const addToCourse = async () => {
 
           <div class="flex justify-end mt-4 gap-2">
             <el-button @click="questions = []" :disabled="loading">
+              <el-icon class="mr-1"><CircleClose /></el-icon>
               清空所有
             </el-button>
             <el-button
@@ -488,8 +505,8 @@ const addToCourse = async () => {
               @click="addToCourse"
               :disabled="!questions.length || loading"
               :loading="loading"
-              size="large"
             >
+              <el-icon class="mr-1"><Plus /></el-icon>
               添加到当前课程中
             </el-button>
           </div>
@@ -601,5 +618,46 @@ const addToCourse = async () => {
   background-color: #f8f9fa;
   border-color: #e9ecef;
   color: #6c757d;
+}
+
+.streaming-blue-gradient {
+  background: linear-gradient(90deg, #00c6ff, #0072ff, #00c6ff 80%);
+  background-size: 200% 200%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: blue-gradient-move 2s linear infinite;
+}
+
+@keyframes blue-gradient-move {
+  0% {
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: 100% 50%;
+  }
+}
+
+.progress-bar-gradient {
+  width: 100%;
+  height: 6px;
+  background: #e3f0ff;
+  border-radius: 3px;
+  overflow: hidden;
+  position: relative;
+}
+.progress-bar-gradient-inner {
+  height: 100%;
+  width: 60%;
+  background: linear-gradient(90deg, #00c6ff, #0072ff, #00c6ff 80%);
+  border-radius: 3px;
+  animation: progress-bar-move 1.2s linear infinite;
+}
+@keyframes progress-bar-move {
+  0% {
+    margin-left: -60%;
+  }
+  100% {
+    margin-left: 100%;
+  }
 }
 </style>

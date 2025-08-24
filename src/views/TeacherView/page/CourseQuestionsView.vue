@@ -208,14 +208,14 @@
     </el-dialog>
   </div>
   <!-- ai出题弹窗 -->
-  <el-drawer
+  <el-dialog
     v-model="AIDialogVisible"
-    title="I am the title"
-    :with-header="false"
-    :size="'50%'"
+    width="65%"
+    destroy-on-close
+    align-center
   >
     <AIGeneratedTopic></AIGeneratedTopic>
-  </el-drawer>
+  </el-dialog>
 </template>
 
 <script setup lang="ts">
@@ -485,131 +485,10 @@ const handleCopyQuestion = async (question: any) => {
   text-align: center;
 }
 
-.el-dialog {
-  min-width: 600px;
-}
-
 /* 添加阴影和边距，使卡片风格更加美观 */
 .course-info,
 .el-table,
 .el-dialog__header {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-/* 修改表格相关样式 */
-:deep(.el-table) {
-  .el-table__row {
-    height: 50px !important;
-    line-height: 50px;
-  }
-
-  .cell {
-    line-height: 40px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  .el-table__header th {
-    height: 50px;
-    line-height: 50px;
-    padding: 0;
-  }
-
-  .el-button--small {
-    margin: 8px 4px;
-  }
-}
-
-/* 添加表格基础样式 */
-.el-table {
-  th,
-  td {
-    text-align: center;
-  }
-
-  th {
-    background-color: #f5f7fa;
-  }
-}
-
-/* 修改表格行高 */
-:deep(.el-table__row) {
-  height: 50px !important;
-}
-
-/* 修改单元格内边距 */
-:deep(.el-table td) {
-  padding: 8px 0;
-}
-
-/* 修改表头样式 */
-:deep(.el-table__header) {
-  th {
-    height: 40px;
-    line-height: 40px;
-    padding: 0;
-    background-color: #f5f7fa;
-  }
-}
-
-/* 添加文本溢出处理 */
-:deep(.el-table .cell) {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-/* 修改对话框样式 */
-:deep(.el-dialog) {
-  position: absolute !important;
-  top: 50% !important;
-  left: 50% !important;
-  transform: translate(-50%, -50%) !important;
-  margin: 0 !important;
-  max-height: 90vh;
-  display: flex;
-  flex-direction: column;
-  margin-bottom: 0 !important;
-}
-
-:deep(.el-dialog__body) {
-  flex: 1;
-  overflow-y: auto;
-  padding: 20px;
-}
-
-:deep(.el-dialog__header) {
-  padding: 20px;
-  margin: 0;
-}
-
-:deep(.el-dialog__footer) {
-  padding: 20px;
-  margin: 0;
-}
-
-/* 当对话框打开时禁用背景滚动 */
-:deep(.el-overlay) {
-  position: fixed;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  overflow: hidden;
-}
-
-/* 自定义滚动条样式 */
-:deep(.el-dialog__body::-webkit-scrollbar) {
-  width: 6px;
-}
-
-:deep(.el-dialog__body::-webkit-scrollbar-thumb) {
-  background-color: #dcdfe6;
-  border-radius: 3px;
-}
-
-:deep(.el-dialog__body::-webkit-scrollbar-track) {
-  background-color: #f5f7fa;
 }
 </style>
