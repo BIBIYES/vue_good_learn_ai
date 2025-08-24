@@ -232,7 +232,7 @@ const registerForm = ref({
 });
 
 // 密码强度校验：必须包含大写、小写字母，且不少于 8 位
-const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z]).{8,}$/;
+// const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z]).{8,}$/;
 
 // 登录表单校验规则
 const loginRules = ref({
@@ -244,14 +244,7 @@ const loginRules = ref({
       trigger: ["blur", "change"],
     },
   ],
-  userPassword: [
-    { required: true, message: "请输入密码", trigger: "blur" },
-    {
-      pattern: passwordPattern,
-      message: "密码需包含大小写字母且不少于8位",
-      trigger: "blur",
-    },
-  ],
+  userPassword: [{ required: true, message: "请输入密码", trigger: "blur" }],
 });
 
 // 注册表单校验规则
@@ -265,14 +258,7 @@ const registerRules = ref({
       trigger: ["blur", "change"],
     },
   ],
-  userPassword: [
-    { required: true, message: "请输入密码", trigger: "blur" },
-    {
-      pattern: passwordPattern,
-      message: "密码需包含大小写字母且不少于8位",
-      trigger: "blur",
-    },
-  ],
+  userPassword: [{ required: true, message: "请输入密码", trigger: "blur" }],
   confirmPassword: [
     { required: true, message: "请再次输入密码", trigger: "blur" },
     {
@@ -284,14 +270,14 @@ const registerRules = ref({
 // 处理登录操作
 const handleLogin = async () => {
   // 前端校验：密码需包含大小写字母且不少于 8 位
-  if (!passwordPattern.test(loginForm.value.userPassword)) {
-    ElMessage({
-      message: "密码需包含大小写字母且不少于8位",
-      type: "error",
-      plain: true,
-    });
-    return;
-  }
+  // if (!passwordPattern.test(loginForm.value.userPassword)) {
+  //   ElMessage({
+  //     message: "密码需包含大小写字母且不少于8位",
+  //     type: "error",
+  //     plain: true,
+  //   });
+  //   return;
+  // }
 
   console.log(loginForm.value);
   const res = await login(loginForm.value);
@@ -342,14 +328,14 @@ const handleRegister = () => {
     return;
   }
   // 前端校验：密码强度
-  if (!passwordPattern.test(registerForm.value.userPassword)) {
-    ElMessage({
-      message: "密码需包含大小写字母且不少于8位",
-      type: "error",
-      plain: true,
-    });
-    return;
-  }
+  // if (!passwordPattern.test(registerForm.value.userPassword)) {
+  //   ElMessage({
+  //     message: "密码需包含大小写字母且不少于8位",
+  //     type: "error",
+  //     plain: true,
+  //   });
+  //   return;
+  // }
   register(registerForm.value).then((res) => {
     console.log(res);
     if (res.code === 200) {

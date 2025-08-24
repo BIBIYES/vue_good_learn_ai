@@ -23,6 +23,7 @@
     "github-markdown-css": "^5.7.0",
     "highlight.js": "^11.10.0",
     "less": "^4.2.0",
+    "mammoth": "^1.10.0",
     "marked": "^14.1.2",
     "pinia": "^2.1.7",
     "pinia-plugin-persistedstate": "^4.0.2",
