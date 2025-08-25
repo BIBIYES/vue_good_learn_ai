@@ -16,6 +16,26 @@ import {
   Check,
   EditPen,
 } from "@element-plus/icons-vue";
+// 编辑相关状态
+import { reactive } from "vue";
+const editDialogVisible = ref(false);
+const editForm = reactive({ questionTitle: "", questionContent: "" });
+let editIndex = -1;
+
+function openEditDialog(index, row) {
+  editIndex = index;
+  editForm.questionTitle = row.questionTitle;
+  editForm.questionContent = row.questionContent;
+  editDialogVisible.value = true;
+}
+function saveEdit() {
+  if (editIndex !== -1) {
+    questions.value[editIndex].questionTitle = editForm.questionTitle;
+    questions.value[editIndex].questionContent = editForm.questionContent;
+    ElMessage.success("题目已更新");
+  }
+  editDialogVisible.value = false;
+}
 
 const mode = ref("input"); // "input" or "upload"
 const prompt = ref("");
@@ -481,8 +501,17 @@ const addToCourse = async () => {
               min-width="220"
               show-overflow-tooltip
             />
-            <el-table-column label="操作" width="100">
+            <el-table-column label="操作" width="160">
               <template #default="scope">
+                <el-button
+                  size="small"
+                  type="primary"
+                  @click="openEditDialog(scope.$index, scope.row)"
+                  :disabled="loading"
+                  class="mr-1"
+                >
+                  编辑
+                </el-button>
                 <el-button
                   size="small"
                   type="danger"
@@ -514,6 +543,33 @@ const addToCourse = async () => {
       </div>
     </div>
   </div>
+
+  <!-- 编辑题目模态框 -->
+  <el-dialog
+    v-model="editDialogVisible"
+    title="编辑题目"
+    width="500px"
+    align-center
+    :close-on-click-modal="false"
+    destroy-on-close
+  >
+    <el-form :model="editForm" label-width="80px">
+      <el-form-item label="题目标题">
+        <el-input v-model="editForm.questionTitle" />
+      </el-form-item>
+      <el-form-item label="题目内容">
+        <el-input
+          v-model="editForm.questionContent"
+          type="textarea"
+          :rows="4"
+        />
+      </el-form-item>
+    </el-form>
+    <template #footer>
+      <el-button @click="editDialogVisible = false">取消</el-button>
+      <el-button type="primary" @click="saveEdit">保存</el-button>
+    </template>
+  </el-dialog>
 </template>
 
 <style scoped>
